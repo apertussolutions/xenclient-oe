@@ -96,7 +96,7 @@ RDEPENDS_${PN} = " \
     linux-input \
     iputils-ping \
     vusb-daemon \
-    xenmgr-data \
+    openxt-toolstack-data \
     updatemgr \
     uid \
     surfman \
