@@ -179,7 +179,6 @@ seal()
 {
     local tss_file=${1}
     local sealerr=0
-    local file_exists=1
     local sealout=""
     local seal_file="/config/keys/config.key"
     maybe_break "seal"
@@ -189,35 +188,10 @@ seal()
     is_tpm_2_0
     local tpm2=$?
 
-    if [ "${tpm2}" -eq 0 ];
-    then
-        clean_old_tpm_files
-        if pcr_bank_exists "TPM_ALG_SHA1"; then
-            sealout=$(tpm2_sealdata -H 0x81000001 -I ${seal_file} -O ${tss_file}.sha1 -o ${tss_file}.pub.sha1 -g 0x4 -G 0x8 -b 0x492 $(cat /config/config.pcrs) 2>&1 )
-            sealerr=$?
-        fi
-        if pcr_bank_exists "TPM_ALG_SHA256" && [ $sealerr -eq 0 ]; then
-            sealout=$(tpm2_sealdata -H 0x81000000 -I ${seal_file} -O ${tss_file}.sha256 -o ${tss_file}.pub.sha256 -g 0xB -G 0x8 -b 0x492 $(cat /config/config.pcrs) 2>&1 )
-            sealerr=$?
-        fi
-    else
-        sealout=$(tpm_sealdata_sa -i /config/keys/config.key \
-            -o ${tss_file} -z $(cat /config/config.pcrs) 2>&1)
-        sealerr=$?
-    fi
+    sealout=$(seal-system -s -c ${seal_file} -t ${tss_file} 2>&1 )
+    sealerr=$?
 
-    if [ -e ${tss_file} ]; then
-        file_exists=0
-    elif [ -e ${tss_file}.sha1 ]; then
-        file_exists=0
-    elif [ -e ${tss_file}.sha256 ]; then
-        file_exists=0
-    else
-        file_exists=1
-    fi
-
-
-    if [ $sealerr -eq 0 ] && [ $file_exists -eq 0 ]; then
+    if [ $sealerr -eq 0 ]; then
         dialog --colors --backtitle "${BACK_TITLE}" --mixedgauge \
             "  Sealing: Done" 0 0 100
 
