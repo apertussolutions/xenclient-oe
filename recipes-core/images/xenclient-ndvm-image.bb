@@ -3,9 +3,10 @@
 include xenclient-image-common.inc
 IMAGE_FEATURES += "package-management"
 
-COMPATIBLE_MACHINE = "(xenclient-ndvm)"
+COMPATIBLE_MACHINE = "(xenclient-ndvm|xenclient-hvm-ndvm)"
 
-IMAGE_FSTYPES = "xc.ext3.vhd.gz"
+VM_ROOTFS_TYPE ?= "ext3"
+IMAGE_FSTYPES = "${@base_contains('MACHINE_FEATURES', 'hvm', 'vhddisk.gz', 'vhd.gz',d)}"
 
 BAD_RECOMMENDATIONS += "avahi-daemon avahi-autoipd ca-certificates"
 # The above seems to be broken and we *really* don't want avahi!
