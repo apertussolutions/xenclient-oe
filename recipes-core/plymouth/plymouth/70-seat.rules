@@ -1,0 +1,4 @@
+# label input and fbcon as seat devices for plymouth
+
+SUBSYSTEM=="input", KERNEL=="input*", TAG+="seat"
+SUBSYSTEM=="graphics", KERNEL=="fb[0-9]*", TAG+="seat", TAG+="master-of-seat"
