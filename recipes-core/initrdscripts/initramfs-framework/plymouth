@@ -1,0 +1,37 @@
+#!/bin/sh
+# Copyright (C) 2018 Apertus Solutions, LLC
+# Licensed on MIT
+
+plymouth_enabled() {
+	if [ ! -e /sbin/plymouthd ]; then
+		debug "/sbin/plymouthd doesn't exist"
+		return 1
+	fi
+
+	return 0
+}
+
+plymouth_run() {
+	# On OE pyro fontcache is not generated properly during font
+	# packages are installed. Generate on the fly so they are available
+	# for plymouth
+	if [ -e /usr/bin/fc-cache ]; then
+		debug "Generating fontcache...."
+		/usr/bin/fc-cache -f -s
+	fi
+
+	if [ -n "${bootparam_debug}" ]; then
+		# Switching to tty2 in prep for plymouth splash
+		/usr/bin/chvt 2
+
+		/sbin/plymouthd --mode=boot --tty=tty2 \
+			--debug --debug-file=/plymouthd.debug 2>/dev/null
+	else
+		/sbin/plymouthd --mode=boot
+	fi
+
+	while ! /bin/plymouth --ping; do
+		sleep 1
+	done
+	/bin/plymouth --show-splash
+}

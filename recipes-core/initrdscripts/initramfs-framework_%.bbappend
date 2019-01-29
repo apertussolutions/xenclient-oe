@@ -6,6 +6,7 @@ SRC_URI += " \
     file://tpm \
     file://tpm2 \
     file://selinux \
+    file://plymouth \
     "
 
 do_install_append() {
@@ -25,6 +26,9 @@ do_install_append() {
 
     # selinux
     install -m 0755 ${WORKDIR}/selinux ${D}/init.d/93-selinux
+
+    # plymouth
+    install -m 0755 ${WORKDIR}/plymouth ${D}/init.d/02-plymouth
 }
 
 PACKAGES += " \
@@ -33,6 +37,7 @@ PACKAGES += " \
             initramfs-module-tpm \
             initramfs-module-tpm2 \
             initramfs-module-selinux \
+            initramfs-module-plymouth \
             "
 
 SUMMARY_initramfs-module-lvm = "initramfs support for lvm"
@@ -54,3 +59,7 @@ FILES_initramfs-module-tpm2 = "/init.d/92-tpm2"
 SUMMARY_initramfs-module-selinux = "initramfs support for selinux"
 RDEPENDS_initramfs-module-selinux = "${PN}-base"
 FILES_initramfs-module-selinux = "/init.d/93-selinux"
+
+SUMMARY_initramfs-module-plymouth = "initramfs support for plymouth"
+RDEPENDS_initramfs-module-plymouth = "${PN}-base plymouth"
+FILES_initramfs-module-plymouth = "/init.d/02-plymouth"
