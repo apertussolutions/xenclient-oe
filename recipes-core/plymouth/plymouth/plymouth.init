@@ -1,0 +1,34 @@
+#!/bin/sh
+### BEGIN INIT INFO
+# Provides: plymouth
+# Default-Start:  2345
+# Default-Stop:   016
+# Short-Description: manage plymouth splash
+# Description: plymouth provides boot, update, and shutdown splash
+### END INIT INFO
+
+PLYMOUTH=/bin/plymouth
+PLYMOUTHD=/sbin/plymouthd
+
+[ -x ${PLYMOUTH} ] || exit 1
+
+# Source function library.
+. /etc/init.d/functions
+
+case "$1" in
+  start)
+    echo -n "Shutting down plymouth: "
+    ${PLYMOUTH} --ping || exit 1
+    ${PLYMOUTH} quit --retain-splash
+    ;;
+  stop)
+    echo -n "Stopping plymouth: "
+    # NO-OP for now
+    ;;
+  *)
+    echo "Usage: /etc/init.d/plymouth {start|stop}"
+    exit 1
+esac
+
+exit 0
+
