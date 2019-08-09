@@ -17,11 +17,15 @@ IMAGE_INSTALL = " \
     tpm-tools-sa \
     tpm2-tss \
     tpm2-tools \
+    initramfs-module-udev \
     initramfs-module-lvm \
     initramfs-module-bootfs \
     initramfs-module-tpm \
     initramfs-module-tpm2 \
     initramfs-module-selinux \
+    initramfs-module-plymouth \
+    packagegroup-fonts-truetype-core \
+    openxt-spinner-theme \
     xenclient-initramfs-shared-libs \
     kernel-module-tpm \
     kernel-module-tpm-tis \

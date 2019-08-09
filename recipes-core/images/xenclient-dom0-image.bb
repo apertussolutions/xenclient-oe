@@ -33,6 +33,7 @@ BAD_RECOMMENDATIONS += " \
 
 IMAGE_INSTALL += "\
     initscripts \
+    plymouth-initscript \
     modules-dom0 \
     packagegroup-core-boot \
     packagegroup-base \
