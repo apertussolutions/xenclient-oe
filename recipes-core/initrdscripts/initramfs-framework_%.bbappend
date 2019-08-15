@@ -7,6 +7,7 @@ SRC_URI += " \
     file://tpm2 \
     file://selinux \
     file://plymouth \
+    file://init \
     "
 
 do_install_append() {
