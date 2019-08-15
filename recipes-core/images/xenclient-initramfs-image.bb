@@ -37,6 +37,9 @@ IMAGE_INSTALL = " \
     kernel-module-ohci-hcd \
     kernel-module-hid \
     kernel-module-hid-generic \
+    kernel-module-fb-ddc \
+    kernel-module-fb-sys-fops \
+    kernel-module-i915 \
     module-init-tools-depmod \
     module-init-tools \
     policycoreutils-setfiles \
