@@ -1,4 +1,32 @@
-This repository is home of the OpenXT OpenEmbedded build metadata.
-For information about OpenXT see our website @ http://openxt.org
-For instructions on how to build OpenXT from source see our GitHub wiki @ https://github.com/OpenXT/openxt/wiki/
+OpenXT OpenEmbedded metadata
+============================
 
+This repository hosts the OpenXT OpenEmbedded/Yocto **meta-layers**.
+
+Layers
+------
+
+See **LAYERS.md** for layout, dependencies, and `bblayers.conf` examples.
+
+| Directory | Purpose |
+|-----------|---------|
+| `meta-openxt-base` | Headless dom0, toolstack, security, installer, stubdomain |
+| `meta-openxt-domains` | NDVM, USBVM, SyncVM service domain images |
+| `meta-openxt-ui` | UIVM and optional dom0 UI/display integration |
+
+Plan and inventory
+------------------
+
+- `BUILD_PLAN.md` — layer-split design and phases
+- `docs/INVENTORY.md` — Phase 0 static inventory (pre-split snapshot notes)
+
+External documentation
+----------------------
+
+- Website: http://openxt.org
+- Build wiki: https://github.com/OpenXT/openxt/wiki/
+
+License
+-------
+
+See `LICENSE`, `COPYING.MIT`, and `COPYING.GPLv2`.
