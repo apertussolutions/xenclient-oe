@@ -52,7 +52,9 @@ S = "${WORKDIR}/qemu-${PV}"
 
 inherit autotools-brokensep pkgconfig python3native
 
-require recipes-extended/qemu-dm/qemu-dm-vglass.inc
+# Optional glass/display integration. Provided by meta-openxt-ui (or vglass)
+# when present. 'include' (not require) so headless base builds do not fail.
+include recipes-extended/qemu-dm/qemu-dm-vglass.inc
 
 # Include a minimal amount of blobs by default.
 FILES_${PN} += "/usr/share/qemu/keymaps/en-us       \
