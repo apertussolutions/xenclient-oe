@@ -34,7 +34,7 @@ IMAGE_INSTALL = "\
     packagegroup-openxt-syncvm \
 "
 
-require xenclient-version.inc
+require recipes-core/images/xenclient-version.inc
 inherit xenclient-licences
 
 post_rootfs_shell_commands() {

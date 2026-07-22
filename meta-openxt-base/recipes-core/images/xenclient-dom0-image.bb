@@ -51,7 +51,7 @@ IMAGE_INSTALL += "\
 
 inherit xenclient-licences
 
-require xenclient-version.inc
+require recipes-core/images/xenclient-version.inc
 
 post_rootfs_shell_commands() {
     mkdir -p ${IMAGE_ROOTFS}/config/etc

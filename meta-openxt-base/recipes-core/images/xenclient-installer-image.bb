@@ -52,7 +52,7 @@ INITRAMFS_MAXSIZE = "524288"
 inherit openxt-image
 inherit xenclient-licences
 
-require xenclient-version.inc
+require recipes-core/images/xenclient-version.inc
 
 post_rootfs_shell_commands() {
     # Create /init symlink
