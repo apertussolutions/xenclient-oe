@@ -13,30 +13,18 @@ dirs2775 = " \
     ${prefix}/src \
     ${localstatedir}/local \
 "
-# Add /var/log back as OpenXT uses encrypted partition for it (... and
-# installer is ramfs)
-# Add /media/ram for the key-functions scripts (mount point).
 dirs755_append = " \
     ${localstatedir}/log \
     /media/ram \
 "
-# Remove the volatile directories. OpenXT does not leverage them.
 dirs755_remove = " \
     ${localstatedir}/volatile/log \
     ${localstatedir}/volatile/tmp \
 "
 
-# OpenXT: Dom0 specific additional directories.
 dirs755_append_xenclient-dom0 = " \
     /storage \
     ${localstatedir}/cores \
-"
-# OpenXT: UIVM has only root as user, pre-create local conf directories.
-dirs755_append_xenclient-uivm = " \
-    /root/.gconf \
-    /root/.gnome2 \
-    /root/.cache \
-    /root/.ssh \
 "
 
 volatiles = ""
