@@ -20,13 +20,5 @@ COMPATIBLE_MACHINE = "usbvm"
 
 IMAGE_INSTALL += " \
     packagegroup-core-boot \
-    kmod \
-    openssh \
-    rsyslog \
-    usbutils \
-    argo-module \
-    grub-xen-conf \
-    kernel-modules \
-    vusb-daemon-stub \
-    argo-input-sender \
+    packagegroup-openxt-usbvm \
 "

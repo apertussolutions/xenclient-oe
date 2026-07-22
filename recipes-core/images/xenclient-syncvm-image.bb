@@ -31,17 +31,7 @@ IMAGE_INSTALL = "\
     packagegroup-core-boot \
     packagegroup-base \
     packagegroup-xenclient-common \
-    kernel-modules \
-    argo-module \
-    libargo \
-    libargo-bin \
-    rsyslog \
-    openssh \
-    wget \
-    sync-client \
-    xenclient-syncvm-tweaks \
-    blktap3 \
-    grub-xen-conf \
+    packagegroup-openxt-syncvm \
 "
 
 require xenclient-version.inc

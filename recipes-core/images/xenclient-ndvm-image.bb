@@ -44,30 +44,7 @@ IMAGE_INSTALL = " \
     packagegroup-core-boot \
     packagegroup-base \
     packagegroup-xenclient-common \
-    util-linux-mount \
-    util-linux-umount \
-    openssh \
-    kernel-modules \
-    libargo \
-    libargo-bin \
-    dbus \
-    xenclient-dbusbouncer \
-    linux-firmware-iwlwifi \
-    linux-firmware-bnx2 \
-    xenclient-ndvm-tweaks \
-    rsyslog \
-    argo-module \
-    xen-tools-libxenstore \
-    xen-tools-xenstore \
-    wget \
-    ethtool \
-    xenclient-nws \
-    modemmanager \
-    ppp \
-    iputils-ping \
-    dbd-tools-vm \
-    xen-vif-scripts-ndvm \
-    grub-xen-conf \
+    packagegroup-openxt-ndvm \
 "
 
 require xenclient-version.inc
