@@ -1,6 +1,7 @@
-# Hack to work around grub2.inc settings SRC_URI
-# OE_CORE_PATH defaults to a bordel build layout
-OE_CORE_PATH ?= "${TOPDIR}/layers/openembedded-core"
+# Hack to work around grub2.inc settings SRC_URI.
+# Prefer explicit OE_CORE_PATH; fall back to sibling of TOPDIR (build-base layout)
+# then TOPDIR/layers (bordel layout).
+OE_CORE_PATH ?= "${@os.path.isdir(d.getVar('TOPDIR') + '/../layers/openembedded-core') and (d.getVar('TOPDIR') + '/../layers/openembedded-core') or (d.getVar('TOPDIR') + '/layers/openembedded-core')}"
 FILESEXTRAPATHS_prepend := "${OE_CORE_PATH}/meta/recipes-bsp/grub/files:"
 require recipes-bsp/grub/grub2.inc
 

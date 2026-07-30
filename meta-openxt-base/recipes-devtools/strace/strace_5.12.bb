@@ -54,3 +54,11 @@ RDEPENDS_${PN}-ptest_append_libc-glibc = "\
 
 BBCLASSEXTEND = "native"
 TOOLCHAIN = "gcc"
+
+# Host headers define sched_attr; rename strace's private copy.
+do_configure_prepend_class-native() {
+    if [ -f ${S}/src/sched_attr.h ]; then
+        sed -i 's/\bstruct sched_attr\b/struct strace_sched_attr/g' ${S}/src/sched_attr.h ${S}/src/sched.c
+    fi
+}
+
