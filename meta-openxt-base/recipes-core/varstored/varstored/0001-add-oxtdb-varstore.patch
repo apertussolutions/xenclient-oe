@@ -39,89 +39,10 @@ INTERNAL DEPENDENCIES
 ################################################################################
 PATCHES
 ################################################################################
---- a/Makefile
-+++ b/Makefile
-@@ -9,12 +9,14 @@ OBJS :=	guid.o \
- 	ppi.o \
- 	ppi_vdata.o \
- 	varstored.o \
-+	oxtdb.o \
-+	oxtdb-lib.o \
- 	xapidb.o \
- 	xapidb-lib.o
- 
--CC = gcc
-+CC ?= gcc
- 
--CFLAGS  = -I$(shell pwd)/include
-+CFLAGS  += -I$(shell pwd)/include
- 
- # _GNU_SOURCE for asprintf.
- CFLAGS += -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_GNU_SOURCE
-@@ -22,7 +24,9 @@ CFLAGS += -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_GNU_SOURCE
- # EXTRA_CFLAGS can be set through make command line
- CFLAGS += $(EXTRA_CFLAGS)
- 
--CFLAGS += $$(pkg-config --cflags libxml-2.0)
-+CFLAGS += $$(pkg-config --cflags libxml-2.0) \
-+          $$(pkg-config --cflags dbus-1) \
-+          $$(pkg-config --cflags glib-2.0)
- 
- CFLAGS += -g -O2 -std=gnu99 \
-           -Wall \
-@@ -35,6 +39,12 @@ ifeq ($(shell uname),Linux)
- LDLIBS := -lutil -lrt
- endif
- 
-+OXT_LIBS := -levent \
-+            -lgobject-2.0 \
-+            -lglib-2.0 \
-+            -ldbus-glib-1 \
-+            -lxcdbus
-+
- LDLIBS += -lxenstore \
-           -lxenforeignmemory \
-           -lxendevicemodel \
-@@ -42,7 +52,8 @@ LDLIBS += -lxenstore \
-           -lxentoolcore \
-           -lcrypto \
-           -lseccomp \
--          $$(pkg-config --libs libxml-2.0)
-+          $$(pkg-config --libs libxml-2.0) \
-+		  $(OXT_LIBS)
- 
- # Get the compiler to generate the dependencies for us.
- CFLAGS   += -Wp,-MD,$(@D)/.$(@F).d -MT $(@D)/$(@F)
-@@ -50,7 +61,7 @@ CFLAGS   += -Wp,-MD,$(@D)/.$(@F).d -MT $(@D)/$(@F)
- SUBDIRS  = $(filter-out ./,$(dir $(OBJS) $(LIBS)))
- DEPS     = .*.d tools/.*.d
- 
--LDFLAGS := -g 
-+LDFLAGS ?= -g 
- 
- all: $(TARGET) tools
- 
-@@ -62,12 +73,14 @@ $(TARGET): $(LIBS) $(OBJS)
- %.o: %.c
- 	$(CC) -o $@ $(CFLAGS) -c $<
- 
--TOOLLIBS := -lcrypto -lseccomp $$(pkg-config --libs libxml-2.0)
-+TOOLLIBS := -lcrypto -lseccomp $$(pkg-config --libs libxml-2.0) $(OXT_LIBS)
- TOOLOBJS := tools/xapidb-cmdline.o \
-+            tools/oxtdb-cmdline.o \
-             tools/xapidb-file.o \
-             tools/cert-check.o \
-             tools/tool-lib.o \
-             depriv.o \
-             guid.o \
-             handler.o \
-+            oxtdb-lib.o \
-             mor.o \
-             ppi_vdata.o \
-             xapidb-lib.o
+diff -Naur /tmp/varstored-pristine/depriv.c ./depriv.c
 --- a/depriv.c
 +++ b/depriv.c
-@@ -117,14 +117,6 @@ drop_privileges(const char *opt_chroot,
+@@ -117,14 +117,6 @@
          }
      }
  
@@ -136,9 +57,10 @@ PATCHES
      if (opt_gid) {
          if (setgid(opt_gid) < 0) {
              ERR("Failed to set gid to %u: %d, %s\n", opt_gid,
+diff -Naur /tmp/varstored-pristine/include/backend.h ./include/backend.h
 --- a/include/backend.h
 +++ b/include/backend.h
-@@ -68,6 +68,8 @@ struct backend {
+@@ -68,6 +68,8 @@
  };
  
  extern const struct backend *db;
@@ -147,7 +69,7 @@ PATCHES
  extern const struct backend xapidb;
  extern const struct backend xapidb_cmdline;
  extern const struct backend xapidb_file;
- 
+diff -Naur /tmp/varstored-pristine/include/debug.h ./include/debug.h
 --- a/include/debug.h
 +++ b/include/debug.h
 @@ -25,7 +25,7 @@
@@ -159,7 +81,7 @@ PATCHES
  #ifndef  _DEBUG_H
  #define  _DEBUG_H
  
-@@ -53,6 +53,7 @@ extern const enum log_level log_level;
+@@ -53,6 +53,7 @@
              fprintf(stderr, "%s: ", __func__);  \
              fprintf(stderr, __VA_ARGS__);       \
              fflush(stderr);                     \
@@ -167,7 +89,7 @@ PATCHES
          }                                       \
      } while (0)
  
-@@ -62,6 +63,7 @@ extern const enum log_level log_level;
+@@ -62,6 +63,7 @@
              fprintf(stderr, "%s: ", __func__);  \
              fprintf(stderr, __VA_ARGS__);       \
              fflush(stderr);                     \
@@ -175,7 +97,7 @@ PATCHES
          }                                       \
      } while (0)
  
-@@ -71,6 +73,7 @@ extern const enum log_level log_level;
+@@ -71,6 +73,7 @@
              printf("%s: ", __func__);           \
              printf(__VA_ARGS__);                \
              fflush(stdout);                     \
@@ -183,7 +105,7 @@ PATCHES
          }                                       \
      } while (0)
  
-@@ -80,6 +83,7 @@ extern const enum log_level log_level;
+@@ -80,6 +83,7 @@
              printf("%s: ", __func__);           \
              printf(__VA_ARGS__);                \
              fflush(stdout);                     \
@@ -191,7 +113,8 @@ PATCHES
          }                                       \
      } while (0)
  
---- /dev/null
+diff -Naur /tmp/varstored-pristine/include/oxtdb.h ./include/oxtdb.h
+--- a/include/oxtdb.h
 +++ b/include/oxtdb.h
 @@ -0,0 +1,54 @@
 +/*
@@ -242,24 +165,214 @@ PATCHES
 +extern char *oxtdb_arg_uuid;
 +
 +size_t oxtdb_serialize_variables(uint8_t **out, size_t *len, bool only_nv);
-+bool oxtdb_set_variable(bool update);
++bool oxtdb_set_variable(void);
 +bool oxtdb_parse_blob(uint8_t **buf, int len);
 +enum backend_init_status oxtdb_init(void);
 +bool oxtdb_sb_notify(void);
 +
 +#endif // OXTDB_H
+diff -Naur /tmp/varstored-pristine/include/xapidb.h ./include/xapidb.h
 --- a/include/xapidb.h
 +++ b/include/xapidb.h
-@@ -63,6 +63,8 @@ bool xapidb_parse_blob(uint8_t **buf, int len);
- enum backend_init_status xapidb_init(void);
- enum backend_init_status xapidb_file_init(void);
+@@ -65,4 +65,7 @@
  bool xapidb_sb_notify(void);
+ 
+ 
 +// expose this fn over xapidb API so we can use it.
 +bool base64_encode(const uint8_t *buf, size_t len, char **out);
- 
- 
++
  #endif
---- /dev/null
+diff -Naur /tmp/varstored-pristine/Makefile ./Makefile
+--- a/Makefile
++++ b/Makefile
+@@ -9,12 +9,14 @@
+ 	ppi.o \
+ 	ppi_vdata.o \
+ 	varstored.o \
++	oxtdb.o \
++	oxtdb-lib.o \
+ 	xapidb.o \
+ 	xapidb-lib.o
+ 
+-CC = gcc
++CC ?= gcc
+ 
+-CFLAGS  = -I$(shell pwd)/include
++CFLAGS  += -I$(shell pwd)/include
+ 
+ # _GNU_SOURCE for asprintf.
+ CFLAGS += -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D_GNU_SOURCE
+@@ -22,7 +24,9 @@
+ # EXTRA_CFLAGS can be set through make command line
+ CFLAGS += $(EXTRA_CFLAGS)
+ 
+-CFLAGS += $$(pkg-config --cflags libxml-2.0)
++CFLAGS += $$(pkg-config --cflags libxml-2.0) \
++          $$(pkg-config --cflags dbus-1) \
++          $$(pkg-config --cflags glib-2.0)
+ 
+ CFLAGS += -g -O2 -std=gnu99 \
+           -Wall \
+@@ -35,6 +39,12 @@
+ LDLIBS := -lutil -lrt
+ endif
+ 
++OXT_LIBS := -levent \
++            -lgobject-2.0 \
++            -lglib-2.0 \
++            -ldbus-glib-1 \
++            -lxcdbus
++
+ LDLIBS += -lxenstore \
+           -lxenforeignmemory \
+           -lxendevicemodel \
+@@ -42,7 +52,8 @@
+           -lxentoolcore \
+           -lcrypto \
+           -lseccomp \
+-          $$(pkg-config --libs libxml-2.0)
++          $$(pkg-config --libs libxml-2.0) \
++		  $(OXT_LIBS)
+ 
+ # Get the compiler to generate the dependencies for us.
+ CFLAGS   += -Wp,-MD,$(@D)/.$(@F).d -MT $(@D)/$(@F)
+@@ -50,7 +61,7 @@
+ SUBDIRS  = $(filter-out ./,$(dir $(OBJS) $(LIBS)))
+ DEPS     = .*.d tools/.*.d
+ 
+-LDFLAGS := -g 
++LDFLAGS ?= -g 
+ 
+ all: $(TARGET) tools
+ 
+@@ -62,14 +73,16 @@
+ %.o: %.c
+ 	$(CC) -o $@ $(CFLAGS) -c $<
+ 
+-TOOLLIBS := -lcrypto -lseccomp $$(pkg-config --libs libxml-2.0)
++TOOLLIBS := -lcrypto -lseccomp $$(pkg-config --libs libxml-2.0) $(OXT_LIBS)
+ TOOLOBJS := tools/xapidb-cmdline.o \
+             tools/xapidb-file.o \
+             tools/cert-check.o \
++            tools/oxtdb-cmdline.o \
+             tools/tool-lib.o \
+             depriv.o \
+             guid.o \
+             handler.o \
++            oxtdb-lib.o \
+             mor.o \
+             ppi_vdata.o \
+             xapidb-lib.o
+diff -Naur /tmp/varstored-pristine/oxtdb.c ./oxtdb.c
+--- a/oxtdb.c
++++ b/oxtdb.c
+@@ -0,0 +1,104 @@
++/*
++ * Copyright (c) Citrix Systems, Inc
++ * All rights reserved.
++ *
++ * Redistribution and use in source and binary forms, with or without
++ * modification, are permitted provided that the following conditions
++ * are met:
++ *
++ * Redistributions of source code must retain the above copyright notice,
++ * this list of conditions and the following disclaimer.
++ *
++ * Redistributions in binary form must reproduce the above copyright
++ * notice, this list of conditions and the following disclaimer in the
++ * documentation and/or other materials provided with the distribution.
++ *
++ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
++ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
++ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
++ * FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
++ * HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
++ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED
++ * TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
++ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
++ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
++ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
++ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
++ */
++
++#include <stdlib.h>
++#include <stdint.h>
++#include <stdio.h>
++#include <string.h>
++#include <errno.h>
++#include <sys/types.h>
++#include <sys/stat.h>
++#include <unistd.h>
++#include <sys/types.h>
++#include <sys/wait.h>
++
++#include <backend.h>
++#include <debug.h>
++#include <oxtdb.h>
++#include <xapidb.h>
++
++#include "option.h"
++
++/* Path to the file used for resuming. */
++static char *arg_resume;
++/* Path to the file used for saving. */
++static char *arg_save;
++
++static bool
++oxtdb_parse_arg(const char *name, const char *val)
++{
++    if (!strcmp(name, "resume"))
++        arg_resume = strdup(val);
++    else if (!strcmp(name, "save"))
++        arg_save = strdup(val);
++    else if (!strcmp(name, "uuid"))
++        oxtdb_arg_uuid = strdup(val);
++    else
++        return false;
++
++    return true;
++}
++
++static bool
++oxtdb_check_args(void)
++{
++    if (!oxtdb_arg_uuid) {
++        fprintf(stderr, "Backend arg 'uuid' is required\n");
++        return false;
++    }
++    if (!opt_resume && arg_resume) {
++        fprintf(stderr, "Backend arg 'resume' is invalid when not resuming\n");
++        return false;
++    }
++
++    return true;
++}
++
++static bool
++oxtdb_save(void)
++{
++    /* not supported or used on OpenXT */
++    return false;
++}
++
++static bool
++oxtdb_resume(void)
++{
++    /* not supported or used on OpenXT */
++    return false;
++}
++
++const struct backend oxtdb = {
++    .parse_arg = oxtdb_parse_arg,
++    .check_args = oxtdb_check_args,
++    .init = oxtdb_init,
++    .save = oxtdb_save,
++    .resume = oxtdb_resume,
++    .set_variable = oxtdb_set_variable,
++    .sb_notify = oxtdb_sb_notify,
++};
+diff -Naur /tmp/varstored-pristine/oxtdb-lib.c ./oxtdb-lib.c
+--- a/oxtdb-lib.c
 +++ b/oxtdb-lib.c
 @@ -0,0 +1,398 @@
 +/*
@@ -543,7 +656,7 @@ PATCHES
 +}
 +
 +bool
-+oxtdb_set_variable(bool update)
++oxtdb_set_variable(void)
 +{
 +    uint8_t *buf;
 +    char *encoded;
@@ -660,114 +773,8 @@ PATCHES
 +    ERR("The VM failed to pass Secure Boot verification.");
 +    return true;
 +}
---- /dev/null
-+++ b/oxtdb.c
-@@ -0,0 +1,104 @@
-+/*
-+ * Copyright (c) Citrix Systems, Inc
-+ * All rights reserved.
-+ *
-+ * Redistribution and use in source and binary forms, with or without
-+ * modification, are permitted provided that the following conditions
-+ * are met:
-+ *
-+ * Redistributions of source code must retain the above copyright notice,
-+ * this list of conditions and the following disclaimer.
-+ *
-+ * Redistributions in binary form must reproduce the above copyright
-+ * notice, this list of conditions and the following disclaimer in the
-+ * documentation and/or other materials provided with the distribution.
-+ *
-+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
-+ * FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-+ * HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED
-+ * TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-+ */
-+
-+#include <stdlib.h>
-+#include <stdint.h>
-+#include <stdio.h>
-+#include <string.h>
-+#include <errno.h>
-+#include <sys/types.h>
-+#include <sys/stat.h>
-+#include <unistd.h>
-+#include <sys/types.h>
-+#include <sys/wait.h>
-+
-+#include <backend.h>
-+#include <debug.h>
-+#include <oxtdb.h>
-+#include <xapidb.h>
-+
-+#include "option.h"
-+
-+/* Path to the file used for resuming. */
-+static char *arg_resume;
-+/* Path to the file used for saving. */
-+static char *arg_save;
-+
-+static bool
-+oxtdb_parse_arg(const char *name, const char *val)
-+{
-+    if (!strcmp(name, "resume"))
-+        arg_resume = strdup(val);
-+    else if (!strcmp(name, "save"))
-+        arg_save = strdup(val);
-+    else if (!strcmp(name, "uuid"))
-+        oxtdb_arg_uuid = strdup(val);
-+    else
-+        return false;
-+
-+    return true;
-+}
-+
-+static bool
-+oxtdb_check_args(void)
-+{
-+    if (!oxtdb_arg_uuid) {
-+        fprintf(stderr, "Backend arg 'uuid' is required\n");
-+        return false;
-+    }
-+    if (!opt_resume && arg_resume) {
-+        fprintf(stderr, "Backend arg 'resume' is invalid when not resuming\n");
-+        return false;
-+    }
-+
-+    return true;
-+}
-+
-+static bool
-+oxtdb_save(void)
-+{
-+    /* not supported or used on OpenXT */
-+    return false;
-+}
-+
-+static bool
-+oxtdb_resume(void)
-+{
-+    /* not supported or used on OpenXT */
-+    return false;
-+}
-+
-+const struct backend oxtdb = {
-+    .parse_arg = oxtdb_parse_arg,
-+    .check_args = oxtdb_check_args,
-+    .init = oxtdb_init,
-+    .save = oxtdb_save,
-+    .resume = oxtdb_resume,
-+    .set_variable = oxtdb_set_variable,
-+    .sb_notify = oxtdb_sb_notify,
-+};
---- /dev/null
+diff -Naur /tmp/varstored-pristine/tools/oxtdb-cmdline.c ./tools/oxtdb-cmdline.c
+--- a/tools/oxtdb-cmdline.c
 +++ b/tools/oxtdb-cmdline.c
 @@ -0,0 +1,67 @@
 +/*
@@ -837,6 +844,7 @@ PATCHES
 +    .init = oxtdb_init,
 +    .set_variable = oxtdb_set_variable,
 +};
+diff -Naur /tmp/varstored-pristine/tools/varstore-get.c ./tools/varstore-get.c
 --- a/tools/varstore-get.c
 +++ b/tools/varstore-get.c
 @@ -40,7 +40,7 @@
@@ -848,6 +856,7 @@ PATCHES
  const enum log_level log_level = LOG_LVL_INFO;
  
  static void
+diff -Naur /tmp/varstored-pristine/tools/varstore-ls.c ./tools/varstore-ls.c
 --- a/tools/varstore-ls.c
 +++ b/tools/varstore-ls.c
 @@ -40,7 +40,7 @@
@@ -859,6 +868,7 @@ PATCHES
  const enum log_level log_level = LOG_LVL_INFO;
  
  static void
+diff -Naur /tmp/varstored-pristine/tools/varstore-rm.c ./tools/varstore-rm.c
 --- a/tools/varstore-rm.c
 +++ b/tools/varstore-rm.c
 @@ -46,7 +46,7 @@
@@ -870,6 +880,7 @@ PATCHES
  const enum log_level log_level = LOG_LVL_INFO;
  
  struct clone_variable
+diff -Naur /tmp/varstored-pristine/tools/varstore-sb-state.c ./tools/varstore-sb-state.c
 --- a/tools/varstore-sb-state.c
 +++ b/tools/varstore-sb-state.c
 @@ -44,7 +44,7 @@
@@ -881,6 +892,7 @@ PATCHES
  const enum log_level log_level = LOG_LVL_INFO;
  
  static void
+diff -Naur /tmp/varstored-pristine/tools/varstore-set.c ./tools/varstore-set.c
 --- a/tools/varstore-set.c
 +++ b/tools/varstore-set.c
 @@ -43,7 +43,7 @@
@@ -892,9 +904,10 @@ PATCHES
  const enum log_level log_level = LOG_LVL_INFO;
  
  static void
+diff -Naur /tmp/varstored-pristine/varstored.c ./varstored.c
 --- a/varstored.c
 +++ b/varstored.c
-@@ -658,6 +658,8 @@ main(int argc, char **argv)
+@@ -664,6 +664,8 @@
          case VARSTORED_OPT_BACKEND:
              if (!strcmp(optarg, "xapidb")) {
                  db = &xapidb;
@@ -903,9 +916,10 @@ PATCHES
              } else {
                  fprintf(stderr, "Invalid backend '%s'\n", optarg);
                  usage();
+diff -Naur /tmp/varstored-pristine/xapidb-lib.c ./xapidb-lib.c
 --- a/xapidb-lib.c
 +++ b/xapidb-lib.c
-@@ -432,7 +432,7 @@ out:
+@@ -469,7 +469,7 @@
      return ret;
  }
  

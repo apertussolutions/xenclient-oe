@@ -11,6 +11,7 @@ DEPENDS = " \
     libxml2 \
     libxcdbus \
     openssl \
+    openssl-native \
     xen-tools \
 "
 
@@ -72,7 +73,19 @@ do_compile_append() {
     echo ${S}/MicWinProPCA2011_2011-10-19.pem > ${S}/db.list
     echo ${S}/MicCorUEFCA2011_2011-06-27.pem >> ${S}/db.list
 
-    oe_runmake auth
+    # create-auth must run on the build host; a target-cross binary cannot
+    # (wrong dynamic linker / OpenSSL). Do not use "make auth" — it rebuilds
+    # create-auth with $(CC) and then fails to execute it.
+    ${BUILD_CC} ${BUILD_CFLAGS} ${BUILD_LDFLAGS} \
+        -I${STAGING_INCDIR_NATIVE} -L${STAGING_LIBDIR_NATIVE} \
+        -Wl,-rpath,${STAGING_LIBDIR_NATIVE} \
+        -o ${S}/create-auth ${S}/create-auth.c ${S}/guid.c \
+        -I${S}/include -lcrypto
+    openssl req -new -x509 -newkey rsa:2048 -subj "/CN=PK/" \
+        -keyout ${S}/PK.key -out ${S}/PK.pem -days 36500 -nodes -sha256
+    ${S}/create-auth -k ${S}/PK.key -c ${S}/PK.pem PK ${S}/PK.auth ${S}/PK.pem
+    ${S}/create-auth -k ${S}/PK.key -c ${S}/PK.pem KEK ${S}/KEK.auth $(cat ${S}/KEK.list)
+    ${S}/create-auth -k ${S}/PK.key -c ${S}/PK.pem db ${S}/db.auth $(cat ${S}/db.list)
 }
 
 do_install() {
@@ -80,9 +93,14 @@ do_install() {
     install -m 0755 ${S}/varstored ${D}/usr/sbin/varstored
 
     install -d ${D}/usr/bin
-    install -m 0755 ${S}/tools/varstore-{get,set,ls,rm,sb-state} ${D}/usr/bin
+    # List tools explicitly — bitbake's task shell may not expand braces.
+    install -m 0755 ${S}/tools/varstore-get ${D}/usr/bin
+    install -m 0755 ${S}/tools/varstore-set ${D}/usr/bin
+    install -m 0755 ${S}/tools/varstore-ls ${D}/usr/bin
+    install -m 0755 ${S}/tools/varstore-rm ${D}/usr/bin
+    install -m 0755 ${S}/tools/varstore-sb-state ${D}/usr/bin
 
     install -d ${D}/var/lib/varstored
-    install -m 0755 ${S}/{PK.auth,KEK.auth,db.auth} ${D}/var/lib/varstored
+    install -m 0755 ${S}/PK.auth ${S}/KEK.auth ${S}/db.auth ${D}/var/lib/varstored
     install -m 0755 ${WORKDIR}/dbx.auth ${D}/var/lib/varstored
 }
