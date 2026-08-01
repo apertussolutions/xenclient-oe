@@ -17,7 +17,9 @@ LIC_FILES_CHKSUM = "file://alt-cannadic/COPYING;md5=c93c0550bd3173f4504b2cbd8991
 DEPENDS = "anthy-native"
 PR = "r3"
 
-SRC_URI = "${OPENXT_MIRROR}/anthy-9100e.tar.gz \
+# Prefer ainfosec mirror: mirror.openxt.org is frequently unreachable and
+# lacks a route from many builders. Checksums unchanged.
+SRC_URI = "https://openxt.ainfosec.com/mirror/anthy-9100e.tar.gz \
            file://not_build_elc.patch;patch=1 \
            file://2ch_t.patch;patch=1 \
            file://native-helpers.patch;patch=1 \
