@@ -1,0 +1,5 @@
+# DISTRO selection for OpenXT product builds.
+header:
+  version: 14
+
+distro: openxt-main

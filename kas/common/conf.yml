@@ -1,0 +1,88 @@
+# Shared OpenXT local.conf fragments: mirrors, certs, identity, host workarounds.
+# Include after common/base.yml. Values mirror the validated build-base setup.
+header:
+  version: 14
+
+env:
+  OPENXT_BUILD_ID: "0"
+  OPENXT_RELEASE: "10.0.0"
+  OPENXT_VERSION: "layer-split-kas"
+  OPENXT_BUILD_BRANCH: "layer-split-v2-kas"
+
+local_conf_header:
+  openxt-mirrors: |
+    MIRRORS += " \
+        http://code.coreboot.org/p/seabios/downloads/.*     https://www.seabios.org/downloads/ \n \
+        http://www.seabios.org/downloads/.*                 https://www.seabios.org/downloads/ \n \
+        git://anonscm.debian.org/collab-maint/ltrace.git    git://github.com/sparkleholic/ltrace.git \n \
+        http://v3.sk/.*                                     https://openxt.ainfosec.com/mirror/ \n \
+    "
+    # Prefer ainfosec; mirror.openxt.org is frequently unreachable.
+    OPENXT_MIRROR ?= "https://openxt.ainfosec.com/OpenXT/mirror"
+    PREMIRRORS_append = " \
+        http://mirror.openxt.org/.*  https://openxt.ainfosec.com/OpenXT/mirror/ \n \
+        https://mirror.openxt.org/.* https://openxt.ainfosec.com/OpenXT/mirror/ \n \
+    "
+    OPENXT_GIT_MIRROR ?= "github.com/OpenXT"
+    OPENXT_GIT_PROTOCOL ?= "https"
+    OPENXT_BRANCH ?= "master"
+
+  openxt-certs: |
+    # Default next to instance build dir when using kas-init-build-env
+    # (KAS_BUILD_DIR=$WORKSPACE/build-<instance> → $WORKSPACE/certs).
+    # OPENXT_CERTS_DIR is also set in common/base.yml openxt-paths.
+    OPENXT_CERTS_DIR ?= "${TOPDIR}/../certs"
+    REPO_PROD_CACERT = "${OPENXT_CERTS_DIR}/prod-cacert.pem"
+    REPO_DEV_CACERT = "${OPENXT_CERTS_DIR}/dev-cacert.pem"
+    REPO_DEV_SIGNING_CERT = "${OPENXT_CERTS_DIR}/dev-cacert.pem"
+    REPO_DEV_SIGNING_DEV = "${OPENXT_CERTS_DIR}/dev-cakey.pem"
+    KERNEL_MODULE_SIG_CERT = "${OPENXT_CERTS_DIR}/kernel_cert.pem"
+    KERNEL_MODULE_SIG_KEY = "${OPENXT_CERTS_DIR}/kernel_key.pem"
+
+  openxt-identity: |
+    OPENXT_BUILD_ID ??= "0"
+    OPENXT_RELEASE ??= "10.0.0"
+    OPENXT_VERSION ??= "layer-split-kas"
+    OPENXT_UPGRADEABLE_RELEASES ??= "9.0.0 9.0.1 9.0.2"
+    OPENXT_BUILD_BRANCH ??= "layer-split"
+    OPENXT_BUILD_DATE ??= "${@time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime())}"
+    XENCLIENT_BUILD = "${OPENXT_BUILD_ID}"
+    XENCLIENT_BUILD_BRANCH = "${OPENXT_BUILD_BRANCH}"
+    XENCLIENT_RELEASE = "${OPENXT_RELEASE}"
+    XENCLIENT_VERSION = "${OPENXT_VERSION}"
+    XENCLIENT_BUILD_DATE = "${OPENXT_BUILD_DATE}"
+    XENCLIENT_PACKAGE_FEED_URI ?= "file:///storage/ipk"
+
+  openxt-features: |
+    ENABLE_BINARY_LOCALE_GENERATION = "1"
+    GLIBC_GENERATE_LOCALES += " \
+        en_US.UTF-8 \
+        en_GB.UTF-8 \
+    "
+    EXTRA_IMAGE_FEATURES += "debug-tweaks"
+    DEFAULT_ENFORCING ?= "permissive"
+    LICENSE_FLAGS_WHITELIST += "commercial"
+    ACCEPT_INTEL_EULA = "1"
+    BB_SIGNATURE_HANDLER ?= "OEBasicHash"
+    CONNECTIVITY_CHECK_URIS ?= "https://www.google.com/"
+
+  openxt-host-gcc14: |
+    # Host GCC 14 turns several long-standing C issues into hard errors.
+    # Keep C-only flags off BUILD_CXXFLAGS — they break cmake-native C++ checks.
+    GCC14_RELAX_C = " \
+        -Wno-error=implicit-function-declaration -Wno-implicit-function-declaration \
+        -Wno-error=incompatible-pointer-types -Wno-incompatible-pointer-types \
+        -Wno-error=int-conversion -Wno-int-conversion \
+        -Wno-error=implicit-int -Wno-implicit-int \
+    "
+    BUILD_CFLAGS_append = " ${GCC14_RELAX_C}"
+    BUILD_CPPFLAGS_append = " ${GCC14_RELAX_C}"
+    BUILD_CXXFLAGS_append = " -std=gnu++14"
+    DB5_CONFIG_append = " --with-mutex=POSIX/pthreads"
+    PACKAGECONFIG_remove_pn-ovmf = "e1000"
+    PACKAGECONFIG_remove_pn-ovmf-native = "e1000"
+    ASSUME_PROVIDED += "cmake-native"
+    export CC_pn-dev86-native = "${BUILD_CC} ${BUILD_CFLAGS}"
+    HOSTTOOLS += "cmake cpack ctest"
+    CC_FOR_BUILD_append = " ${BUILD_CFLAGS}"
+    CXX_FOR_BUILD_append = " ${BUILD_CXXFLAGS}"

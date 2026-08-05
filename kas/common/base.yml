@@ -1,0 +1,95 @@
+# Common foundation: OE-Core + external layers + monorepo base layer.
+# Product compositions include this file and enable additional OpenXT layers.
+#
+# External layers use path: layers/<name> relative to the monorepo root.
+# kas-init-build-env creates $OPENXT_ROOT/layers as a symlink to the workspace
+# layers directory so checkouts and caches live under OPENXT_KAS_WORKSPACE.
+#
+# Shared downloads/sstate/certs sit beside each instance build dir:
+#   $WORKSPACE/build-<instance>/   (= TOPDIR / KAS_BUILD_DIR)
+#   $WORKSPACE/downloads|sstate-cache|certs
+header:
+  version: 14
+
+defaults:
+  repos:
+    refspec: "dunfell"
+
+repos:
+  bitbake:
+    url: "https://github.com/openembedded/bitbake.git"
+    refspec: "1.46"
+    path: layers/bitbake
+    # Provide the bitbake binary only — not a meta layer.
+    layers: {}
+
+  openembedded-core:
+    url: "https://github.com/openembedded/openembedded-core.git"
+    refspec: "dunfell"
+    path: layers/openembedded-core
+    layers:
+      meta:
+
+  meta-openembedded:
+    url: "https://github.com/openembedded/meta-openembedded.git"
+    refspec: "dunfell"
+    path: layers/meta-openembedded
+    layers:
+      meta-oe:
+      meta-python:
+      meta-networking:
+      meta-filesystems:
+
+  meta-intel:
+    url: "https://git.yoctoproject.org/meta-intel"
+    refspec: "dunfell"
+    path: layers/meta-intel
+
+  meta-selinux:
+    url: "https://git.yoctoproject.org/meta-selinux"
+    refspec: "dunfell"
+    path: layers/meta-selinux
+
+  meta-virtualization:
+    url: "https://git.yoctoproject.org/meta-virtualization"
+    refspec: "dunfell"
+    path: layers/meta-virtualization
+
+  meta-qt5:
+    url: "https://github.com/meta-qt5/meta-qt5.git"
+    refspec: "dunfell"
+    path: layers/meta-qt5
+
+  # Residual base dependency: stubdomain/IVC still pulls recipes from vglass.
+  meta-vglass:
+    url: "https://gitlab.com/vglass/meta-vglass.git"
+    refspec: "master"
+    path: layers/meta-vglass
+
+  meta-openxt-ocaml-platform:
+    url: "https://github.com/apertussolutions/meta-openxt-ocaml-platform.git"
+    refspec: "trixie"
+    path: layers/meta-openxt-ocaml-platform
+
+  meta-openxt-haskell-platform:
+    url: "https://github.com/apertussolutions/meta-openxt-haskell-platform.git"
+    refspec: "trixie"
+    path: layers/meta-openxt-haskell-platform
+
+  # This monorepo (run kas from the xenclient-oe checkout root).
+  xenclient-oe:
+    path: .
+    layers:
+      meta-openxt-base:
+
+local_conf_header:
+  # Instance TOPDIR is $WORKSPACE/build-<instance>; shared caches are siblings.
+  openxt-paths: |
+    DL_DIR ?= "${TOPDIR}/../downloads"
+    SSTATE_DIR ?= "${TOPDIR}/../sstate-cache"
+    OPENXT_CERTS_DIR ?= "${TOPDIR}/../certs"
+    BB_GENERATE_MIRROR_TARBALLS = "0"
+    PRSERV_HOST = "localhost:0"
+    SSTATE_DUPWHITELIST += "${DEPLOY_DIR}/licences"
+    BB_NUMBER_THREADS ?= "${@oe.utils.cpu_count()}"
+    PARALLEL_MAKE ?= "-j ${@oe.utils.cpu_count()}"
