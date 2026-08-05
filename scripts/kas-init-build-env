@@ -1,0 +1,118 @@
+#!/bin/bash
+# OpenXT kas workspace initializer (source this file, like oe-init-build-env).
+#
+# Usage:
+#   source ./scripts/kas-init-build-env [WORKSPACE] [INSTANCE]
+#
+#   WORKSPACE  Base directory for layers, downloads, sstate-cache, certs,
+#              and per-instance build dirs. Default:
+#                $OPENXT_KAS_WORKSPACE  or  <parent-of-monorepo>/openxt-kas
+#   INSTANCE   Name of this build configuration. Creates:
+#                $WORKSPACE/build-$INSTANCE
+#              and exports it as KAS_BUILD_DIR. Default: default
+#
+# Environment overrides (optional):
+#   OPENXT_KAS_WORKSPACE   workspace root
+#   OPENXT_KAS_INSTANCE    instance name
+#   OPENXT_LAYER_IMPORT    explicit pre-cloned layers dir to symlink into
+#                          workspace/layers (no auto-discovery)
+#   OPENXT_PYTHON3         CPython 3.11 binary for Dunfell bitbake
+#   OPENXT_HOSTTOOLS_BIN   extra hosttools directory (cmake wrappers, etc.)
+#   DL_DIR / SSTATE_DIR    override shared cache locations
+#   KAS_BUILD_DIR          override instance build directory
+#
+# After sourcing, build with ordinary kas entry points (no config prefix):
+#
+#   kas build kas/dom0.yml
+#   ./scripts/kas-build-all.sh dom0
+#
+# Workspace layout:
+#   $WORKSPACE/layers/ downloads/ sstate-cache/ certs/
+#   $WORKSPACE/build-<instance>/
+#   $OPENXT_ROOT/layers -> $WORKSPACE/layers   (gitignored symlink)
+
+if [ -n "${BASH_SOURCE[0]:-}" ]; then
+	THIS_SCRIPT="${BASH_SOURCE[0]}"
+else
+	THIS_SCRIPT="$0"
+fi
+
+if [ -n "${BASH_VERSION:-}" ] && [ "${BASH_SOURCE[0]}" = "${0}" ]; then
+	echo "Error: this script needs to be sourced, not executed." >&2
+	echo "" >&2
+	echo "  source ${THIS_SCRIPT} [WORKSPACE] [INSTANCE]" >&2
+	echo "  .      ${THIS_SCRIPT} [WORKSPACE] [INSTANCE]" >&2
+	exit 1
+fi
+
+_OPENXT_KAS_SCRIPTS_DIR="$(cd "$(dirname "${THIS_SCRIPT}")" && pwd)"
+_OPENXT_KAS_REPO_ROOT="$(cd "${_OPENXT_KAS_SCRIPTS_DIR}/.." && pwd)"
+
+OPENXT_ROOT="${OPENXT_ROOT:-${_OPENXT_KAS_REPO_ROOT}}"
+export OPENXT_ROOT
+
+if [ "${1:-}" = "-h" ] || [ "${1:-}" = "--help" ]; then
+	sed -n '2,40p' "${THIS_SCRIPT}" | sed 's/^# \{0,1\}//'
+	unset THIS_SCRIPT _OPENXT_KAS_SCRIPTS_DIR _OPENXT_KAS_REPO_ROOT
+	return 0 2>/dev/null || exit 0
+fi
+
+if [ -n "${1:-}" ]; then
+	OPENXT_KAS_WORKSPACE="$1"
+	export OPENXT_KAS_WORKSPACE
+fi
+if [ -n "${2:-}" ]; then
+	OPENXT_KAS_INSTANCE="$2"
+	export OPENXT_KAS_INSTANCE
+fi
+
+# shellcheck source=kas-workspace.sh
+. "${_OPENXT_KAS_SCRIPTS_DIR}/kas-workspace.sh"
+
+openxt_kas_ensure_workspace
+
+# Development certs into the workspace (shared across instances).
+if [ ! -f "${OPENXT_CERTS_DIR}/dev-cacert.pem" ] && [ -x "${OPENXT_ROOT}/scripts/generate-certs.sh" ]; then
+	export OPENXT_BUILD_DIR="${KAS_BUILD_DIR}"
+	export OPENXT_CERTS_DIR
+	OPENXT_CERTS_DIR="${OPENXT_CERTS_DIR}" OPENXT_BUILD_DIR="${KAS_BUILD_DIR}" \
+		"${OPENXT_ROOT}/scripts/generate-certs.sh" \
+		|| echo "WARNING: cert generation failed; run scripts/generate-certs.sh later" >&2
+fi
+
+export OPENXT_BUILD_DIR="${KAS_BUILD_DIR}"
+
+# kas entry YAMLs use relative includes — run from monorepo root.
+cd "${OPENXT_ROOT}" || return 1
+
+cat <<EOF
+
+OpenXT kas workspace ready.
+
+  OPENXT_KAS_WORKSPACE = ${OPENXT_KAS_WORKSPACE}
+  OPENXT_KAS_INSTANCE  = ${OPENXT_KAS_INSTANCE}
+  KAS_BUILD_DIR        = ${KAS_BUILD_DIR}
+  OPENXT_LAYERS_DIR    = ${OPENXT_LAYERS_DIR}
+  monorepo layers link = ${OPENXT_ROOT}/layers
+  DL_DIR               = ${DL_DIR}
+  SSTATE_DIR           = ${SSTATE_DIR}
+  OPENXT_CERTS_DIR     = ${OPENXT_CERTS_DIR}
+
+Build (ordinary kas configs — no wrapper):
+
+  kas build kas/dom0.yml
+  kas build kas/ndvm.yml
+  ./scripts/kas-build-all.sh dom0
+  ./scripts/kas-build-all.sh ndvm usbvm syncvm
+
+First-time layer checkout into the workspace:
+
+  kas checkout kas/dom0.yml
+
+Optional: import existing clones once:
+
+  OPENXT_LAYER_IMPORT=/path/to/layers source ./scripts/kas-init-build-env ...
+
+EOF
+
+unset THIS_SCRIPT _OPENXT_KAS_SCRIPTS_DIR _OPENXT_KAS_REPO_ROOT
