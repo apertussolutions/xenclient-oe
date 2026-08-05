@@ -1,4 +1,112 @@
-This repository is home of the OpenXT OpenEmbedded build metadata.
-For information about OpenXT see our website @ http://openxt.org
-For instructions on how to build OpenXT from source see our GitHub wiki @ https://github.com/OpenXT/openxt/wiki/
+# xenclient-oe (OpenXT layer-split monorepo)
 
+OpenEmbedded / Yocto layers for OpenXT, split into base, domains, and UI
+layers, with hierarchical **kas** configuration for product image builds.
+
+## Repository layout
+
+| Path                   | Description                                              |
+| ---------------------- | -------------------------------------------------------- |
+| `meta-openxt-base/`    | Foundation recipes (dom0, installer, stubdomain, shared) |
+| `meta-openxt-domains/` | Service domain images (NDVM, USBVM, SyncVM, …)           |
+| `meta-openxt-ui/`      | UI stack (UIVM, vglass-facing product pieces)            |
+| `kas/`                 | Hierarchical kas configs and compositions                |
+| `scripts/`             | Host setup, kas workspace init, deploy/ISO helpers       |
+| `docs/`                | Implementation plans and design notes                    |
+| `LAYERS.md`            | Layer ownership and bblayers guidance                    |
+
+## Quick start (kas)
+
+```bash
+# From the monorepo root
+./scripts/setup-host.sh
+
+# Create / select a workspace and build instance (OE-style init)
+source ./scripts/kas-init-build-env [WORKSPACE] [INSTANCE]
+
+# Checkout layers (first time) and build
+kas checkout kas/dom0.yml
+kas build kas/dom0.yml
+
+# Or drive several images through the helper
+./scripts/kas-build-all.sh initramfs stubdomain dom0
+```
+
+After init, use ordinary kas entry points — no config-prefix helper is
+required. See **`kas/README.md`** for the full workspace model.
+
+### Important environment
+
+| Variable                | Meaning                                      | Default                                  |
+| ----------------------- | -------------------------------------------- | ---------------------------------------- |
+| `OPENXT_KAS_WORKSPACE`  | Workspace root (layers + caches + instances) | `<parent>/openxt-kas`                    |
+| `OPENXT_KAS_INSTANCE`   | Build instance name                          | `default`                                |
+| `KAS_BUILD_DIR`         | Per-instance kas/bitbake directory           | `$WORKSPACE/build-$INSTANCE`             |
+| `DL_DIR` / `SSTATE_DIR` | Shared download and sstate caches            | `$WORKSPACE/downloads`, `…/sstate-cache` |
+| `OPENXT_CERTS_DIR`      | Signing certificates                         | `$WORKSPACE/certs`                       |
+| `OPENXT_LAYER_IMPORT`   | Optional explicit layer import directory     | unset                                    |
+| `OPENXT_PYTHON3`        | CPython 3.11 for Dunfell bitbake             | auto-detect `python3.11`                 |
+
+### Product entry points
+
+| Entry                | Composition            | Typical target                       |
+| -------------------- | ---------------------- | ------------------------------------ |
+| `kas/initramfs.yml`  | headless / base        | xenclient-initramfs-image            |
+| `kas/stubdomain.yml` | headless / base        | xenclient-stubdomain-initramfs-image |
+| `kas/dom0.yml`       | headless / base        | xenclient-dom0-image                 |
+| `kas/installer.yml`  | headless / base        | xenclient-installer-image            |
+| `kas/ndvm.yml`       | domains                | xenclient-ndvm-image                 |
+| `kas/usbvm.yml`      | domains                | usbvm-image                          |
+| `kas/syncvm.yml`     | domains                | xenclient-syncvm-image               |
+| `kas/uivm.yml`       | full (base+domains+ui) | xenclient-uivm-image                 |
+
+Recommended order: **initramfs** and **stubdomain** before **dom0** (dom0
+packages stubdomain artefacts).
+
+## Workspace layout (after init)
+
+```text
+$OPENXT_KAS_WORKSPACE/     # default: <parent-of-monorepo>/openxt-kas
+  layers/                  # OE + platform checkouts
+  downloads/               # shared DL_DIR
+  sstate-cache/            # shared SSTATE_DIR
+  certs/                   # shared signing material
+  build-<instance>/        # KAS_BUILD_DIR (conf/, tmp/, deploy)
+
+$OPENXT_ROOT/layers  ->  $WORKSPACE/layers   # gitignored symlink
+```
+
+Committed kas YAML uses `path: layers/<repo>` relative to this monorepo.
+Shared caches use `${TOPDIR}/../…` next to each instance build directory.
+
+Optional one-time import of existing clones (explicit only; nothing is
+auto-detected):
+
+```bash
+OPENXT_LAYER_IMPORT=/path/to/layers \
+  source ./scripts/kas-init-build-env /data/openxt-kas default
+```
+
+## Installer ISO (post-process)
+
+```bash
+export OPENXT_CERTS_DIR="${OPENXT_KAS_WORKSPACE}/certs"
+./scripts/stage-repository.sh
+./scripts/deploy-iso.sh
+# -> $KAS_BUILD_DIR/staging/iso/
+```
+
+## Further reading
+
+| Document                          | Contents                                            |
+| --------------------------------- | --------------------------------------------------- |
+| `kas/README.md`                   | Kas workspace model, env vars, compositions, deploy |
+| `LAYERS.md`                       | Which recipes live in which meta-openxt-* layer     |
+| `docs/KAS-IMPLEMENTATION-PLAN.md` | Kas hierarchical implementation plan                |
+| `BUILD_PLAN.md`                   | Broader layer-split / product build planning        |
+
+## Host notes
+
+- Distro target: Dunfell-era OE with OpenXT product layers.
+- Host Python for bitbake: **3.11** (asyncore); set `OPENXT_PYTHON3` if needed.
+- Host GCC 14 and related workarounds live in `kas/common/conf.yml`.

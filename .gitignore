@@ -1,2 +1,7 @@
 *~
 patches/bitbake/*.APPLIED
+build/
+# Workspace layer checkout: init creates a symlink (or a real dir) at monorepo root.
+# Trailing slash only matches directories; a bare name also matches the symlink file.
+/layers
+/layers/
