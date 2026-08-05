@@ -1,0 +1,44 @@
+# XenClient Synchronizer client VM image
+
+LICENSE = "GPLv2 & MIT"
+LIC_FILES_CHKSUM = " \
+    file://${COMMON_LICENSE_DIR}/GPL-2.0;md5=801f80980d171dd6425610833a22dbe6 \
+    file://${COMMON_LICENSE_DIR}/MIT;md5=0835ade698e0bcf8506ecda2f7b4f302 \
+"
+
+inherit openxt-image
+
+IMAGE_FEATURES += " \
+    package-management \
+    read-only-rootfs \
+    root-bash-shell \
+    ctrlaltdel-reboot \
+"
+
+IMAGE_FSTYPES = "ext3.vhd.gz"
+export IMAGE_BASENAME = "xenclient-syncvm-image"
+
+COMPATIBLE_MACHINE = "(xenclient-syncvm)"
+
+INITSCRIPT_REMOVE = " \
+    finish.sh \
+    rmnologin.sh \
+    urandom \
+"
+
+IMAGE_INSTALL = "\
+    ${ROOTFS_PKGMANAGE} \
+    packagegroup-core-boot \
+    packagegroup-base \
+    packagegroup-xenclient-common \
+    packagegroup-openxt-syncvm \
+"
+
+require recipes-core/images/xenclient-version.inc
+inherit xenclient-licences
+
+post_rootfs_shell_commands() {
+    # Trick to resolve dom0 name with argo.
+    echo '1.0.0.0 dom0' >> ${IMAGE_ROOTFS}/etc/hosts;
+}
+ROOTFS_POSTPROCESS_COMMAND += "post_rootfs_shell_commands; "
