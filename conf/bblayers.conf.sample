@@ -1,0 +1,38 @@
+# Sample fragment — merge into your build/conf/bblayers.conf
+# Adjust OPENXT_OE to this repository's absolute path.
+
+# OPENXT_OE = "/path/to/xenclient-oe"
+
+# --- Headless / base only ---
+# ${OPENXT_OE}/meta-openxt-base
+
+# --- Service domains ---
+# ${OPENXT_OE}/meta-openxt-domains
+
+# --- Full UI product ---
+# ${OPENXT_OE}/meta-openxt-ui
+
+LCONF_VERSION = "7"
+
+BBPATH = "${TOPDIR}"
+BBFILES ?= ""
+
+# Example full product (paths are placeholders):
+# BBLAYERS ?= " \
+#   /path/to/openembedded-core/meta \
+#   /path/to/meta-openembedded/meta-oe \
+#   /path/to/meta-openembedded/meta-python \
+#   /path/to/meta-openembedded/meta-networking \
+#   /path/to/meta-selinux \
+#   /path/to/meta-virtualization \
+#   /path/to/meta-intel \
+#   /path/to/meta-openxt-haskell-platform \
+#   /path/to/meta-openxt-ocaml-platform \
+#   /path/to/meta-gnome \
+#   /path/to/meta-xfce \
+#   /path/to/vglass \
+#   /path/to/meta-java \
+#   /path/to/xenclient-oe/meta-openxt-base \
+#   /path/to/xenclient-oe/meta-openxt-domains \
+#   /path/to/xenclient-oe/meta-openxt-ui \
+# "
