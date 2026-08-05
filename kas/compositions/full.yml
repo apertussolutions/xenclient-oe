@@ -1,0 +1,28 @@
+# Full product: base + domains + UI (UIVM and optional dom0 display packages).
+header:
+  version: 14
+  includes:
+    - ../common/base.yml
+    - ../common/conf.yml
+
+repos:
+  meta-openembedded:
+    layers:
+      meta-oe:
+      meta-python:
+      meta-networking:
+      meta-filesystems:
+      meta-multimedia:
+      meta-gnome:
+      meta-xfce:
+
+  meta-java:
+    url: "https://github.com/meta-java/meta-java.git"
+    refspec: "dunfell"
+    path: layers/meta-java
+
+  xenclient-oe:
+    layers:
+      meta-openxt-base:
+      meta-openxt-domains:
+      meta-openxt-ui:

@@ -1,0 +1,13 @@
+# Service domains product: base + meta-openxt-domains (NDVM / USBVM / SyncVM).
+# meta-networking is already enabled in common/base.yml.
+header:
+  version: 14
+  includes:
+    - ../common/base.yml
+    - ../common/conf.yml
+
+repos:
+  xenclient-oe:
+    layers:
+      meta-openxt-base:
+      meta-openxt-domains:

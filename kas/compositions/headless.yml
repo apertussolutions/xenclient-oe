@@ -1,0 +1,12 @@
+# Headless product: meta-openxt-base only (dom0 / installer / stubdomain).
+# Residual: meta-qt5 + meta-vglass remain via common/base.yml for IVC/stubdomain.
+header:
+  version: 14
+  includes:
+    - ../common/base.yml
+    - ../common/conf.yml
+
+repos:
+  xenclient-oe:
+    layers:
+      meta-openxt-base:

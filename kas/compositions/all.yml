@@ -1,0 +1,15 @@
+# Documentation entry for a full product checkout (all OpenXT layers enabled).
+#
+# Building *every* image requires different MACHINE values, so a single
+# multi-target BitBake invocation is not used here. Prefer sequential
+# convenience entry points (see kas/README.md):
+#
+#   for c in initramfs stubdomain dom0 installer ndvm usbvm syncvm uivm; do
+#     kas build kas/${c}.yml
+#   done
+#
+# Multiconfig (mc:...) remains a future extension.
+header:
+  version: 14
+  includes:
+    - full.yml
