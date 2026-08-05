@@ -1,0 +1,7 @@
+# BitBake target: xenclient-dom0-image
+header:
+  version: 14
+  includes:
+    - ../common/distro-openxt-main.yml
+
+target: xenclient-dom0-image

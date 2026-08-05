@@ -1,0 +1,5 @@
+# MACHINE = xenclient-uivm
+header:
+  version: 14
+
+machine: xenclient-uivm

@@ -1,0 +1,5 @@
+# MACHINE = xenclient-stubdomain
+header:
+  version: 14
+
+machine: xenclient-stubdomain

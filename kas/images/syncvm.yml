@@ -1,0 +1,7 @@
+# BitBake target: xenclient-syncvm-image
+header:
+  version: 14
+  includes:
+    - ../common/distro-openxt-main.yml
+
+target: xenclient-syncvm-image

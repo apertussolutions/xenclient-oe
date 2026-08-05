@@ -1,0 +1,5 @@
+# MACHINE = xenclient-syncvm
+header:
+  version: 14
+
+machine: xenclient-syncvm

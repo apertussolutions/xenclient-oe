@@ -1,0 +1,7 @@
+# BitBake target: xenclient-ndvm-image
+header:
+  version: 14
+  includes:
+    - ../common/distro-openxt-main.yml
+
+target: xenclient-ndvm-image

@@ -1,0 +1,7 @@
+# BitBake target: xenclient-initramfs-image
+header:
+  version: 14
+  includes:
+    - ../common/distro-openxt-main.yml
+
+target: xenclient-initramfs-image

@@ -1,0 +1,5 @@
+# MACHINE = xenclient-ndvm
+header:
+  version: 14
+
+machine: xenclient-ndvm

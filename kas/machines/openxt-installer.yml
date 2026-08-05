@@ -1,0 +1,5 @@
+# MACHINE = openxt-installer
+header:
+  version: 14
+
+machine: openxt-installer

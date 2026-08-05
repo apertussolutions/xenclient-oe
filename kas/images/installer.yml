@@ -1,0 +1,7 @@
+# BitBake target: xenclient-installer-image
+header:
+  version: 14
+  includes:
+    - ../common/distro-openxt-main.yml
+
+target: xenclient-installer-image
