@@ -1,0 +1,8 @@
+# Convenience entry: stubdomain
+#   composition=headless machine=xenclient-stubdomain image=stubdomain
+header:
+  version: 14
+  includes:
+    - compositions/headless.yml
+    - machines/xenclient-stubdomain.yml
+    - images/stubdomain.yml

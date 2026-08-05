@@ -1,0 +1,8 @@
+# Convenience entry: installer
+#   composition=headless machine=openxt-installer image=installer
+header:
+  version: 14
+  includes:
+    - compositions/headless.yml
+    - machines/openxt-installer.yml
+    - images/installer.yml

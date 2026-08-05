@@ -1,0 +1,8 @@
+# Convenience entry: dom0
+#   composition=headless machine=xenclient-dom0 image=dom0
+header:
+  version: 14
+  includes:
+    - compositions/headless.yml
+    - machines/xenclient-dom0.yml
+    - images/dom0.yml

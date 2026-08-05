@@ -1,0 +1,8 @@
+# Convenience entry: ndvm
+#   composition=domains machine=xenclient-ndvm image=ndvm
+header:
+  version: 14
+  includes:
+    - compositions/domains.yml
+    - machines/xenclient-ndvm.yml
+    - images/ndvm.yml

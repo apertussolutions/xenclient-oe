@@ -1,0 +1,8 @@
+# Convenience entry: initramfs
+#   composition=headless machine=xenclient-dom0 image=initramfs
+header:
+  version: 14
+  includes:
+    - compositions/headless.yml
+    - machines/xenclient-dom0.yml
+    - images/initramfs.yml

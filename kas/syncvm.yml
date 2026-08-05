@@ -1,0 +1,8 @@
+# Convenience entry: syncvm
+#   composition=domains machine=xenclient-syncvm image=syncvm
+header:
+  version: 14
+  includes:
+    - compositions/domains.yml
+    - machines/xenclient-syncvm.yml
+    - images/syncvm.yml

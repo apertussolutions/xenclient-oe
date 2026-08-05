@@ -1,0 +1,8 @@
+# Convenience entry: usbvm
+#   composition=domains machine=usbvm image=usbvm
+header:
+  version: 14
+  includes:
+    - compositions/domains.yml
+    - machines/usbvm.yml
+    - images/usbvm.yml

@@ -1,0 +1,8 @@
+# Convenience entry: uivm
+#   composition=full machine=xenclient-uivm image=uivm
+header:
+  version: 14
+  includes:
+    - compositions/full.yml
+    - machines/xenclient-uivm.yml
+    - images/uivm.yml
