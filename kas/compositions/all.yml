@@ -12,4 +12,4 @@
 header:
   version: 14
   includes:
-    - full.yml
+    - kas/compositions/full.yml

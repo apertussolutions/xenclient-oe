@@ -3,6 +3,6 @@
 header:
   version: 14
   includes:
-    - compositions/headless.yml
-    - machines/openxt-installer.yml
-    - images/installer.yml
+    - kas/compositions/headless.yml
+    - kas/machines/openxt-installer.yml
+    - kas/images/installer.yml

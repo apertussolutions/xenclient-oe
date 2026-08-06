@@ -3,6 +3,6 @@
 header:
   version: 14
   includes:
-    - compositions/domains.yml
-    - machines/xenclient-ndvm.yml
-    - images/ndvm.yml
+    - kas/compositions/domains.yml
+    - kas/machines/xenclient-ndvm.yml
+    - kas/images/ndvm.yml

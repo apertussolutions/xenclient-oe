@@ -23,7 +23,12 @@ copy_to() {
 	local src="$1"
 	local dst="$2"
 	mkdir -p "$(dirname "${dst}")"
-	cp -a "${src}" "${dst}"
+	# Dereference deploy symlinks (BitBake often ships foo.ext3.gz -> foo-<stamp>.ext3.gz).
+	if [ -L "${src}" ]; then
+		cp -aL "${src}" "${dst}"
+	else
+		cp -a "${src}" "${dst}"
+	fi
 	log "  $(basename "${dst}") <- ${src}"
 }
 
@@ -152,16 +157,19 @@ EOF
 	yes ""
 } | head -c 1048576 > "${REPO}/XC-REPOSITORY"
 
-# Sign repository when certs are available
+# Sign repository when certs are available (bitbake uses REPO_DEV_SIGNING_DEV for the key)
 CERT="${REPO_DEV_SIGNING_CERT:-${OPENXT_CERTS_DIR}/dev-cacert.pem}"
 KEY="${REPO_DEV_SIGNING_DEV:-${OPENXT_CERTS_DIR}/dev-cakey.pem}"
-# Accept bordel's alternate KEY var name
+if [ ! -f "${CERT}" ] && [ -f "${OPENXT_CERTS_DIR}/dev-cacert.pem" ]; then
+	CERT="${OPENXT_CERTS_DIR}/dev-cacert.pem"
+fi
 if [ ! -f "${KEY}" ] && [ -f "${OPENXT_CERTS_DIR}/dev-cakey.pem" ]; then
 	KEY="${OPENXT_CERTS_DIR}/dev-cakey.pem"
 fi
 if [ -f "${CERT}" ] && [ -f "${KEY}" ]; then
 	log "signing repository with ${CERT}"
 	"${OPENXT_ROOT}/scripts/sign-repo.sh" "${CERT}" "${KEY}" "${REPO}"
+	require_file "${REPO}/XC-SIGNATURE"
 else
 	log "WARNING: no signing certs at ${OPENXT_CERTS_DIR}; XC-SIGNATURE not created"
 	log "  run: OPENXT_CERTS_DIR=... ./scripts/generate-certs.sh"

@@ -17,6 +17,9 @@ set -euo pipefail
 # shellcheck source=common.sh
 . "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/common.sh"
 
+# dosfstools often installs to /sbin (not on non-root PATH)
+export PATH="/sbin:/usr/sbin:${PATH}"
+
 require_cmd xorriso
 require_cmd dd
 require_cmd sync

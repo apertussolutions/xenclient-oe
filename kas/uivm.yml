@@ -3,6 +3,6 @@
 header:
   version: 14
   includes:
-    - compositions/full.yml
-    - machines/xenclient-uivm.yml
-    - images/uivm.yml
+    - kas/compositions/full.yml
+    - kas/machines/xenclient-uivm.yml
+    - kas/images/uivm.yml

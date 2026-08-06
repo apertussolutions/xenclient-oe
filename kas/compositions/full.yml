@@ -2,9 +2,8 @@
 header:
   version: 14
   includes:
-    - ../common/base.yml
-    - ../common/conf.yml
-
+    - kas/common/base.yml
+    - kas/common/conf.yml
 repos:
   meta-openembedded:
     layers:

@@ -3,6 +3,6 @@
 header:
   version: 14
   includes:
-    - compositions/headless.yml
-    - machines/xenclient-dom0.yml
-    - images/dom0.yml
+    - kas/compositions/headless.yml
+    - kas/machines/xenclient-dom0.yml
+    - kas/images/dom0.yml

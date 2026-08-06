@@ -29,9 +29,10 @@ if [ -d "${PARENT}/hosttools-bin" ]; then
 	export PATH="${PARENT}/hosttools-bin:${PARENT}/hosttools-prefix/bin:${PARENT}/bin:${PATH}"
 fi
 
-INCLUDE_ARGS=()
+# kas accepts multiple configs separated by colon (local layer path overrides).
+LOCAL_LAYERS=""
 if [ -f "${OPENXT_ROOT}/kas/common/local-layers.yml" ] && [ -d "${PARENT}/layers/openembedded-core" ]; then
-	INCLUDE_ARGS+=(-I "${OPENXT_ROOT}/kas/common/local-layers.yml")
+	LOCAL_LAYERS="${OPENXT_ROOT}/kas/common/local-layers.yml"
 	log "using local layer clones under ${PARENT}/layers"
 fi
 
@@ -72,8 +73,13 @@ failures=0
 for img in "${IMAGES[@]}"; do
 	cfg="${OPENXT_ROOT}/kas/${img}.yml"
 	[ -f "${cfg}" ] || die "missing kas config: ${cfg}"
-	log "===== kas build ${img} ====="
-	if kas build "${INCLUDE_ARGS[@]+"${INCLUDE_ARGS[@]}"}" "${cfg}"; then
+	if [ -n "${LOCAL_LAYERS}" ]; then
+		kas_cfg="${LOCAL_LAYERS}:${cfg}"
+	else
+		kas_cfg="${cfg}"
+	fi
+	log "===== kas build ${img} (${kas_cfg}) ====="
+	if kas build "${kas_cfg}"; then
 		log "OK ${img}"
 	else
 		rc=$?

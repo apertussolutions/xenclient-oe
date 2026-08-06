@@ -3,6 +3,6 @@
 header:
   version: 14
   includes:
-    - compositions/domains.yml
-    - machines/usbvm.yml
-    - images/usbvm.yml
+    - kas/compositions/domains.yml
+    - kas/machines/usbvm.yml
+    - kas/images/usbvm.yml

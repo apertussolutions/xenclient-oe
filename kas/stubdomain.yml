@@ -3,6 +3,6 @@
 header:
   version: 14
   includes:
-    - compositions/headless.yml
-    - machines/xenclient-stubdomain.yml
-    - images/stubdomain.yml
+    - kas/compositions/headless.yml
+    - kas/machines/xenclient-stubdomain.yml
+    - kas/images/stubdomain.yml

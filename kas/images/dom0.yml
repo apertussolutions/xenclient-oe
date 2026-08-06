@@ -2,6 +2,5 @@
 header:
   version: 14
   includes:
-    - ../common/distro-openxt-main.yml
-
+    - kas/common/distro-openxt-main.yml
 target: xenclient-dom0-image
