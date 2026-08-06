@@ -1,0 +1,16 @@
+# RETIRED.
+#
+# Hard-coded relative paths (e.g. ../layer-build/layers/...) and generated
+# local-layers fragments are no longer used.
+#
+# External repos are declared in kas/common/base.yml with:
+#   path: layers/<name>
+# relative to the monorepo root. scripts/kas-init-build-env creates
+# $OPENXT_ROOT/layers as a symlink to $OPENXT_KAS_WORKSPACE/layers.
+#
+# Shared caches use ${TOPDIR}/../downloads (and sstate-cache, certs) so that
+# KAS_BUILD_DIR=$WORKSPACE/build-<instance> shares one cache tree.
+#
+# See kas/README.md and scripts/kas-init-build-env.
+header:
+  version: 14
