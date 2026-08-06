@@ -143,9 +143,9 @@ done < "${MANIFEST}"
 PACKAGES_SHA256SUM=$(sha256sum "${REPO}/XC-PACKAGES" | awk '{print $1}')
 
 # Pad XC-REPOSITORY to 1 MiB (repository signing expects fixed size).
-{
-	cat <<EOF
-xc:main
+# Write header + padding without yes|head (SIGPIPE breaks set -o pipefail).
+python3 -c "
+header = '''xc:main
 pack:Base Pack
 product:OpenXT
 build:${OPENXT_BUILD_ID}
@@ -153,9 +153,10 @@ version:${OPENXT_VERSION}
 release:${OPENXT_RELEASE}
 upgrade-from:${OPENXT_UPGRADEABLE_RELEASES}
 packages:${PACKAGES_SHA256SUM}
-EOF
-	yes ""
-} | head -c 1048576 > "${REPO}/XC-REPOSITORY"
+'''
+data = (header + '\\n' * 1048576)[:1048576]
+open('${REPO}/XC-REPOSITORY', 'w').write(data)
+"
 
 # Sign repository when certs are available (bitbake uses REPO_DEV_SIGNING_DEV for the key)
 CERT="${REPO_DEV_SIGNING_CERT:-${OPENXT_CERTS_DIR}/dev-cacert.pem}"
