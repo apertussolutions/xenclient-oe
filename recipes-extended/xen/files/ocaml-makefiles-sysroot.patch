@@ -9,9 +9,9 @@
  OCAMLMKLIB ?= ocamlmklib
  OCAMLDEP ?= ocamldep
 @@ -11,7 +12,8 @@ OCAMLFIND ?= ocamlfind
- 
  CFLAGS += -fPIC -I$(shell ocamlc -where)
  
+ OCAMLINCLUDE += -I +unix -I +dynlink
 -OCAMLOPTFLAGS = -g -ccopt "$(LDFLAGS)" -dtypes $(OCAMLINCLUDE) -w F -warn-error F
 +OCAMLOPTFLAGS = -g -ccopt "$(LDFLAGS)" -dtypes $(OCAMLINCLUDE) -cc "$(CC)" -w F -warn-error F
 +OCAMLOPTFLAGSSHR = -g -ccopt "$(LDFLAGS)" -dtypes $(OCAMLINCLUDE) -cc "$(CC) -shared" -w F -warn-error F

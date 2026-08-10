@@ -111,17 +111,17 @@ Signed-off-by: Tamas K Lengyel <lengyelt@ainfosec.com>
  
      if ( use_cfg_file )
 @@ -1524,6 +1508,11 @@ void EFIAPI __init noreturn efi_start(EF
+             }
+             else if ( !read_file(dir_handle, cfg_file_name, &cfg, NULL) )
+                 blexit(L"Configuration file not found.");
++
++            if ( shim_lock &&
++                (status = shim_lock->Measure(cfg.ptr, cfg.size, 8)) != EFI_SUCCESS )
++                    PrintErrMesg(L"Configuration file could not be measured", status);
++
          }
-         else if ( !read_file(dir_handle, cfg_file_name, &cfg, NULL) )
-             blexit(L"Configuration file not found.");
-+
-+        if ( shim_lock &&
-+            (status = shim_lock->Measure(cfg.ptr, cfg.size, 8)) != EFI_SUCCESS )
-+                PrintErrMesg(L"Configuration file could not be measured", status);
-+
          pre_parse(&cfg);
  
-         if ( section.w )
 @@ -1578,6 +1567,11 @@ void EFIAPI __init noreturn efi_start(EF
              {
                  read_file(dir_handle, s2w(&name), &ramdisk, NULL);
