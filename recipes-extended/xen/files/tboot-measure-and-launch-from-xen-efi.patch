@@ -51,17 +51,17 @@ Signed-off-by: Tamas K Lengyel <lengyelt@ainfosec.com>
  Extra options to be passed to Xen can also be specified on the command line,
 --- a/xen/arch/arm/efi/efi-boot.h
 +++ b/xen/arch/arm/efi/efi-boot.h
-@@ -431,7 +431,8 @@ static void __init efi_arch_cfg_file_ear
+@@ -434,7 +434,8 @@ static void __init efi_arch_cfg_file_ear
  
  static void __init efi_arch_cfg_file_late(const EFI_LOADED_IMAGE *image,
-                                           EFI_FILE_HANDLE dir_handle,
+                                           EFI_FILE_HANDLE *dir_handle,
 -                                          const char *section)
 +                                          const char *section,
 +                                          EFI_SHIM_LOCK_PROTOCOL *shim_lock)
  {
  }
  
-@@ -458,6 +459,16 @@ static void __init efi_arch_memory_setup
+@@ -461,6 +462,16 @@ static void __init efi_arch_memory_setup
  {
  }
  
@@ -474,12 +474,12 @@ Signed-off-by: Tamas K Lengyel <lengyelt@ainfosec.com>
 +}
 +
  static void __init efi_arch_cfg_file_early(const EFI_LOADED_IMAGE *image,
-                                            EFI_FILE_HANDLE dir_handle,
+                                            EFI_FILE_HANDLE *dir_handle,
                                             const char *section)
 @@ -291,9 +623,11 @@ static void __init efi_arch_cfg_file_ear
  
  static void __init efi_arch_cfg_file_late(const EFI_LOADED_IMAGE *image,
-                                           EFI_FILE_HANDLE dir_handle,
+                                           EFI_FILE_HANDLE *dir_handle,
 -                                          const char *section)
 +                                          const char *section,
 +                                          EFI_SHIM_LOCK_PROTOCOL *shim_lock)
@@ -489,8 +489,8 @@ Signed-off-by: Tamas K Lengyel <lengyelt@ainfosec.com>
  
      if ( read_section(image, L"ucode", &ucode, NULL) )
          return;
-@@ -308,6 +642,112 @@ static void __init efi_arch_cfg_file_lat
-         read_file(dir_handle, s2w(&name), &ucode, NULL);
+@@ -311,6 +645,112 @@ static void __init efi_arch_cfg_file_lat
+         read_file(*dir_handle, s2w(&name), &ucode, NULL);
          efi_bs->FreePool(name.w);
      }
 +
@@ -509,7 +509,7 @@ Signed-off-by: Tamas K Lengyel <lengyelt@ainfosec.com>
 +        u32 tboot_cmdline;
 +        char *option_str = split_string(name.s);
 +
-+        read_file(dir_handle, s2w(&name), &tboot_file, option_str);
++        read_file(*dir_handle, s2w(&name), &tboot_file, option_str);
 +        efi_bs->FreePool(name.w);
 +
 +        /* tboot is not yet SecureBoot compatible (it's still in ELF format) */
@@ -546,7 +546,7 @@ Signed-off-by: Tamas K Lengyel <lengyelt@ainfosec.com>
 +        efi_bs->FreePages(tboot_file.addr, PFN_UP(tboot_file.size));
 +
 +        // Read in xen.efi and then move it to the first module slot
-+        read_file(dir_handle, xen_self_filename, &xen_self, NULL);
++        read_file(*dir_handle, xen_self_filename, &xen_self, NULL);
 +
 +        if ( shim_lock )
 +        {
@@ -581,7 +581,7 @@ Signed-off-by: Tamas K Lengyel <lengyelt@ainfosec.com>
 +    {
 +        struct file sinit;
 +        char* next_name = split_string(name.s);
-+        read_file(dir_handle, s2w(&name), &sinit, NULL);
++        read_file(*dir_handle, s2w(&name), &sinit, NULL);
 +        efi_bs->FreePool(name.w);
 +        name.s = next_name;
 +
@@ -602,7 +602,7 @@ Signed-off-by: Tamas K Lengyel <lengyelt@ainfosec.com>
  }
  
  static void __init efi_arch_handle_cmdline(CHAR16 *cmdline_options,
-@@ -631,6 +1071,10 @@ static void __init efi_arch_memory_setup
+@@ -634,6 +1074,10 @@ static void __init efi_arch_memory_setup
      unsigned int i;
      EFI_STATUS status;
  
@@ -613,7 +613,7 @@ Signed-off-by: Tamas K Lengyel <lengyelt@ainfosec.com>
      /* Allocate space for trampoline (in first Mb). */
      cfg.addr = 0x100000;
  
-@@ -914,6 +1358,146 @@ void __init efi_multiboot2(EFI_HANDLE Im
+@@ -917,6 +1361,146 @@ void __init efi_multiboot2(EFI_HANDLE Im
  
  #endif /* X86_EFI_EFI_BOOT_H */
  
@@ -924,16 +924,16 @@ Signed-off-by: Tamas K Lengyel <lengyelt@ainfosec.com>
      tboot_copy_memory((unsigned char *)&dmar_table_length,
 --- a/xen/common/efi/boot.c
 +++ b/xen/common/efi/boot.c
-@@ -839,7 +839,7 @@ static bool __init read_file(EFI_FILE_HA
+@@ -860,7 +860,7 @@ static bool __init read_file(EFI_FILE_HA
          goto fail;
  
      what = L"Allocation";
 -    file->addr = min(1UL << (32 + PAGE_SHIFT),
 +    file->addr = min(1UL << 32,
                       HYPERVISOR_VIRT_END - DIRECTMAP_VIRT_START);
+     /* For config files allocate an extra byte to put a NUL there. */
      ret = efi_bs->AllocatePages(AllocateMaxAddress, EfiLoaderData,
-                                 PFN_UP(size), &file->addr);
-@@ -944,6 +944,7 @@ static void __init init_secure_boot_mode
+@@ -983,6 +983,7 @@ static void __init init_secure_boot_mode
  
  static void __init efi_init(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable)
  {
@@ -941,7 +941,7 @@ Signed-off-by: Tamas K Lengyel <lengyelt@ainfosec.com>
      efi_ih = ImageHandle;
      efi_bs = SystemTable->BootServices;
      efi_bs_revision = efi_bs->Hdr.Revision;
-@@ -1393,6 +1394,8 @@ void EFIAPI __init noreturn efi_start(EF
+@@ -1432,6 +1433,8 @@ void EFIAPI __init noreturn efi_start(EF
      __set_bit(EFI_RS, &efi_flags);
  #endif
  
@@ -950,9 +950,9 @@ Signed-off-by: Tamas K Lengyel <lengyelt@ainfosec.com>
      efi_init(ImageHandle, SystemTable);
  
      use_cfg_file = efi_arch_use_config_file(SystemTable);
-@@ -1486,6 +1489,13 @@ void EFIAPI __init noreturn efi_start(EF
-         /* Get the file system interface. */
-         dir_handle = get_parent_handle(loaded_image, &file_name);
+@@ -1522,6 +1525,13 @@ void EFIAPI __init noreturn efi_start(EF
+ 
+         gop = efi_get_gop(&gop_handle);
  
 +        /* If loaded through the shim, file_name is that of the shim's so we
 +         * hardcode xen.efi */
@@ -964,18 +964,18 @@ Signed-off-by: Tamas K Lengyel <lengyelt@ainfosec.com>
          /* Read and parse the config file. */
          if ( read_section(loaded_image, L"config", &cfg, NULL) )
              PrintStr(L"Using builtin config file\r\n");
-@@ -1617,7 +1627,7 @@ void EFIAPI __init noreturn efi_start(EF
+@@ -1658,7 +1668,7 @@ void EFIAPI __init noreturn efi_start(EF
              }
          }
  
--        efi_arch_cfg_file_late(loaded_image, dir_handle, section.s);
-+        efi_arch_cfg_file_late(loaded_image, dir_handle, section.s, shim_lock);
+-        efi_arch_cfg_file_late(loaded_image, &dir_handle, section.s);
++        efi_arch_cfg_file_late(loaded_image, &dir_handle, section.s, shim_lock);
  
-         if ( cfg.need_to_free )
-         {
+         free_cfg();
+ 
 --- a/xen/common/efi/runtime.c
 +++ b/xen/common/efi/runtime.c
-@@ -72,6 +72,7 @@ struct efi __read_mostly efi = {
+@@ -71,6 +71,7 @@ struct efi __read_mostly efi = {
  	.mps    = EFI_INVALID_TABLE_ADDR,
  	.smbios = EFI_INVALID_TABLE_ADDR,
  	.smbios3 = EFI_INVALID_TABLE_ADDR,
@@ -1069,7 +1069,7 @@ Signed-off-by: Tamas K Lengyel <lengyelt@ainfosec.com>
  };
  
  extern struct efi efi;
-@@ -51,5 +52,6 @@ int efi_runtime_call(struct xenpf_efi_ru
+@@ -50,5 +51,6 @@ int efi_runtime_call(struct xenpf_efi_ru
  int efi_compat_get_info(uint32_t idx, union compat_pf_efi_info *info);
  int efi_compat_runtime_call(struct compat_pf_efi_runtime_call *op);
  bool efi_secureboot_enabled(void);
@@ -1088,7 +1088,7 @@ Signed-off-by: Tamas K Lengyel <lengyelt@ainfosec.com>
  uint64_t elf_lookup_addr(struct elf_binary *elf, const char *symbol);
 --- a/xen/arch/x86/setup.c
 +++ b/xen/arch/x86/setup.c
-@@ -495,6 +495,10 @@ static void *__init bootstrap_map_addr(p
+@@ -496,6 +496,10 @@ static void *__init bootstrap_map_addr(p
      uint64_t mask = (1L << L2_PAGETABLE_SHIFT) - 1;
      void *ret;
  
@@ -1099,7 +1099,7 @@ Signed-off-by: Tamas K Lengyel <lengyelt@ainfosec.com>
      if ( system_state != SYS_STATE_early_boot )
          return end ? maddr_to_virt(start) : NULL;
  
-@@ -1239,7 +1243,6 @@ void asmlinkage __init noreturn __start_
+@@ -1271,7 +1275,6 @@ void asmlinkage __init noreturn __start_
       * configuring the console(s).
       */
      early_cpu_init(true);
@@ -1107,7 +1107,7 @@ Signed-off-by: Tamas K Lengyel <lengyelt@ainfosec.com>
  
      if ( pvh_boot )
          pvh_print_info();
-@@ -1332,6 +1335,7 @@ void asmlinkage __init noreturn __start_
+@@ -1364,6 +1367,7 @@ void asmlinkage __init noreturn __start_
      }
      else if ( efi_enabled(EFI_LOADER) )
      {
@@ -1115,7 +1115,7 @@ Signed-off-by: Tamas K Lengyel <lengyelt@ainfosec.com>
          set_pdx_range(xen_phys_start >> PAGE_SHIFT,
                        (xen_phys_start + BOOTSTRAP_MAP_BASE) >> PAGE_SHIFT);
  
-@@ -1343,10 +1347,13 @@ void asmlinkage __init noreturn __start_
+@@ -1375,10 +1379,13 @@ void asmlinkage __init noreturn __start_
          l3_bootmap[l3_table_offset(BOOTSTRAP_MAP_BASE)] =
              l3e_from_paddr(__pa(l2_bootmap), __PAGE_HYPERVISOR);
  
