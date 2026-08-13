@@ -1,7 +1,16 @@
 # Hack to work around grub2.inc settings SRC_URI.
-# Prefer explicit OE_CORE_PATH; fall back to sibling of TOPDIR (build-base layout)
-# then TOPDIR/layers (bordel layout).
-OE_CORE_PATH ?= "${@os.path.isdir(d.getVar('TOPDIR') + '/../layers/openembedded-core') and (d.getVar('TOPDIR') + '/../layers/openembedded-core') or (d.getVar('TOPDIR') + '/layers/openembedded-core')}"
+# Locate openembedded-core for FILESEXTRAPATHS. Try, in order:
+#   1) TOPDIR/../../layers/oe-core  (openxt project: builds/<instance>)
+#   2) TOPDIR/../layers/oe-core     (layer-build: build-base next to layers)
+#   3) TOPDIR/layers/oe-core        (bordel-style)
+OE_CORE_PATH ?= "${@ \
+    (lambda t: \
+        next((p for p in ( \
+            t + '/../../layers/openembedded-core', \
+            t + '/../layers/openembedded-core', \
+            t + '/layers/openembedded-core', \
+        ) if __import__('os').path.isdir(p)), \
+        t + '/../layers/openembedded-core'))(d.getVar('TOPDIR'))}"
 FILESEXTRAPATHS_prepend := "${OE_CORE_PATH}/meta/recipes-bsp/grub/files:"
 require recipes-bsp/grub/grub2.inc
 

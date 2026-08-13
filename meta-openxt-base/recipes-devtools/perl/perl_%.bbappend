@@ -1,3 +1,23 @@
+# Host "patch" on Debian Trixie+ rejects embedded NULs in CVE-2020-12723.patch
+# (binary regex fixtures). PATCHTOOL=git needs a repo in ${S}; initialize one
+# after unpack so git-apply can process those patches.
+# Note: do_unpack is a Python task — use a shell postfunc, not do_unpack_append.
+PATCHTOOL = "git"
+do_unpack[postfuncs] += "perl_git_init_for_patchtool"
+perl_git_init_for_patchtool() {
+    if [ ! -d ${S}/.git ]; then
+        (
+            cd ${S}
+            git init -q
+            git config user.email "builder@openxt.local"
+            git config user.name "OpenXT Builder"
+            git add -A
+            git commit -q --allow-empty -m "bitbake unpack base" || \
+                git commit -q -m "bitbake unpack base"
+        )
+    fi
+}
+
 # Host configure probes under GCC 14 leave xconfig.h without many POSIX
 # features that exist on Linux. Host miniperl is built from xconfig.h; without
 # the directory/symlink defines, compile fails (opendir) or installperl dies
