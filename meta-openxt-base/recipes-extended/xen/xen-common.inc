@@ -1,10 +1,10 @@
-FILESEXTRAPATHS_prepend := "${THISDIR}/files:"
+FILESEXTRAPATHS:prepend := "${THISDIR}/files:"
 
 # XSA patches take precedence and belong at the head of the queue.
 # This ensures that any collisions with other patches get addressed
 # by modifying the OpenXT-specific patches, not the XSA patches.
 
-SRC_URI_append = " \
+SRC_URI:append = " \
     file://defconfig \
     file://0001-python-pygrub-pass-DISTUTILS-xen.4.12.patch \
     file://kconfig-grant-table-v2-interface.patch \
@@ -67,12 +67,12 @@ SRC_URI_append = " \
     file://0002-tools-libxl-enable-in-band-reconnect-marker-for-stub.patch \
 "
 
-# Unset variables inherited from meta-virt dunfell to avoid multilib
+# Unset variables once injected by older meta-virtualization to avoid multilib
 # dependency.  0001-tools-firmware-Build-firmware-as-ffreestanding.patch makes
-# it unnecessary (from Xen 4.15).  These can be removed in OE hardknott or
-# later.
-GLIBC32_x86-64 = ""
-ADD_SYSROOT32_CFLAGS_x86-64 = ""
+# it unnecessary (from Xen 4.15).  Revisit if meta-virtualization/wrynose still
+# exports these.
+GLIBC32:x86-64 = ""
+ADD_SYSROOT32_CFLAGS:x86-64 = ""
 
 PACKAGECONFIG =+ "xsm"
 PACKAGECONFIG =+ "hvm"

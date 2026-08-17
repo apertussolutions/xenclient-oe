@@ -7,7 +7,7 @@ inherit packagegroup
 
 # Control-plane only. Display/UI packages live in
 # packagegroup-openxt-dom0-display (later meta-openxt-ui).
-RDEPENDS_${PN} = " \
+RDEPENDS:${PN} = " \
     openssh \
     openssh-sshd-tcp-init \
     util-linux-mount \
@@ -100,4 +100,4 @@ RDEPENDS_${PN} = " \
     udev-extraconf-dom0 \
 "
 
-RPROVIDES_${PN} += "packagegroup-openxt-dom0-core"
+RPROVIDES:${PN} += "packagegroup-openxt-dom0-core"

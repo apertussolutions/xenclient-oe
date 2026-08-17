@@ -77,7 +77,7 @@ vhd_dm_partition_name()
     return 0
 }
 
-vhd_dm_remove_partitions()
+vhd_dm:remove_partitions()
 {
     local partition=1
     "$FDISK_BIN" -lu "$DEV" | grep -A5 Device | tail -n+2 | sed 's/\*/ /g' |
@@ -103,7 +103,7 @@ vhd_dm_holders()
     return 0
 }
 
-vhd_dm_remove()
+vhd_dm:remove()
 {
     local minors=""
     [ "$DEACTIVATE_TAPDISKS" = "true" ] && {
@@ -112,7 +112,7 @@ vhd_dm_remove()
     }
 
     [ "$REMOVE_PARTITIONS" = "yes" ] && {
-	vhd_dm_remove_partitions || die "error removing partitions"
+	vhd_dm:remove_partitions || die "error removing partitions"
     }
 
     "$DMSETUP_BIN" remove -f "$DEV" 2>/dev/null || \
@@ -174,4 +174,4 @@ fi
 
 [ -e "$DEV" ] || die "$NAME ($DEV) does not exist"
 
-vhd_dm_remove
+vhd_dm:remove

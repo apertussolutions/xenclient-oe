@@ -8,4 +8,4 @@ S = "${WORKDIR}/git/pyicbinn"
 
 DEPENDS = "swig-native libicbinn xenclient-rpcgen-native"
 
-inherit distutils3
+inherit setuptools3

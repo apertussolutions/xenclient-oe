@@ -1,7 +1,7 @@
 # Host "patch" on Debian Trixie+ rejects embedded NULs in CVE-2020-12723.patch
 # (binary regex fixtures). PATCHTOOL=git needs a repo in ${S}; initialize one
 # after unpack so git-apply can process those patches.
-# Note: do_unpack is a Python task — use a shell postfunc, not do_unpack_append.
+# Note: do_unpack is a Python task — use a shell postfunc, not do_unpack:append.
 PATCHTOOL = "git"
 do_unpack[postfuncs] += "perl_git_init_for_patchtool"
 perl_git_init_for_patchtool() {
@@ -26,7 +26,7 @@ perl_git_init_for_patchtool() {
 # Only force the filesystem ops needed for miniperl build + installperl.
 # Enabling broader HAS_* (e.g. waitpid/sem) from target config.h breaks the
 # host link (undefined PL_pidstatus).
-do_configure_append() {
+do_configure:append() {
     python3 - <<'PY'
 import pathlib, re
 names = (

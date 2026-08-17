@@ -100,3 +100,8 @@ The former single collection name `xenclient-oe` is **retired**. Product
 Image basenames are unchanged for deploy tooling.
 
 Git tag `pre-layer-split` marks the tree before this restructure.
+
+| Branch | OE series (`LAYERSERIES_COMPAT`) |
+|--------|-----------------------------------|
+| `layer-split-v3` (and earlier split work) | `dunfell` |
+| `layer-split-wrynose` | `wrynose` (YP 6.0 LTS) — port in progress; see `docs/WRYNOSE.md` |

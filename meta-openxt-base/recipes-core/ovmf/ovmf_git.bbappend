@@ -1,4 +1,4 @@
-FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
+FILESEXTRAPATHS:prepend := "${THISDIR}/${PN}:"
 
 # xcp-ng patches taken from:
 # https://github.com/xcp-ng-rpms/edk2/tree/master/SOURCES
@@ -15,13 +15,13 @@ SRC_URI += " \
 # you have PREBOOT.EXE in DL_DIR (or a reachable SRC_URI mirror).
 PACKAGECONFIG[e1000] = ",,,"
 # Keep historical default for product builds; local.conf may remove it.
-PACKAGECONFIG_append_class-target = " e1000"
+PACKAGECONFIG:append:class-target = " e1000"
 
 SRC_URI += "${@bb.utils.contains('PACKAGECONFIG', 'e1000', \
     'https://downloadmirror.intel.com/29334/eng/PREBOOT.EXE;unpack=0;name=PREBOOT', \
     '', d)}"
 
-DEPENDS_append += "${@bb.utils.contains('PACKAGECONFIG', 'e1000', 'unzip-native', '', d)}"
+DEPENDS:append = "${@bb.utils.contains('PACKAGECONFIG', 'e1000', 'unzip-native', '', d)}"
 
 # PREBOOT.EXE, OS independent, version 24.3.
 SRC_URI[PREBOOT.md5sum] = "8660641e184dafdeb78b8ca1fbd837f7"
@@ -38,7 +38,7 @@ do_extract_bootutil[doc] = "Extract Intel's proprietary E1000 NIC driver to be e
 do_extract_bootutil[depends] = "${PN}:do_prepare_recipe_sysroot"
 do_extract_bootutil[dirs] = "${B}"
 
-do_compile_class-target_append() {
+do_compile:class-target:append() {
     if ${@bb.utils.contains('PACKAGECONFIG', 'e1000', 'true', 'false', d)}; then
         bbnote "Building with E1000 (support for netboot)."
         rm -rf ${S}/Build/Ovmf$OVMF_DIR_SUFFIX
@@ -48,7 +48,7 @@ do_compile_class-target_append() {
     fi
 }
 
-do_install_class-target_append() {
+do_install:class-target:append() {
     install -d ${D}${datadir}/firmware
     if ${@bb.utils.contains('PACKAGECONFIG', 'e1000', 'true', 'false', d)}; then
         install -m 0600 ${WORKDIR}/ovmf/ovmf.e1000.fd ${D}${datadir}/firmware/ovmf.e1000.bin
@@ -65,6 +65,6 @@ PACKAGES += " \
     ${PN}-firmware \
 "
 
-FILES_${PN}-firmware += " \
+FILES:${PN}-firmware += " \
     ${datadir}/firmware \
 "
