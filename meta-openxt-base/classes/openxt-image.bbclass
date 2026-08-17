@@ -20,7 +20,7 @@ remove_initscript() {
 #zap any empty root passwords for release images
 ROOTFS_POSTPROCESS_COMMAND += '${@oe.utils.conditional("DISTRO_TYPE", "release", "zap_empty_root_password; ", "",d)}'
 
-# Make sysvinit verbose if debug-tweaks is enabled
+# Make sysvinit verbose if empty-root-password is enabled
 activate_verbose_sysvinit() {
     if [ -e "${IMAGE_ROOTFS}${sysconfdir}/default/rcS" ]; then
         sed -i -e 's/^VERBOSE=no$/VERBOSE=yes/' "${IMAGE_ROOTFS}${sysconfdir}/default/rcS"
