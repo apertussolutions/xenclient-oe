@@ -15,7 +15,6 @@ SRC_URI = "git://github.com/OpenXT/vusb-daemon.git;protocol=https;branch=master 
 EXTRA_OECONF += "--with-libexpat=${STAGING_LIBDIR}"
 EXTRA_OECONF += "--with-libxenstore=${STAGING_LIBDIR}"
 
-S = "${UNPACKDIR}/git"
 
 inherit autotools update-rc.d pkgconfig xc-rpcgen-c
 

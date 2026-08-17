@@ -9,7 +9,6 @@ PV = "${XEN_REL}+git${SRCPV}"
 SRCREV = "${AUTOREV}"
 SRC_URI = "git://github.com/OpenXT/xsm-policy.git;protocol=https;branch=master"
 
-S = "${UNPACKDIR}/git"
 
 FILES:${PN} += "/etc/xen/refpolicy/policy/policy.24"
 

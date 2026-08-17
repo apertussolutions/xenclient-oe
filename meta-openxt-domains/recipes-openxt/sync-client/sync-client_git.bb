@@ -34,7 +34,6 @@ SRC_URI = "git://github.com/OpenXT/sync-client.git;protocol=https;branch=master 
 INITSCRIPT_NAME = "sync-client-daemon"
 INITSCRIPT_PARAMS = "defaults 85 15"
 
-S = "${UNPACKDIR}/git"
 
 inherit setuptools3
 inherit update-rc.d

@@ -14,7 +14,6 @@ SRC_URI = " \
     file://network_upgrade.ans \
 "
 
-S = "${UNPACKDIR}/git"
 
 inherit allarch deploy
 

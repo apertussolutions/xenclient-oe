@@ -22,7 +22,6 @@ PV = "0+git${SRCPV}"
 SRCREV = "${AUTOREV}"
 SRC_URI = "git://github.com/OpenXT/toolstack-data.git;protocol=https;branch=master"
 
-S = "${UNPACKDIR}/git"
 
 export STAGING_IDLDATADIR
 export STAGING_RPCGENDATADIR_NATIVE
