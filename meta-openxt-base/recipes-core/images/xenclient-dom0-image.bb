@@ -45,7 +45,7 @@ IMAGE_INSTALL += "\
     xenclient-preload-hs-libs \
     linux-firmware-i915 \
     devicemodel-stubdom \
-    ${@bb.utils.contains('IMAGE_FEATURES', 'debug-tweaks', 'packagegroup-selinux-policycoreutils audit', '' ,d)} \
+    ${@bb.utils.contains('IMAGE_FEATURES', 'empty-root-password', 'packagegroup-selinux-policycoreutils audit', '' ,d)} \
 "
 
 inherit xenclient-licences
