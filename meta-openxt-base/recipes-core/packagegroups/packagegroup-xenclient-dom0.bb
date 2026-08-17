@@ -56,7 +56,7 @@ RDEPENDS:${PN} = " \
     pciutils-ids \
     acms \
     openssl \
-    sntp
+    sntp \
     dd-buffered \
     vhd-scripts \
     secure-vm \
