@@ -6,7 +6,7 @@ require xclibs.inc
 
 CFLAGS:append = " -Wno-unused"
 
-S = "${UNPACKDIR}/git/xclogging"
+S = "${UNPACKDIR}/${BP}/xclogging"
 
 PARALLEL_MAKE = "-j 1"
 

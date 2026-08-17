@@ -12,7 +12,7 @@ CFLAGS:prepend = " -I${STAGING_INCDIR}/libnl3 "
 
 CFLAGS:append = " -Wno-unused-parameter -Wno-deprecated-declarations "
 
-S = "${UNPACKDIR}/git/xcpmd"
+S = "${UNPACKDIR}/${BP}/xcpmd"
 
 ASNEEDED = ""
 

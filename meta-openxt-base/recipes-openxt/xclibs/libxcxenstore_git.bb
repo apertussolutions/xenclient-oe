@@ -5,7 +5,7 @@ DEPENDS = "xen-tools libxclogging libevent"
 
 require xclibs.inc
 
-S = "${UNPACKDIR}/git/xcxenstore"
+S = "${UNPACKDIR}/${BP}/xcxenstore"
 
 ASNEEDED = ""
 

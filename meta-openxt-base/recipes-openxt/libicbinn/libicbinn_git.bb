@@ -17,7 +17,7 @@ PACKAGES =+ "${PN}-client"
 FILES:${PN}-client = "${bindir}/icbinn_ftp"
 PROVIDES += "${PN}-client"
 
-S = "${UNPACKDIR}/git/libicbinn"
+S = "${UNPACKDIR}/${BP}/libicbinn"
 
 inherit autotools-brokensep pkgconfig lib_package xc-rpcgen-c
 

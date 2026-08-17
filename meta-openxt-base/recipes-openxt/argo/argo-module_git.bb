@@ -12,7 +12,7 @@ SRC_URI += " \
     file://60-argo.rules \
 "
 
-S = "${UNPACKDIR}/git/argo-linux"
+S = "${UNPACKDIR}/${BP}/argo-linux"
 
 inherit module
 inherit module-signing

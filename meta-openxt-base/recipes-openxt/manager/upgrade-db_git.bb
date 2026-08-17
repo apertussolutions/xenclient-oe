@@ -14,7 +14,7 @@ RDEPENDS:${PN} += " \
 
 require manager.inc
 
-S = "${UNPACKDIR}/git/upgrade-db"
+S = "${UNPACKDIR}/${BP}/upgrade-db"
 
 HPV = "1.0"
 inherit haskell

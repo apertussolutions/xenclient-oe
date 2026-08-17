@@ -28,7 +28,7 @@ SRC_URI += " \
     file://xenmgr.initscript \
 "
 
-S = "${UNPACKDIR}/git/xenmgr"
+S = "${UNPACKDIR}/${BP}/xenmgr"
 
 inherit haskell update-rc.d xc-rpcgen
 
