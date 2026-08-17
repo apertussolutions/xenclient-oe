@@ -1,0 +1,34 @@
+Upstream-Status: Inappropriate [OpenXT]
+Subject: [PATCH] tcsd: make signal action objects extern for -fno-common
+
+GCC 15 / OE security flags use -fno-common; defining tcsd_sa_* in a
+header yields multiple definition link errors.
+
+--- a/src/include/tcsd.h
++++ b/src/include/tcsd.h
+@@ -166,8 +166,8 @@ void   thread_signal_init();
+ 
+ /* signal handling */
+ #ifndef __APPLE__
+-struct sigaction tcsd_sa_int;
+-struct sigaction tcsd_sa_chld;
++extern struct sigaction tcsd_sa_int;
++extern struct sigaction tcsd_sa_chld;
+ #endif
+ 
+ #endif
+--- a/src/tspi/tspi_context.c
++++ b/src/tspi/tspi_context.c
+@@ -26,6 +26,12 @@
+ #include "tcsd_wrap.h"
+ #include "tcsd.h"
+ #include "obj.h"
++
++#ifndef __APPLE__
++/* Defined here once; declared extern in tcsd.h */
++struct sigaction tcsd_sa_int;
++struct sigaction tcsd_sa_chld;
++#endif
+ 
+ 
+ TSS_RESULT

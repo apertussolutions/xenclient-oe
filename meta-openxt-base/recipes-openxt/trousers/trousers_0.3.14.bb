@@ -10,6 +10,7 @@ SRC_URI = " \
     http://downloads.sourceforge.net/${BPN}/${BPN}-${PV}.tar.gz;subdir=${BPN}-${PV} \
     file://trousers-standalone.patch \
     file://trousers-tcsd-dont-pthread-exit.patch \
+    file://trousers-tcsd-sa-extern.patch \
     file://trousers.initscript \
     file://45-trousers.rules \
     file://tcsd.conf \
