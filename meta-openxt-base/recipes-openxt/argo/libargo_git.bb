@@ -11,4 +11,7 @@ inherit autotools-brokensep pkgconfig lib_package
 
 EXTRA_OECONF += "--with-pic"
 
+# app/ttcp.c is ancient K&R-style; GCC 15 / C23 treats () as (void).
+CFLAGS:append = " -std=gnu89"
+
 RDEPENDS:${PN} += "argo-module"
