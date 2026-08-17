@@ -41,3 +41,4 @@ FILES:${PN}-sa = " \
 do_install:append() {
     rm ${D}${sbindir}/tpm_clear
 }
+CFLAGS:append = " -Wno-error=discarded-qualifiers"
