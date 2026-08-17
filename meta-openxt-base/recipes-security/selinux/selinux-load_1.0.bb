@@ -6,8 +6,7 @@ SRC_URI = " \
     file://selinux-load.sh \
 "
 
-S = "${UNPACKDIR}/src"
-UNPACKDIR = "${S}"
+S = "${UNPACKDIR}"
 inherit allarch
 
 do_install() {

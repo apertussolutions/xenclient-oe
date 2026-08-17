@@ -8,8 +8,7 @@ PACKAGES = "${PN}"
 SRC_URI = "file://preload \
 "
 
-S = "${UNPACKDIR}/src"
-UNPACKDIR = "${S}"
+S = "${UNPACKDIR}"
 do_install() {
 	install -d ${D}/etc/init.d/
 	install -m 0755 ${WORKDIR}/preload ${D}/etc/init.d/preload

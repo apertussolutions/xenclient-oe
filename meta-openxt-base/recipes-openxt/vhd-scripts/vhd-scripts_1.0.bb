@@ -7,8 +7,7 @@ SRC_URI = "file://vhd-copy \
            file://vhd-dm-remove \
 "
 
-S = "${UNPACKDIR}/src"
-UNPACKDIR = "${S}"
+S = "${UNPACKDIR}"
 do_install() {
 	install -d ${D}${bindir}
 	install -m 0755 ${WORKDIR}/vhd-copy ${D}${bindir}
