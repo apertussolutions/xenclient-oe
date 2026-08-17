@@ -79,7 +79,8 @@ PACKAGECONFIG =+ "hvm"
 
 #--
 # Add ovmf binary path
-PACKAGECONFIG[hvm] = "--with-system-seabios="/usr/share/firmware/bios.bin" --with-system-ovmf="/usr/share/firmware/ovmf.bin",--disable-seabios,seabios ipxe vgabios ovmf,"
+# vgabios dropped upstream in meta-virtualization (dev86-native gone; SeaBIOS covers VGA).
+PACKAGECONFIG[hvm] = "--with-system-seabios="/usr/share/firmware/bios.bin" --with-system-ovmf="/usr/share/firmware/ovmf.bin",--disable-seabios,seabios ipxe ovmf,"
 
 # The deploy task is detected as MACHINE-specific due to the variables it uses.
 # The task is not required here so drop it.
