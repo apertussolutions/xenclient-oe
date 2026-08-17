@@ -13,3 +13,11 @@ pkg_postinst:kernel-image () {
 pkg_postrm:kernel-image () {
     rm -f $D/${KERNEL_IMAGEDEST}/${KERNEL_IMAGETYPE}
 }
+
+# meta-oe linux.inc historically read ${WORKDIR}/defconfig; on wrynose file://
+# entries land in UNPACKDIR. Ensure defconfig is visible either way.
+do_configure:prepend() {
+    if [ -f "${UNPACKDIR}/defconfig" ] && [ ! -e "${WORKDIR}/defconfig" ]; then
+        ln -sf "${UNPACKDIR}/defconfig" "${WORKDIR}/defconfig"
+    fi
+}
