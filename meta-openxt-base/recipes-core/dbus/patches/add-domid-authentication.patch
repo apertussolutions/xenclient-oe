@@ -2,7 +2,7 @@ Upstream-Status: Inappropriate [OpenXT]
 
 diff -Naur dbus-1.16.2.orig/bus/driver.c dbus-1.16.2/bus/driver.c
 --- dbus-1.16.2.orig/bus/driver.c	2025-02-27 11:29:06.000000000 -0500
-+++ dbus-1.16.2/bus/driver.c	2026-08-17 19:35:50.440219595 -0400
++++ dbus-1.16.2/bus/driver.c	2026-08-17 19:50:02.096214397 -0400
 @@ -1697,6 +1697,80 @@
  }
  
@@ -97,7 +97,7 @@ diff -Naur dbus-1.16.2.orig/bus/driver.c dbus-1.16.2/bus/driver.c
      DBUS_TYPE_ARRAY_AS_STRING DBUS_TYPE_BYTE_AS_STRING,
 diff -Naur dbus-1.16.2.orig/dbus/dbus-auth.c dbus-1.16.2/dbus/dbus-auth.c
 --- dbus-1.16.2.orig/dbus/dbus-auth.c	2025-02-27 11:29:06.000000000 -0500
-+++ dbus-1.16.2/dbus/dbus-auth.c	2026-08-17 19:35:50.440219595 -0400
++++ dbus-1.16.2/dbus/dbus-auth.c	2026-08-17 19:50:02.096214397 -0400
 @@ -1178,6 +1178,11 @@
    if (_dbus_credentials_are_superset (auth->credentials,
                                        auth->desired_identity))
@@ -273,7 +273,7 @@ diff -Naur dbus-1.16.2.orig/dbus/dbus-auth.c dbus-1.16.2/dbus/dbus-auth.c
      NULL, NULL,
 diff -Naur dbus-1.16.2.orig/dbus/dbus-bus.c dbus-1.16.2/dbus/dbus-bus.c
 --- dbus-1.16.2.orig/dbus/dbus-bus.c	2025-02-27 11:29:06.000000000 -0500
-+++ dbus-1.16.2/dbus/dbus-bus.c	2026-08-17 19:35:50.444219595 -0400
++++ dbus-1.16.2/dbus/dbus-bus.c	2026-08-17 19:50:02.096214397 -0400
 @@ -929,6 +929,71 @@
    return (unsigned long) uid;
  }
@@ -348,7 +348,7 @@ diff -Naur dbus-1.16.2.orig/dbus/dbus-bus.c dbus-1.16.2/dbus/dbus-bus.c
   * D-Bus specification. For the session bus, this is useful as a way
 diff -Naur dbus-1.16.2.orig/dbus/dbus-bus.h dbus-1.16.2/dbus/dbus-bus.h
 --- dbus-1.16.2.orig/dbus/dbus-bus.h	2025-02-27 11:29:06.000000000 -0500
-+++ dbus-1.16.2/dbus/dbus-bus.h	2026-08-17 19:35:50.444219595 -0400
++++ dbus-1.16.2/dbus/dbus-bus.h	2026-08-17 19:50:02.096214397 -0400
 @@ -58,6 +58,10 @@
  			                   const char     *name,
                                             DBusError      *error);
@@ -362,7 +362,7 @@ diff -Naur dbus-1.16.2.orig/dbus/dbus-bus.h dbus-1.16.2/dbus/dbus-bus.h
  DBUS_EXPORT
 diff -Naur dbus-1.16.2.orig/dbus/dbus-connection.c dbus-1.16.2/dbus/dbus-connection.c
 --- dbus-1.16.2.orig/dbus/dbus-connection.c	2025-02-27 11:29:06.000000000 -0500
-+++ dbus-1.16.2/dbus/dbus-connection.c	2026-08-17 19:35:50.444219595 -0400
++++ dbus-1.16.2/dbus/dbus-connection.c	2026-08-17 19:50:02.096214397 -0400
 @@ -5262,6 +5262,25 @@
    return result;
  }
@@ -391,7 +391,7 @@ diff -Naur dbus-1.16.2.orig/dbus/dbus-connection.c dbus-1.16.2/dbus/dbus-connect
   * Returns #TRUE if the pid is filled in.
 diff -Naur dbus-1.16.2.orig/dbus/dbus-connection.h dbus-1.16.2/dbus/dbus-connection.h
 --- dbus-1.16.2.orig/dbus/dbus-connection.h	2025-02-27 11:29:06.000000000 -0500
-+++ dbus-1.16.2/dbus/dbus-connection.h	2026-08-17 19:35:50.444219595 -0400
++++ dbus-1.16.2/dbus/dbus-connection.h	2026-08-17 19:50:02.096214397 -0400
 @@ -265,6 +265,9 @@
  dbus_bool_t        dbus_connection_get_unix_user                (DBusConnection             *connection,
                                                                   unsigned long              *uid);
@@ -404,7 +404,7 @@ diff -Naur dbus-1.16.2.orig/dbus/dbus-connection.h dbus-1.16.2/dbus/dbus-connect
  DBUS_EXPORT
 diff -Naur dbus-1.16.2.orig/dbus/dbus-credentials.c dbus-1.16.2/dbus/dbus-credentials.c
 --- dbus-1.16.2.orig/dbus/dbus-credentials.c	2025-02-27 11:29:06.000000000 -0500
-+++ dbus-1.16.2/dbus/dbus-credentials.c	2026-08-17 19:35:50.460219595 -0400
++++ dbus-1.16.2/dbus/dbus-credentials.c	2026-08-17 19:50:02.116214397 -0400
 @@ -64,6 +64,7 @@
    size_t n_unix_gids;
    dbus_pid_t pid;
@@ -413,25 +413,7 @@ diff -Naur dbus-1.16.2.orig/dbus/dbus-credentials.c dbus-1.16.2/dbus/dbus-creden
    char *windows_sid;
    char *linux_security_label;
    void *adt_audit_data;
-@@ -77,6 +78,17 @@
-  * @{
-  */
- 
-+dbus_bool_t _dbus_credentials_add_domid(DBusCredentials *credentials, dbus_int32_t domid)
-+{
-+  credentials->domid = domid;
-+  return TRUE;
-+}
-+
-+dbus_int32_t _dbus_credentials_get_domid(DBusCredentials *credentials)
-+{
-+  return credentials->domid;
-+}
-+
- /**
-  * Creates a new credentials object.
-  *
-@@ -97,6 +109,7 @@
+@@ -97,6 +98,7 @@
    creds->n_unix_gids = 0;
    creds->pid = DBUS_PID_UNSET;
    creds->pid_fd = -1;
@@ -439,7 +421,29 @@ diff -Naur dbus-1.16.2.orig/dbus/dbus-credentials.c dbus-1.16.2/dbus/dbus-creden
    creds->windows_sid = NULL;
    creds->linux_security_label = NULL;
    creds->adt_audit_data = NULL;
-@@ -382,6 +395,8 @@
+@@ -109,6 +111,21 @@
+  * Creates a new object with the most important credentials (user ID and process ID) from the current process.
+  * @returns the new object or #NULL if no memory
+  */
++
++dbus_bool_t
++_dbus_credentials_add_domid (DBusCredentials *credentials,
++                             dbus_int32_t     domid)
++{
++  credentials->domid = domid;
++  return TRUE;
++}
++
++dbus_int32_t
++_dbus_credentials_get_domid (DBusCredentials *credentials)
++{
++  return credentials->domid;
++}
++
+ DBusCredentials*
+ _dbus_credentials_new_from_current_process (void)
+ {
+@@ -382,6 +399,8 @@
        return credentials->linux_security_label != NULL;
      case DBUS_CREDENTIAL_ADT_AUDIT_DATA_ID:
        return credentials->adt_audit_data != NULL;
@@ -448,7 +452,7 @@ diff -Naur dbus-1.16.2.orig/dbus/dbus-credentials.c dbus-1.16.2/dbus/dbus-creden
      default:
        _dbus_assert_not_reached ("Unknown credential enum value");
        return FALSE;
-@@ -509,6 +524,8 @@
+@@ -509,6 +528,8 @@
    return
      (possible_subset->pid == DBUS_PID_UNSET ||
       possible_subset->pid == credentials->pid) &&
@@ -457,7 +461,7 @@ diff -Naur dbus-1.16.2.orig/dbus/dbus-credentials.c dbus-1.16.2/dbus/dbus-creden
      (possible_subset->unix_uid == DBUS_UID_UNSET ||
       possible_subset->unix_uid == credentials->unix_uid) &&
      (possible_subset->unix_gids == NULL ||
-@@ -545,7 +562,8 @@
+@@ -545,7 +566,8 @@
      credentials->n_unix_gids == 0 &&
      credentials->windows_sid == NULL &&
      credentials->linux_security_label == NULL &&
@@ -467,7 +471,7 @@ diff -Naur dbus-1.16.2.orig/dbus/dbus-credentials.c dbus-1.16.2/dbus/dbus-creden
  }
  
  /**
-@@ -595,6 +613,9 @@
+@@ -595,6 +617,9 @@
                                        other_credentials) &&
      _dbus_credentials_add_credential (credentials,
                                        DBUS_CREDENTIAL_WINDOWS_SID,
@@ -477,18 +481,10 @@ diff -Naur dbus-1.16.2.orig/dbus/dbus-credentials.c dbus-1.16.2/dbus/dbus-creden
                                        other_credentials);
  }
  
-@@ -696,6 +717,7 @@
+@@ -675,6 +700,12 @@
+       _dbus_credentials_take_pid_fd (credentials, pid_fd);
      }
  #endif
-   credentials->unix_uid = DBUS_UID_UNSET;
-+  credentials->domid = DBUS_DOMID_UNSET;
-   dbus_free (credentials->unix_gids);
-   credentials->unix_gids = NULL;
-   credentials->n_unix_gids = 0;
-@@ -728,6 +750,12 @@
-       _dbus_credentials_unref (copy);
-       return NULL;
-     }
 +  else if (which == DBUS_CREDENTIAL_DOMID &&
 +           other_credentials->domid != DBUS_DOMID_UNSET)
 +    {
@@ -496,11 +492,19 @@ diff -Naur dbus-1.16.2.orig/dbus/dbus-credentials.c dbus-1.16.2/dbus/dbus-creden
 +        return FALSE;
 +    }
  
-   return copy;
+   return TRUE;
  }
+@@ -688,6 +719,7 @@
+ _dbus_credentials_clear (DBusCredentials    *credentials)
+ {
+   credentials->pid = DBUS_PID_UNSET;
++  credentials->domid = DBUS_DOMID_UNSET;
+ #ifdef DBUS_UNIX
+   if (credentials->pid_fd >= 0)
+     {
 diff -Naur dbus-1.16.2.orig/dbus/dbus-credentials.h dbus-1.16.2/dbus/dbus-credentials.h
 --- dbus-1.16.2.orig/dbus/dbus-credentials.h	2025-02-27 11:29:06.000000000 -0500
-+++ dbus-1.16.2/dbus/dbus-credentials.h	2026-08-17 19:35:50.460219595 -0400
++++ dbus-1.16.2/dbus/dbus-credentials.h	2026-08-17 19:50:02.116214397 -0400
 @@ -40,6 +40,7 @@
    DBUS_CREDENTIAL_LINUX_SECURITY_LABEL,
    DBUS_CREDENTIAL_WINDOWS_SID,
@@ -509,27 +513,28 @@ diff -Naur dbus-1.16.2.orig/dbus/dbus-credentials.h dbus-1.16.2/dbus/dbus-creden
  } DBusCredentialType;
  
  DBUS_PRIVATE_EXPORT
-@@ -59,6 +60,8 @@
- DBUS_PRIVATE_EXPORT
+@@ -60,6 +61,9 @@
  dbus_bool_t      _dbus_credentials_add_unix_uid             (DBusCredentials    *credentials,
                                                               dbus_uid_t          uid);
+ DBUS_PRIVATE_EXPORT
 +dbus_bool_t      _dbus_credentials_add_domid                (DBusCredentials    *credentials,
 +                                                             dbus_int32_t        domid);
- DBUS_PRIVATE_EXPORT
++DBUS_PRIVATE_EXPORT
  void             _dbus_credentials_take_unix_gids           (DBusCredentials    *credentials,
                                                               dbus_gid_t         *gids,
-@@ -85,6 +88,8 @@
-                                                              const dbus_gid_t  **gids,
-                                                              size_t             *n_gids);
+                                                              size_t              n_gids);
+@@ -81,6 +85,8 @@
+ DBUS_PRIVATE_EXPORT
+ dbus_uid_t       _dbus_credentials_get_unix_uid             (DBusCredentials    *credentials);
  DBUS_PRIVATE_EXPORT
 +dbus_int32_t     _dbus_credentials_get_domid                (DBusCredentials    *credentials);
 +DBUS_PRIVATE_EXPORT
- const char*      _dbus_credentials_get_windows_sid          (DBusCredentials    *credentials);
- DBUS_PRIVATE_EXPORT
- const char *     _dbus_credentials_get_linux_security_label (DBusCredentials    *credentials);
+ dbus_bool_t      _dbus_credentials_get_unix_gids            (DBusCredentials    *credentials,
+                                                              const dbus_gid_t  **gids,
+                                                              size_t             *n_gids);
 diff -Naur dbus-1.16.2.orig/dbus/dbus-sysdeps.h dbus-1.16.2/dbus/dbus-sysdeps.h
 --- dbus-1.16.2.orig/dbus/dbus-sysdeps.h	2025-02-27 11:29:06.000000000 -0500
-+++ dbus-1.16.2/dbus/dbus-sysdeps.h	2026-08-17 19:35:50.444219595 -0400
++++ dbus-1.16.2/dbus/dbus-sysdeps.h	2026-08-17 19:50:02.096214397 -0400
 @@ -149,6 +149,8 @@
  /** an invalid GID used to represent an uninitialized dbus_gid_t field */
  #define DBUS_GID_UNSET ((dbus_gid_t) -1)
@@ -541,7 +546,7 @@ diff -Naur dbus-1.16.2.orig/dbus/dbus-sysdeps.h dbus-1.16.2/dbus/dbus-sysdeps.h
  /** an appropriate printf format for dbus_uid_t */
 diff -Naur dbus-1.16.2.orig/dbus/dbus-transport.c dbus-1.16.2/dbus/dbus-transport.c
 --- dbus-1.16.2.orig/dbus/dbus-transport.c	2025-02-27 11:29:06.000000000 -0500
-+++ dbus-1.16.2/dbus/dbus-transport.c	2026-08-17 19:35:50.444219595 -0400
++++ dbus-1.16.2/dbus/dbus-transport.c	2026-08-17 19:50:02.096214397 -0400
 @@ -1358,6 +1358,29 @@
      return FALSE;
  }
@@ -574,7 +579,7 @@ diff -Naur dbus-1.16.2.orig/dbus/dbus-transport.c dbus-1.16.2/dbus/dbus-transpor
   *
 diff -Naur dbus-1.16.2.orig/dbus/dbus-transport.h dbus-1.16.2/dbus/dbus-transport.h
 --- dbus-1.16.2.orig/dbus/dbus-transport.h	2025-02-27 11:29:06.000000000 -0500
-+++ dbus-1.16.2/dbus/dbus-transport.h	2026-08-17 19:35:50.444219595 -0400
++++ dbus-1.16.2/dbus/dbus-transport.h	2026-08-17 19:50:02.096214397 -0400
 @@ -77,6 +77,8 @@
                                                             DBusSocket                 *fd_p);
  dbus_bool_t        _dbus_transport_get_unix_user          (DBusTransport              *transport,
