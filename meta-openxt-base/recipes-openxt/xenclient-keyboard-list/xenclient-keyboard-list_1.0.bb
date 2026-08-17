@@ -8,7 +8,7 @@ SRC_URI = "file://supported-keyboards \
 
 FILES:${PN} = "${datadir}/xenclient/keyboards"
 
-S = "${WORKDIR}/src"
+S = "${UNPACKDIR}/src"
 
 do_compile() {
     perl ${WORKDIR}/generate-keyboard-list \

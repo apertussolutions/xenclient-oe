@@ -14,7 +14,7 @@ SRC_URI += "file://argo-exec.c \
 
 DEPENDS = "xen-tools libargo"
 
-S = "${WORKDIR}/src"
+S = "${UNPACKDIR}/src"
 UNPACKDIR = "${S}"
 CFLAGS += "-Wall -Werror"
 export LDLIBS = "-largo"

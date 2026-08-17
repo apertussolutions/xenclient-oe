@@ -32,7 +32,7 @@ SRC_URI += " \
     file://updatemgr-verify-packages.patch \
 "
 
-S = "${WORKDIR}/git/updatemgr"
+S = "${UNPACKDIR}/git/updatemgr"
 
 inherit update-rc.d haskell xc-rpcgen
 

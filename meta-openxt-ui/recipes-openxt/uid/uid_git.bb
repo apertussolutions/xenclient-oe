@@ -19,7 +19,7 @@ SRC_URI += " \
     file://uid.initscript \
 "
 
-S = "${WORKDIR}/git"
+S = "${UNPACKDIR}/git"
 
 inherit update-rc.d ocaml findlib pkgconfig
 

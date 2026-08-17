@@ -28,7 +28,7 @@ SRC_URI += " \
     file://rpc-proxy.initscript \
 "
 
-S = "${WORKDIR}/git/rpc-proxy"
+S = "${UNPACKDIR}/git/rpc-proxy"
 
 HPV = "1.0"
 require recipes-openxt/xclibs/xclibs-haskell.inc

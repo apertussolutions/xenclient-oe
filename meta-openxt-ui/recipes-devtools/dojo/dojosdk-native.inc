@@ -4,7 +4,7 @@ inherit native
 
 SRC_URI = "https://download.dojotoolkit.org/release-${PV}/dojo-release-${PV}-src.tar.gz"
 
-S = "${WORKDIR}/src"
+S = "${UNPACKDIR}/src"
 UNPACKDIR = "${S}"
 do_configure () {
     :

@@ -5,7 +5,7 @@ DEPENDS = "argo-module-headers"
 
 require argo.inc
 
-S = "${WORKDIR}/git/libargo"
+S = "${UNPACKDIR}/git/libargo"
 
 inherit autotools-brokensep pkgconfig lib_package
 

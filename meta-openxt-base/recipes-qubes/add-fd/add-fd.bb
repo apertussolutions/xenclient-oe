@@ -9,7 +9,7 @@ SRC_URI = " \
 "
 SRCREV = "2a814bd1edaf549ef9252eb6747aa6137abf9831"
 
-S = "${WORKDIR}/git"
+S = "${UNPACKDIR}/git"
 
 do_configure() {
 }

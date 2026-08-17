@@ -8,7 +8,7 @@ SRC_URI = " \
 "
 SRCREV = "e952c35a7c46a18931880b0b08da7382e472406d"
 
-S = "${WORKDIR}/git"
+S = "${UNPACKDIR}/git"
 
 PACKAGES =+ "${PN}-sender ${PN}-receiver"
 

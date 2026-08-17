@@ -15,7 +15,7 @@ SRC_URI = "file://sec-change-pass \
         file://sec-new-user-without-password \
 "
 
-S = "${WORKDIR}/src"
+S = "${UNPACKDIR}/src"
 UNPACKDIR = "${S}"
 do_install() {
 	install -d ${D}${bindir}

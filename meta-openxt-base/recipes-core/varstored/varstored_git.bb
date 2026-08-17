@@ -19,7 +19,7 @@ DEPENDS = " \
 SRCREV = "${AUTOREV}"
 PV = "0+git${SRCPV}"
 
-S = "${WORKDIR}/git"
+S = "${UNPACKDIR}/git"
 
 SRC_URI = " \
     git://github.com/xapi-project/varstored.git;protocol=https;branch=master \

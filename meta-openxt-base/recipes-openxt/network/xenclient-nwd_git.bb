@@ -13,7 +13,7 @@ DEPENDS = " \
 
 require network.inc
 
-S = "${WORKDIR}/git/nwd"
+S = "${UNPACKDIR}/git/nwd"
 
 inherit haskell update-rc.d xc-rpcgen
 

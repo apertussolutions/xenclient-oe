@@ -12,7 +12,7 @@ SRC_URI = "file://dbusbouncer.c \
 INITSCRIPT_NAME = "dbusbouncer"
 INITSCRIPT_PARAMS = "defaults 29 71"
 
-S = "${WORKDIR}/src"
+S = "${UNPACKDIR}/src"
 UNPACKDIR = "${S}"
 inherit update-rc.d
 

@@ -11,7 +11,7 @@ SRC_URI = "file://cryptdisks.initscript \
 INITSCRIPT_NAME = "cryptdisks"
 INITSCRIPT_PARAMS = "start 34 S ."
 
-S = "${WORKDIR}/src"
+S = "${UNPACKDIR}/src"
 UNPACKDIR = "${S}"
 inherit update-rc.d
 

@@ -9,7 +9,7 @@ SRC_URI = "git://salsa.debian.org/installer-team/console-setup.git;protocol=http
 # The hash of the 1.191 tag:
 SRCREV = "681544fa6481fb62b362f4fadeda5bbdf3389307"
 
-S = "${WORKDIR}/git"
+S = "${UNPACKDIR}/git"
 
 inherit native
 

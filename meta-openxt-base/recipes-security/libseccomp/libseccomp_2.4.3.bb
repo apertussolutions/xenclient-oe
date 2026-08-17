@@ -10,7 +10,7 @@ SRC_URI = "git://github.com/seccomp/libseccomp.git;branch=release-2.4;protocol=h
            file://run-ptest \
 "
 
-S = "${WORKDIR}/git"
+S = "${UNPACKDIR}/git"
 
 inherit autotools-brokensep pkgconfig ptest
 

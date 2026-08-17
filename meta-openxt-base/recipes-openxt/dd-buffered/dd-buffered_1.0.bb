@@ -7,7 +7,7 @@ PR = "r1"
 SRC_URI = "file://dd-buffered.c \
 "
 
-S = "${WORKDIR}/src"
+S = "${UNPACKDIR}/src"
 UNPACKDIR = "${S}"
 do_compile() {
 	oe_runmake dd-buffered

@@ -25,7 +25,7 @@ SRC_URI = "git://github.com/rhboot/pesign;branch=main;protocol=https \
     file://0003-cast-macro.patch \
     "
 
-S = "${WORKDIR}/git"
+S = "${UNPACKDIR}/git"
 
 inherit pkgconfig
 

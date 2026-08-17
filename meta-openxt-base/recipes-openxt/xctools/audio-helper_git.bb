@@ -12,7 +12,7 @@ SRC_URI += " \
     file://audio_helper_start \
 "
 
-S = "${WORKDIR}/git/audio_helper"
+S = "${UNPACKDIR}/git/audio_helper"
 
 inherit autotools
 inherit pkgconfig

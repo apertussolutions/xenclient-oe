@@ -28,7 +28,7 @@ SRC_URI = "git://github.com/xapi-project/blktap.git;protocol=https;branch=master
     file://0001-tap-ctl-Default-to-read-only-opening.patch \
 "
 
-S = "${WORKDIR}/git"
+S = "${UNPACKDIR}/git"
 
 inherit autotools-brokensep update-rc.d
 

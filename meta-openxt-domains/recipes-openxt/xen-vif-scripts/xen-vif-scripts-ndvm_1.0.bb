@@ -7,7 +7,7 @@ SRC_URI = " \
     file://xen-vif-backend.rules \
 "
 
-S = "${WORKDIR}/src"
+S = "${UNPACKDIR}/src"
 UNPACKDIR = "${S}"
 inherit allarch
 

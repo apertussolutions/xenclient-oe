@@ -14,7 +14,7 @@ LIC_FILES_CHKSUM ?= "file://COPYING;md5=d1a1e216f80b6d8da95fec897d0dbec9"
 
 PV = "${XEN_REL}+git${SRCPV}"
 
-S = "${WORKDIR}/git"
+S = "${UNPACKDIR}/git"
 
 require recipes-extended/xen/xen.inc
 require xen-common.inc

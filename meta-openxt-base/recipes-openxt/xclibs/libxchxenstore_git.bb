@@ -13,7 +13,7 @@ RDEPENDS:${PN} += " \
 
 require xclibs.inc
 
-S = "${WORKDIR}/git/xchxenstore"
+S = "${UNPACKDIR}/git/xchxenstore"
 
 HPN = "xchxenstore"
 HPV = "0.1"

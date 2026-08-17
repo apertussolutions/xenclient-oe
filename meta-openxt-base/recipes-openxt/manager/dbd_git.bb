@@ -22,7 +22,7 @@ SRC_URI += " \
     file://db-cat-dom0 \
 "
 
-S = "${WORKDIR}/git/dbd"
+S = "${UNPACKDIR}/git/dbd"
 # brokensep.
 B = "${S}"
 

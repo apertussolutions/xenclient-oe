@@ -6,7 +6,7 @@ SRC_URI = " \
     file://selinux-load.sh \
 "
 
-S = "${WORKDIR}/src"
+S = "${UNPACKDIR}/src"
 UNPACKDIR = "${S}"
 inherit allarch
 

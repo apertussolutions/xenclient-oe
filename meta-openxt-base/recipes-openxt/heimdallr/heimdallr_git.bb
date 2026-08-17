@@ -13,7 +13,7 @@ SRC_URI = "git://github.com/achartier/heimdallr.git;protocol=https;branch=master
            "
 SRCREV = "16b0da1e69e92ef8c0834e8a377c13aea823cfa2"
 
-S = "${WORKDIR}/git"
+S = "${UNPACKDIR}/git"
 
 # Hack to get CFLAGS not wiped out by OE
 EXTRA_OEMAKE = ""

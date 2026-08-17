@@ -31,7 +31,7 @@ SRC_URI = " \
 
 SRCREV = "51413d1deb0df0debdf1d208723131ff0e36d3a3"
 
-S = "${WORKDIR}/git"
+S = "${UNPACKDIR}/git"
 
 EXTRA_OEMAKE = "\
     CROSS_COMPILE = "${TARGET_PREFIX}" \
