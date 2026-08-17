@@ -22,31 +22,43 @@ This document tracks the port. Wrynose is a large jump from Dunfell (YP 3.1 →
 | `inherit distutils3` → `setuptools3` | Done |
 | SPDX `LICENSE` strings (GPLv2 → GPL-2.0-only, …) | Done |
 | `LIC_FILES_CHKSUM` `COMMON_LICENSE_DIR` paths | Done |
-| Recipe version bumps vs OE-Core / meta-oe wrynose | Pending |
+| Recipe version bumps vs OE-Core / meta-oe wrynose | In progress (bbappend renames) |
 | Kernel / linux-libc-headers alignment for wrynose | Pending |
 | Xen / meta-virtualization wrynose integration | Pending |
 | SELinux (meta-selinux wrynose) / refpolicy | Pending |
-| Haskell / OCaml platform layers on wrynose | Pending |
-| openxt kas: pin repos to wrynose + this branch | Pending |
-| Parse-only / image builds | Pending |
+| Haskell / OCaml platform layers on wrynose | Local unblocks only (trixie) |
+| openxt kas: pin repos to wrynose + this branch | Done (`kas-wrynose`) |
+| Parse-only smoke (`bitbake -p`, headless dom0) | **Done** (0 errors, warnings remain) |
+| Image builds | Pending |
 
-## Dependency pins (openxt kas — not yet switched)
+## openxt kas branch
 
-When ready, `openxt/kas/common/base.yml` (and composition defaults) should move
-from `dunfell` to `wrynose` (or matching LTS branch names), for example:
+| Item | Value |
+|------|--------|
+| openxt branch | `kas-wrynose` |
+| Layer dir | `layers-wrynose/` (dunfell `layers/` preserved) |
+| Build instance | `builds/wrynose-test` |
+| Entry | `kas checkout kas/dom0.yml` then `kas shell kas/dom0.yml -c 'bitbake -p'` |
+| Host PATH | Include `/usr/local/haskell/bin` for `ghc` / `ghc-pkg` HOSTTOOLS |
 
-| Repo | Dunfell today | Wrynose target |
-|------|---------------|----------------|
-| bitbake | 1.46 | wrynose-series bitbake |
-| openembedded-core | dunfell | wrynose |
-| meta-openembedded | dunfell | wrynose |
-| meta-intel / meta-selinux / meta-virtualization | dunfell | wrynose |
-| meta-qt5 | dunfell | wrynose (or successor) |
-| xenclient-oe | layer-split-v3 | **layer-split-wrynose** |
-| meta-openxt-{ocaml,haskell}-platform | trixie | TBD (wrynose branch) |
+| Repo | Wrynose pin |
+|------|-------------|
+| bitbake | `2.18` |
+| openembedded-core / meta-oe / meta-intel / meta-selinux / meta-virtualization / meta-qt5 | `wrynose` |
+| xenclient-oe | `layer-split-wrynose` (seed from local if not published) |
+| meta-openxt-{ocaml,haskell}-platform | `trixie` + local override conversion |
+| meta-vglass | `master` + local override conversion |
 
-Do **not** point the existing dunfell ISO pipeline at this branch until those
-external layers exist and parse.
+Do **not** point the dunfell ISO pipeline (`layers/`, `iso-test`) at this branch.
+
+## Parse smoke result (headless dom0)
+
+```text
+Parsing of 3540 .bb files complete. 5985 targets, 546 skipped, 3 masked, 0 errors.
+```
+
+Remaining warnings include whitespace around `=`, deprecated `CVE_CHECK_IGNORE`,
+and residual `DEPENDS:append +=` style (non-fatal).
 
 ## Mechanical conversion notes
 
