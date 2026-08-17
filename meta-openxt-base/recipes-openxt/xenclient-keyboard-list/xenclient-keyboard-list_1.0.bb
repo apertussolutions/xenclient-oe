@@ -11,9 +11,9 @@ FILES:${PN} = "${datadir}/xenclient/keyboards"
 S = "${UNPACKDIR}/src"
 
 do_compile() {
-    perl ${WORKDIR}/generate-keyboard-list \
+    perl ${UNPACKDIR}/generate-keyboard-list \
         ${STAGING_DATADIR}/X11/xkb/rules/evdev.lst \
-        ${WORKDIR}/supported-keyboards > keyboards
+        ${UNPACKDIR}/supported-keyboards > keyboards
 }
 
 do_install() {

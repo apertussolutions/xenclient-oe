@@ -14,9 +14,9 @@ inherit update-rc.d
 
 do_install() {
     install -d ${D}${sbindir}
-    install -m 0755 ${WORKDIR}/language-sync ${D}${sbindir}
+    install -m 0755 ${UNPACKDIR}/language-sync ${D}${sbindir}
 
     install -d ${D}${sysconfdir}/init.d
-    install -m 0755 ${WORKDIR}/language-sync.initscript \
+    install -m 0755 ${UNPACKDIR}/language-sync.initscript \
             ${D}${sysconfdir}/init.d/language-sync
 }

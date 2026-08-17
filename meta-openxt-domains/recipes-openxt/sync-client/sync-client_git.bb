@@ -50,6 +50,6 @@ FILES:sync-cmd = " \
 
 do_install:append() {
     install -d ${D}${sysconfdir}/init.d
-    install -m 0755 ${WORKDIR}/${INITSCRIPT_NAME}.initscript \
+    install -m 0755 ${UNPACKDIR}/${INITSCRIPT_NAME}.initscript \
             ${D}${sysconfdir}/init.d/${INITSCRIPT_NAME}
 }

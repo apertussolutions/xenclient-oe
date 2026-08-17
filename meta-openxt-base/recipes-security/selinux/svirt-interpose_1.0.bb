@@ -17,7 +17,7 @@ do_compile() {
 
 do_install() {
 	     install -d ${D}${sbindir}
-	     install -m 0755 ${WORKDIR}/svirt-interpose ${D}${sbindir}
+	     install -m 0755 ${UNPACKDIR}/svirt-interpose ${D}${sbindir}
 }
 
 DEBUG_BUILD = "1"

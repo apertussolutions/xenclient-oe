@@ -30,7 +30,7 @@ SRC_URI[PREBOOT.sha256sum] = "83dac749d74a6a54d7451bee79f9e1d605c4e2775d6b524d39
 do_extract_bootutil() {
     if ${@bb.utils.contains('PACKAGECONFIG', 'e1000', 'true', 'false', d)}; then
         mkdir -p "${S}/Intel3.5/EFIX64"
-        unzip -q -p "${WORKDIR}/PREBOOT.EXE" "APPS/EFI/EFIx64/E3522X2.EFI" > "${S}/Intel3.5/EFIX64/E3522X2.EFI"
+        unzip -q -p "${UNPACKDIR}/PREBOOT.EXE" "APPS/EFI/EFIx64/E3522X2.EFI" > "${S}/Intel3.5/EFIX64/E3522X2.EFI"
     fi
 }
 addtask do_extract_bootutil before do_configure after do_unpack
@@ -43,20 +43,20 @@ do_compile:class-target:append() {
         bbnote "Building with E1000 (support for netboot)."
         rm -rf ${S}/Build/Ovmf$OVMF_DIR_SUFFIX
         ${S}/OvmfPkg/build.sh $PARALLEL_JOBS -a $OVMF_ARCH -b RELEASE -t ${FIXED_GCCVER} -D E1000_ENABLE -D XEN_VARIABLE_ENABLE=TRUE -D SECURE_BOOT_ENABLE=TRUE
-        ln ${build_dir}/FV/OVMF.fd ${WORKDIR}/ovmf/ovmf.e1000.fd
-        ln ${build_dir}/FV/OVMF_CODE.fd ${WORKDIR}/ovmf/ovmf.e1000.code.fd
+        ln ${build_dir}/FV/OVMF.fd ${UNPACKDIR}/ovmf/ovmf.e1000.fd
+        ln ${build_dir}/FV/OVMF_CODE.fd ${UNPACKDIR}/ovmf/ovmf.e1000.code.fd
     fi
 }
 
 do_install:class-target:append() {
     install -d ${D}${datadir}/firmware
     if ${@bb.utils.contains('PACKAGECONFIG', 'e1000', 'true', 'false', d)}; then
-        install -m 0600 ${WORKDIR}/ovmf/ovmf.e1000.fd ${D}${datadir}/firmware/ovmf.e1000.bin
+        install -m 0600 ${UNPACKDIR}/ovmf/ovmf.e1000.fd ${D}${datadir}/firmware/ovmf.e1000.bin
         ln -sf ovmf.e1000.bin ${D}${datadir}/firmware/ovmf.bin
     else
         # Stock OVMF FD as firmware when E1000 embedding is disabled.
-        if [ -f ${WORKDIR}/ovmf/ovmf.fd ]; then
-            install -m 0600 ${WORKDIR}/ovmf/ovmf.fd ${D}${datadir}/firmware/ovmf.bin
+        if [ -f ${UNPACKDIR}/ovmf/ovmf.fd ]; then
+            install -m 0600 ${UNPACKDIR}/ovmf/ovmf.fd ${D}${datadir}/firmware/ovmf.bin
         fi
     fi
 }

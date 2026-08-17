@@ -10,7 +10,7 @@ SRC_URI = "file://secure-vm \
 S = "${UNPACKDIR}"
 do_install() {
 	install -d ${D}${bindir}
-	install -m 0755 ${WORKDIR}/secure-vm ${D}${bindir}
+	install -m 0755 ${UNPACKDIR}/secure-vm ${D}${bindir}
 }
 
 RDEPENDS:${PN} += "bash"

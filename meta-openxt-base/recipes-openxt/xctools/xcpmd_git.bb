@@ -24,5 +24,5 @@ INITSCRIPT_PARAMS = "defaults 60 19"
 do_install:append() {
 # RJP TODO remove xenpmd from xenclient-tools clam bake
 	install -d ${D}${sysconfdir}/init.d
-	install -m 0755 ${WORKDIR}/xcpmd.initscript ${D}${sysconfdir}/init.d/xcpmd
+	install -m 0755 ${UNPACKDIR}/xcpmd.initscript ${D}${sysconfdir}/init.d/xcpmd
 }

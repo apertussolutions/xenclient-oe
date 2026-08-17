@@ -19,13 +19,13 @@ FILES:${PN} = "${libdir}/tpm-scripts"
 
 do_install() {
     install -d ${D}${libdir}/tpm-scripts
-    install -m 0755 ${WORKDIR}/tpm-functions ${D}${libdir}/tpm-scripts
+    install -m 0755 ${UNPACKDIR}/tpm-functions ${D}${libdir}/tpm-scripts
     install -d ${D}${libdir}/tpm-scripts/quirks.d
-    for detect in ${WORKDIR}/*-detect.sh; do
+    for detect in ${UNPACKDIR}/*-detect.sh; do
         [ -e "${detect}" ] || continue
         install -m 0755 ${detect} ${D}${libdir}/tpm-scripts/quirks.d
     done
-    for fix in ${WORKDIR}/*-fix.sh; do
+    for fix in ${UNPACKDIR}/*-fix.sh; do
         [ -e "${fix}" ] || continue
         install -m 0755 ${fix} ${D}${libdir}/tpm-scripts/quirks.d
     done

@@ -54,6 +54,6 @@ do_configure:append() {
 
 do_install:append() {
 	install -m 0755 -d ${D}${sysconfdir}/init.d
-	install -m 0755 ${WORKDIR}/updatemgr.initscript ${D}${sysconfdir}/init.d/updatemgr
+	install -m 0755 ${UNPACKDIR}/updatemgr.initscript ${D}${sysconfdir}/init.d/updatemgr
 }
 

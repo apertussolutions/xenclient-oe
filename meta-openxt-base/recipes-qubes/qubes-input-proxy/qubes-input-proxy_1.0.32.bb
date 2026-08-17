@@ -22,5 +22,5 @@ do_install() {
     oe_runmake -C src install DESTDIR=${D}
 
     install -d ${D}${sysconfdir}/modules-load.d/
-    install -m 0644 ${WORKDIR}/uinput.conf ${D}${sysconfdir}/modules-load.d/
+    install -m 0644 ${UNPACKDIR}/uinput.conf ${D}${sysconfdir}/modules-load.d/
 }

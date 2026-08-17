@@ -26,5 +26,5 @@ do_install() {
         oe_runmake DESTDIR="${D}/usr/bin" install
 
         install -d ${D}${sysconfdir}
-        install -m 0644 ${WORKDIR}/pci-quirks.json ${D}${sysconfdir}
+        install -m 0644 ${UNPACKDIR}/pci-quirks.json ${D}${sysconfdir}
 }

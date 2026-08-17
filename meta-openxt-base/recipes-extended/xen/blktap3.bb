@@ -49,7 +49,7 @@ do_install:append() {
         rm -rf ${D}/usr/lib/systemd
     fi
     install -d ${D}${INIT_D_DIR}
-    install -m 0755 ${WORKDIR}/tapback.initscript \
+    install -m 0755 ${UNPACKDIR}/tapback.initscript \
                     ${D}${INIT_D_DIR}/tapback
 }
 

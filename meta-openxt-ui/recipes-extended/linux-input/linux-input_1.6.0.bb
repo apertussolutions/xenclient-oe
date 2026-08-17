@@ -19,5 +19,5 @@ do_install() {
 	install -d ${D}${sbindir}
 	install inputattach ${D}${sbindir}
 	install -d ${D}/etc/udev/rules.d
-	install -c -m 655 ${WORKDIR}/99-wacom-serial.rules ${D}/etc/udev/rules.d/ 
+	install -c -m 655 ${UNPACKDIR}/99-wacom-serial.rules ${D}/etc/udev/rules.d/ 
 }

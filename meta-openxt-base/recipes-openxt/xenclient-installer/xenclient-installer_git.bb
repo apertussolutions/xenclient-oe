@@ -28,7 +28,7 @@ do_install () {
         network_manual_download_win.ans \
         network_upgrade.ans
     do
-        install -m 0644 "${WORKDIR}/${f}" "${D}/${f}"
+        install -m 0644 "${UNPACKDIR}/${f}" "${D}/${f}"
     done
 }
 

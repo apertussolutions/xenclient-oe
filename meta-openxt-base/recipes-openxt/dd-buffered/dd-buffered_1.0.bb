@@ -14,5 +14,5 @@ do_compile() {
 
 do_install() {
 	install -d ${D}${bindir}
-	install -m 0755 ${WORKDIR}/dd-buffered ${D}${bindir}
+	install -m 0755 ${UNPACKDIR}/dd-buffered ${D}${bindir}
 }
