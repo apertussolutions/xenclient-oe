@@ -19,7 +19,7 @@ Date:   Wed Apr 15 15:56:57 2015 -0500
     
     Signed-off-by: Ben Shelton <ben.shelton@ni.com>
 
-Upstream-Status: Accepted
+Upstream-Status: Inappropriate [OpenXT: mount procfs before SELinux checks]
 
 Index: libselinux-2.7/src/init.c
 ===================================================================
