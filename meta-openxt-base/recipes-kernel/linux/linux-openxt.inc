@@ -22,5 +22,6 @@ do_configure:prepend() {
     fi
 }
 
-# gcc 15 defaults to -std=gnu23; Linux 6.1 realmode and headers still need C11.
-EXTRA_OEMAKE += "KCFLAGS=-std=gnu11 REALMODE_CFLAGS+=-std=gnu11"
+
+# gcc 15 defaults to -std=gnu23; Linux 6.1 (incl. realmode) needs C11.
+KERNEL_CC:append = " -std=gnu11"

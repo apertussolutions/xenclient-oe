@@ -13,6 +13,7 @@ SRC_URI += "${KERNELORG_MIRROR}/linux/kernel/v${PV_MAJOR}.x/linux-${PV}.tar.xz;n
     file://dont-suspend-xen-serial-port.patch \
     file://extra-mt-input-devices.patch \
     file://blktap2.patch \
+    file://blktap-access_ok-cast.patch \
     file://pci-pt-move-unaligned-resources.patch \
     file://pci-pt-flr.patch \
     file://usbback-base.patch \

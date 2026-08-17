@@ -1,0 +1,16 @@
+Upstream-Status: Inappropriate [OpenXT]
+Subject: [PATCH] blktap: cast ioctl argument for modern access_ok()
+
+access_ok() takes a user pointer, not an unsigned long.
+
+--- a/drivers/block/blktap/device.c
++++ b/drivers/block/blktap/device.c
+@@ -102,7 +102,7 @@ static int blktap_device_ioctl(struct blo
+ 		return 0;
+ 
+ 	case SCSI_IOCTL_GET_IDLUN:
+-		if (!access_ok(argument, sizeof(struct scsi_idlun)))
++		if (!access_ok((void __user *)argument, sizeof(struct scsi_idlun)))
+ 			return -EFAULT;
+ 
+ 		/* return 0 for now. */
