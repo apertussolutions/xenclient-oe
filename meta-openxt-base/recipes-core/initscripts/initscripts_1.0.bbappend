@@ -32,34 +32,34 @@ do_install () {
 	install -d ${D}${sysconfdir}/default
 	install -d ${D}${sysconfdir}/default/volatiles
 
-	install -m 0644    ${WORKDIR}/functions		${D}${sysconfdir}/init.d
-	install -m 0644    ${WORKDIR}/functions-selinux	${D}${sysconfdir}/init.d
-	install -m 0644    ${WORKDIR}/functions-dbus	${D}${sysconfdir}/init.d
-	install -m 0755    ${WORKDIR}/bootmisc.sh	${D}${sysconfdir}/init.d
-	install -m 0755    ${WORKDIR}/checkroot.sh	${D}${sysconfdir}/init.d
-	install -m 0755    ${WORKDIR}/halt		${D}${sysconfdir}/init.d
-	install -m 0755    ${WORKDIR}/hostname.sh	${D}${sysconfdir}/init.d
-	install -m 0755    ${WORKDIR}/mountall.sh	${D}${sysconfdir}/init.d
-	install -m 0755    ${WORKDIR}/reboot		${D}${sysconfdir}/init.d
-	install -m 0755    ${WORKDIR}/rmnologin.sh	${D}${sysconfdir}/init.d
-	install -m 0755    ${WORKDIR}/sendsigs		${D}${sysconfdir}/init.d
-	install -m 0755    ${WORKDIR}/single		${D}${sysconfdir}/init.d
-	install -m 0755    ${WORKDIR}/urandom		${D}${sysconfdir}/init.d
-	install -m 0755    ${WORKDIR}/populate-volatile.sh ${D}${sysconfdir}/init.d
-	install -m 0644    ${WORKDIR}/volatiles		${D}${sysconfdir}/default/volatiles/00_core
-	install -m 0755    ${WORKDIR}/finish.sh		${D}${sysconfdir}/init.d
-	install -m 0755    ${WORKDIR}/mountearly.sh	${D}${sysconfdir}/init.d
-	install -m 0755    ${WORKDIR}/udev-volatiles.sh	${D}${sysconfdir}/init.d
+	install -m 0644    ${S}/functions		${D}${sysconfdir}/init.d
+	install -m 0644    ${S}/functions-selinux	${D}${sysconfdir}/init.d
+	install -m 0644    ${S}/functions-dbus	${D}${sysconfdir}/init.d
+	install -m 0755    ${S}/bootmisc.sh	${D}${sysconfdir}/init.d
+	install -m 0755    ${S}/checkroot.sh	${D}${sysconfdir}/init.d
+	install -m 0755    ${S}/halt		${D}${sysconfdir}/init.d
+	install -m 0755    ${S}/hostname.sh	${D}${sysconfdir}/init.d
+	install -m 0755    ${S}/mountall.sh	${D}${sysconfdir}/init.d
+	install -m 0755    ${S}/reboot		${D}${sysconfdir}/init.d
+	install -m 0755    ${S}/rmnologin.sh	${D}${sysconfdir}/init.d
+	install -m 0755    ${S}/sendsigs		${D}${sysconfdir}/init.d
+	install -m 0755    ${S}/single		${D}${sysconfdir}/init.d
+	install -m 0755    ${S}/urandom		${D}${sysconfdir}/init.d
+	install -m 0755    ${S}/populate-volatile.sh ${D}${sysconfdir}/init.d
+	install -m 0644    ${S}/volatiles		${D}${sysconfdir}/default/volatiles/00_core
+	install -m 0755    ${S}/finish.sh		${D}${sysconfdir}/init.d
+	install -m 0755    ${S}/mountearly.sh	${D}${sysconfdir}/init.d
+	install -m 0755    ${S}/udev-volatiles.sh	${D}${sysconfdir}/init.d
 
 	if ${@bb.utils.contains('DISTRO_FEATURES','selinux','true','false',d)}; then
 		install -d ${D}/${base_sbindir}
-		install -m 0755 ${WORKDIR}/sushell ${D}/${base_sbindir}
+		install -m 0755 ${S}/sushell ${D}/${base_sbindir}
 	fi
 
 #
 # Install device dependent scripts
 #
-	install -m 0755 ${WORKDIR}/umountfs	${D}${sysconfdir}/init.d/umountfs
+	install -m 0755 ${S}/umountfs	${D}${sysconfdir}/init.d/umountfs
 
 #
 # Create runlevel links
@@ -81,7 +81,7 @@ do_install () {
 }
 
 do_install:append:openxt-installer() {
-	install -m 0755    ${WORKDIR}/mountefi.sh	${D}${sysconfdir}/init.d
+	install -m 0755    ${S}/mountefi.sh	${D}${sysconfdir}/init.d
 	update-rc.d -r ${D} mountefi.sh start 36 S .
 }
 
