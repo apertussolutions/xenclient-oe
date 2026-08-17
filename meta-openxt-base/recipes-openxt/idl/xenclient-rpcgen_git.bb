@@ -1,6 +1,6 @@
 DESCRIPTION = "rpc stubs generation mechanism"
 LICENSE = "GPL-2.0-only"
-LIC_FILES_CHKSUM="file://../COPYING;md5=4641e94ec96f98fabc56ff9cc48be14b"
+LIC_FILES_CHKSUM = "file://../COPYING;md5=4641e94ec96f98fabc56ff9cc48be14b"
 DEPENDS = " \
     dbus \
     hkg-dbus \
@@ -14,7 +14,7 @@ inherit haskell
 
 # This has to stay consistent with xc-rpcgen.bbclass.
 RPCGEN_VERSION = "1.0"
-TEMPLATES_DIR="xc-rpcgen-${RPCGEN_VERSION}/templates"
+TEMPLATES_DIR = "xc-rpcgen-${RPCGEN_VERSION}/templates"
 
 BBCLASSEXTEND = "native"
 

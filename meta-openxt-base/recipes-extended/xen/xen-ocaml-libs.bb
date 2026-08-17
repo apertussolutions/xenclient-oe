@@ -53,15 +53,15 @@ EXTRA_OECONF:remove = "--disable-ocamltools"
 # OCAMLDESTDIR is set to $DESTDIR/$(ocamlfind printconf destdir), yet DESTDIR
 # is required for other binaries installation, so override OCAMLDESTDIR.
 EXTRA_OEMAKE += " \
-    CROSS_SYS_ROOT=${STAGING_DIR_HOST} \
-    CROSS_COMPILE=${HOST_PREFIX} \
-    CONFIG_IOEMU=n \
-    DESTDIR=${D} \
-    OCAMLDESTDIR=${D}${sitelibdir} \
+    CROSS_SYS_ROOT = ${STAGING_DIR_HOST} \
+    CROSS_COMPILE = ${HOST_PREFIX} \
+    CONFIG_IOEMU = n \
+    DESTDIR = ${D} \
+    OCAMLDESTDIR = ${D}${sitelibdir} \
     "
 
 TARGET_CC_ARCH += "${LDFLAGS}"
-CC_FOR_OCAML="${TARGET_PREFIX}gcc"
+CC_FOR_OCAML = "${TARGET_PREFIX}gcc"
 
 INITSCRIPT_PACKAGES = "${PN}-xenstored"
 INITSCRIPT_NAME:${PN}-xenstored = "xenstored"

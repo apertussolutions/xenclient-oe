@@ -59,12 +59,12 @@ build_syslinux_cfg () {
         echo "  KERNEL mboot.c32" >> ${SYSLINUX_CFG}
 
         echo -n "  APPEND" >> ${SYSLINUX_CFG}
-        count=1
+        count = 1
         for m in ${SYSLINUX_MULTIBOOT}; do
             if [ ${count} -ne 1 ]; then
                 echo -n " ---" >> ${SYSLINUX_CFG}
             fi
-            cmdline=$(echo "$x" | sed -n ${count}p)
+            cmdline = $(echo "$x" | sed -n ${count}p)
             if [ -n "${cmdline}" ]; then
                 echo -ne " /$m $cmdline" >> ${SYSLINUX_CFG}
             else

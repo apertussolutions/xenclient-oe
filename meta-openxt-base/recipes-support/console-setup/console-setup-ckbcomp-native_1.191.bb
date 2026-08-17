@@ -1,6 +1,6 @@
 DESCRIPTION = "Convert XKB keymap to console keymap"
 LICENSE = "GPL-2.0-only"
-LIC_FILES_CHKSUM="file://COPYRIGHT;md5=49cab1cfd397b014807c5b2bcc63e04f"
+LIC_FILES_CHKSUM = "file://COPYRIGHT;md5=49cab1cfd397b014807c5b2bcc63e04f"
 RDEPENDS:${PN} = "perl-native"
 
 # Don't bother building the whole package. We only want the ckbcomp script.

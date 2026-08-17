@@ -24,7 +24,7 @@ PACKAGES =+ "argo-input-receiver argo-input-sender"
 RDEPENDS:argo-input-receiver = "argo-exec qubes-input-proxy-receiver"
 RDEPENDS:argo-input-sender = "argo-exec qubes-input-proxy-sender"
 
-INITSCRIPT_PACKAGES="argo-input-receiver argo-input-sender"
+INITSCRIPT_PACKAGES = "argo-input-receiver argo-input-sender"
 INITSCRIPT_NAME:argo-input-receiver = "argo-input-receiver"
 INITSCRIPT_PARAMS:argo-input-receiver = "defaults 50"
 INITSCRIPT_NAME:argo-input-sender = "argo-input-sender-kick"

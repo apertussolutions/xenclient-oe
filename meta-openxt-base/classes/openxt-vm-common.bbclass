@@ -22,7 +22,7 @@ python() {
 }
 
 populate_kernel() {
-    dest=$1
+    dest = $1
     install -d $dest
 
     # Install kernel in DEST for all loaders to use.
@@ -35,7 +35,7 @@ populate_kernel() {
 }
 
 populate_initrd() {
-    dest=$1
+    dest = $1
     install -d $dest
 
     # initrd is made of concatenation of multiple filesystem images

@@ -23,7 +23,7 @@ S = "${WORKDIR}/git"
 
 inherit update-rc.d ocaml findlib pkgconfig
 
-INITSCRIPT_PACKAGES="${PN}"
+INITSCRIPT_PACKAGES = "${PN}"
 
 INITSCRIPT_NAME:${PN} = "uid"
 INITSCRIPT_PARAMS:${PN} = "defaults 81 19"

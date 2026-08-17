@@ -1,6 +1,6 @@
 DESCRIPTION = "blktap3"
 LICENSE = "BSD-3-Clause"
-LIC_FILES_CHKSUM="file://LICENSE;md5=3da30208124386cb4aeab6d28a084ae9"
+LIC_FILES_CHKSUM = "file://LICENSE;md5=3da30208124386cb4aeab6d28a084ae9"
 DEPENDS = "xen-tools libicbinn"
 
 PV = "0+git${SRCPV}"

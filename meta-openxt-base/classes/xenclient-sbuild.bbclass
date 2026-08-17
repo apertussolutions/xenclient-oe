@@ -87,7 +87,7 @@ EOF
                         cd "${S}"
                         sbuild -n --arch=${SBUILD_ARCH} --dist=${SBUILD_SUITE} --purge=never --purge-deps=never
 
-                        repo_dir=${STAGING_DIR}/debian_repos/${SBUILD_SUITE}/${SBUILD_ARCH}
+                        repo_dir = ${STAGING_DIR}/debian_repos/${SBUILD_SUITE}/${SBUILD_ARCH}
                         cd "${repo_dir}/debian/"
                         for deb_file in `ls ${WORKDIR}/*.deb`; do
                             reprepro includedeb ${SBUILD_SUITE} $deb_file

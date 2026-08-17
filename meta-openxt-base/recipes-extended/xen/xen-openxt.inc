@@ -21,8 +21,8 @@ EXTRA_OECONF:remove = " \
 # irrespective of the current MACHINE settings.
 # Also supply a custom vendor suffix.
 EXTRA_OEMAKE += " \
-    XEN_TARGET_ARCH=x86_64 \
-    XEN_VENDORVERSION=-xc \
+    XEN_TARGET_ARCH = x86_64 \
+    XEN_VENDORVERSION = -xc \
     "
 # Since this recipe forces the hypervisor build to target 64-bit architecture
 # even when MACHINE is 32-bit, disable this usual arch sanity check:

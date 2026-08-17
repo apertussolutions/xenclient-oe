@@ -32,8 +32,8 @@ inherit pkgconfig
 COMPATIBLE_HOST = 'i686-oe-linux|(x86_64.*).*-linux|aarch64.*-linux'
 
 EXTRA_OEMAKE += "\
-    CROSS_COMPILE=\"\" \
-    C_INCLUDE_PATH=${STAGING_INCDIR}/efivar \
+    CROSS_COMPILE = \"\" \
+    C_INCLUDE_PATH = ${STAGING_INCDIR}/efivar \
 "
 
 do_install() {

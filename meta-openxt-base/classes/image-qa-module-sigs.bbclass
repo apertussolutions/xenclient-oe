@@ -78,19 +78,19 @@ check_module() {
 	local basename
 	local sigdata
 	local data
-	basename="$( basename "$mod" )"
-	data="$( mktemp -t "$basename.data.XXXXXXXX" )"
-	sigdata="$( mktemp -t "$basename.sigdata.XXXXXXXX" )"
+	basename = "$( basename "$mod" )"
+	data = "$( mktemp -t "$basename.data.XXXXXXXX" )"
+	sigdata = "$( mktemp -t "$basename.sigdata.XXXXXXXX" )"
 
 	"$scriptdir/extract-module-sig.pl" -s "$mod" > "$sigdata" 2>/dev/null
 	"$scriptdir/extract-module-sig.pl" -0 "$mod" > "$data" 2>/dev/null
 
 	# needed to get smime failure and not sed's exit status
 	# Verify
-	output=$( openssl smime -verify -binary -inform DER -in "$sigdata" \
+	output = $( openssl smime -verify -binary -inform DER -in "$sigdata" \
 		-content "$data" -certfile "$keyring" -nointern -noverify \
 		-out /dev/null 2>&1 >/dev/null )
-	ret=$?
+	ret = $?
 	echo "$output" | sed -n '/Verification successful/!p'
 
 	rm "$data"

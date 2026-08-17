@@ -53,11 +53,11 @@ SYSLINUX_CFG ?= "${S}/syslinux.cfg"
 GRUB_CFG ?= "${S}/grub.cfg"
 
 build_boot_dd() {
-	HDDDIR="${S}/hdd/boot"
-	HDDIMG="${S}/hdd.image"
-	ROOTFS_TYPE="${1}"
-	ROOTFS="${IMAGE_NAME}${IMAGE_NAME_SUFFIX}.${ROOTFS_TYPE}"
-	IMAGE="${ROOTFS}.disk"
+	HDDDIR = "${S}/hdd/boot"
+	HDDIMG = "${S}/hdd.image"
+	ROOTFS_TYPE = "${1}"
+	ROOTFS = "${IMAGE_NAME}${IMAGE_NAME_SUFFIX}.${ROOTFS_TYPE}"
+	IMAGE = "${ROOTFS}.disk"
 
 	populate_kernel $HDDDIR
 	populate_initrd $HDDDIR
@@ -69,8 +69,8 @@ build_boot_dd() {
 		efi_hddimg_populate $HDDDIR
 	fi
 
-	BLOCKS=`du -bks $HDDDIR | cut -f 1`
-	BLOCKS=`expr $BLOCKS + ${BOOTDD_EXTRA_SPACE}`
+	BLOCKS = `du -bks $HDDDIR | cut -f 1`
+	BLOCKS = `expr $BLOCKS + ${BOOTDD_EXTRA_SPACE}`
 
 	# Remove it since mkdosfs would fail when it exists
 	rm -f $HDDIMG
@@ -82,11 +82,11 @@ build_boot_dd() {
 	fi
 	chmod 644 $HDDIMG
 
-	ROOTFSBLOCKS=`du -Lbks ${ROOTFS} | cut -f 1`
-	TOTALSIZE=`expr $BLOCKS + $ROOTFSBLOCKS`
-	END1=`expr $BLOCKS \* 1024`
-	END2=`expr $END1 + 512`
-	END3=`expr \( $ROOTFSBLOCKS \* 1024 \) + $END1`
+	ROOTFSBLOCKS = `du -Lbks ${ROOTFS} | cut -f 1`
+	TOTALSIZE = `expr $BLOCKS + $ROOTFSBLOCKS`
+	END1 = `expr $BLOCKS \* 1024`
+	END2 = `expr $END1 + 512`
+	END3 = `expr \( $ROOTFSBLOCKS \* 1024 \) + $END1`
 
 	echo $ROOTFSBLOCKS $TOTALSIZE $END1 $END2 $END3
 	rm -rf $IMAGE
@@ -102,7 +102,7 @@ build_boot_dd() {
 	awk "BEGIN { printf \"$(echo ${DISK_SIGNATURE} | sed 's/\(..\)\(..\)\(..\)\(..\)/\\x\4\\x\3\\x\2\\x\1/')\" }" | \
 		dd of=$IMAGE bs=1 seek=440 conv=notrunc
 
-	OFFSET=`expr $END2 / 512`
+	OFFSET = `expr $END2 / 512`
 	if [ "${PCBIOS}" = "1" ]; then
 		dd if=${STAGING_DATADIR}/syslinux/mbr.bin of=$IMAGE conv=notrunc
 	fi
