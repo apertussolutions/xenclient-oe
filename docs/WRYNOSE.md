@@ -20,7 +20,8 @@ This document tracks the port. Wrynose is a large jump from Dunfell (YP 3.1 →
 | Distro: `MULTI_PROVIDER_WHITELIST` → `BB_MULTI_PROVIDER_ALLOWED` | Done |
 | Machine: `MACHINE_FEATURES_BACKFILL_CONSIDERED` → `MACHINE_FEATURES_OPTED_OUT` | Done |
 | `inherit distutils3` → `setuptools3` | Done |
-| SPDX `LICENSE` strings (GPLv2 → GPL-2.0-only, …) | Pending |
+| SPDX `LICENSE` strings (GPLv2 → GPL-2.0-only, …) | Done |
+| `LIC_FILES_CHKSUM` `COMMON_LICENSE_DIR` paths | Done |
 | Recipe version bumps vs OE-Core / meta-oe wrynose | Pending |
 | Kernel / linux-libc-headers alignment for wrynose | Pending |
 | Xen / meta-virtualization wrynose integration | Pending |
@@ -81,15 +82,35 @@ PACKAGECONFIG:append:pn-gdb = " tui"
 - **Kernel:** Still prefers `linux-openxt` 6.1%; expect work against wrynose’s
   newer reference kernels and `OLDEST_KERNEL` (5.15).
 
+## SPDX conversion notes
+
+Used OE-Core wrynose `scripts/contrib/convert-spdx-licenses.py` on all three
+layers, then hand-fixed residual ambiguous `BSD` entries:
+
+| Recipe | Before | After | Rationale |
+|--------|--------|-------|-----------|
+| `varstored` | BSD | BSD-2-Clause | upstream LICENSE is 2-clause |
+| `tboot` | BSD | BSD-3-Clause | source headers are 3-clause |
+
+Also rewrote `${COMMON_LICENSE_DIR}/GPL-2.0` → `GPL-2.0-only` (and LGPL-2.1)
+so checksum paths match wrynose `common-licenses/` filenames. MD5 for
+`GPL-2.0-only` matches the former `GPL-2.0` file.
+
+Left as intentional non-generic SPDX:
+
+- `Proprietary` (installer tweaks)
+- `Intel-ACMs` (custom text under `files/additional-licenses/`)
+
 ## Recommended next increments
 
-1. **SPDX licenses** in all three layers (bulk map of common legacy strings).
-2. **Stand up a wrynose kas composition** in openxt (separate from dunfell
+1. **Stand up a wrynose kas composition** in openxt (separate from dunfell
    `iso-test`) pointing at this branch + wrynose external layers.
-3. **bitbake -p** (parse) for `MACHINE=xenclient-dom0 DISTRO=openxt-main` and
+2. **bitbake -p** (parse) for `MACHINE=xenclient-dom0 DISTRO=openxt-main` and
    fix the first wave of missing providers / renamed classes / recipe PV pins.
-4. Port **bbappends** against upstream recipe renames (NetworkManager, openssh,
+3. Port **bbappends** against upstream recipe renames (NetworkManager, openssh,
    grub, systemd-vs-sysv packages, etc.).
+4. Align **kernel / Xen / SELinux / language platforms** with wrynose layer
+   revisions.
 5. Rebuild **initramfs → stubdomain → dom0 → domains → uivm → ISO** once parse
    is clean.
 
