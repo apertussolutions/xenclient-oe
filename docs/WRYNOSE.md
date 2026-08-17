@@ -28,8 +28,11 @@ This document tracks the port. Wrynose is a large jump from Dunfell (YP 3.1 →
 | SELinux (meta-selinux wrynose) / refpolicy | Pending |
 | Haskell / OCaml platform layers on wrynose | Local unblocks only (trixie) |
 | openxt kas: pin repos to wrynose + this branch | Done (`kas-wrynose`) |
-| Parse-only smoke (`bitbake -p`, headless dom0) | **Done** (0 errors, warnings remain) |
-| Image builds | Pending |
+| Parse-only smoke (`bitbake -p`, headless dom0) | **Done** (0 errors) |
+| Parse warning cleanup | **Done** (OpenXT classes; residual platform/noise only) |
+| `bitbake -g` initramfs | **Done** (173 packages) |
+| `bitbake -g` dom0 | Partial (blocked: vgabios, ocaml-cross toolchain deps) |
+| Image builds | In progress (initramfs failing recipe-level QA/unpack) |
 
 ## openxt kas branch
 
