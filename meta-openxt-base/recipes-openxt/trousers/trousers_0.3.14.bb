@@ -16,7 +16,7 @@ SRC_URI = " \
 "
 INSANE_SKIP:${PN} = "src-uri-bad"
 
-S = "${WORKDIR}/${BPN}-${PV}"
+S = "${UNPACKDIR}/${BPN}-${PV}"
 
 EXTRA_OECONF += " --disable-usercheck"
 CFLAGS:append = " -Wno-error=unused-parameter -Wno-error=strict-aliasing -std=gnu89"
