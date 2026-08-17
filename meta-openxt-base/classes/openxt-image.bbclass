@@ -26,7 +26,7 @@ activate_verbose_sysvinit() {
         sed -i -e 's/^VERBOSE=no$/VERBOSE=yes/' "${IMAGE_ROOTFS}${sysconfdir}/default/rcS"
     fi
 }
-ROOTFS_POSTPROCESS_COMMAND += '${@bb.utils.contains("IMAGE_FEATURES", "debug-tweaks" , "activate_verbose_sysvinit; ", "",d)}'
+ROOTFS_POSTPROCESS_COMMAND += '${@bb.utils.contains("IMAGE_FEATURES", "empty-root-password" , "activate_verbose_sysvinit; ", "",d)}'
 
 # A hook function to support extended read-only-rootfs IMAGE_FEATURES.
 read_only_rootfs_hook_extend() {
@@ -55,7 +55,7 @@ IMAGE_FEATURES[validitems] += "wildcard-sshd-argo"
 start_tty_on_hvc0() {
 	echo 'hvc0:12345:respawn:/bin/su - root -c "/sbin/getty 115200 hvc0 vt102"' >> "${IMAGE_ROOTFS}/etc/inittab"
 }
-ROOTFS_POSTPROCESS_COMMAND += '${@bb.utils.contains("IMAGE_FEATURES", "debug-tweaks", "start_tty_on_hvc0; ", "",d)}'
+ROOTFS_POSTPROCESS_COMMAND += '${@bb.utils.contains("IMAGE_FEATURES", "empty-root-password", "start_tty_on_hvc0; ", "",d)}'
 
 # Forcibly remove packages disregarding if it creates a broken dependency
 force_package_removal() {
