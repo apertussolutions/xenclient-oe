@@ -7,8 +7,8 @@ PR = "r0"
 SRC_URI = "file://secure-vm \
 "
 
-S = "${WORKDIR}"
-
+S = "${WORKDIR}/src"
+UNPACKDIR = "${S}"
 do_install() {
 	install -d ${D}${bindir}
 	install -m 0755 ${WORKDIR}/secure-vm ${D}${bindir}

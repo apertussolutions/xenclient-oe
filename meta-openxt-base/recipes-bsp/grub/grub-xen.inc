@@ -6,6 +6,7 @@
 OE_CORE_PATH ?= "${@ \
     (lambda t: \
         next((p for p in ( \
+            t + '/../../layers-wrynose/openembedded-core', \
             t + '/../../layers/openembedded-core', \
             t + '/../layers/openembedded-core', \
             t + '/layers/openembedded-core', \
@@ -22,10 +23,10 @@ SECURITY_CFLAGS = ""
 # Prevent generation of .text.unlikely which would be placed ahead of the
 # expected _start at the beginning of the .text section.  .text.unlikely
 # would then get executed and fault.
-CFLAGS:append = "-fno-reorder-functions"
+CFLAGS:append = " -fno-reorder-functions"
 
 DEPENDS:append:class-target = " grub-efi-native"
-RDEPENDS:${PN}:class-target = "grub-common virtual/grub-bootconf"
+RDEPENDS:${PN}:class-target = "grub-common virtual-grub-bootconf"
 
 SRC_URI += " \
 	file://grub-xen.cfg \
@@ -41,7 +42,7 @@ GRUB_TARGET ?= "x86_64"
 GRUBEXT ?= "${GRUBPLATFORM}-pvh"
 GRUB_BINARY = "grub-${GRUBEXT}"
 
-PACKAGECONFIG="device-mapper"
+PACKAGECONFIG = "device-mapper"
 
 GRUB_BUILDIN ?= "linux ext2 fat part_msdos part_gpt normal \
                  iso9660 configfile search loadenv test \

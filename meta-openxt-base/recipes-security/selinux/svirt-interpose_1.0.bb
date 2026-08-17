@@ -5,8 +5,8 @@ LIC_FILES_CHKSUM="file://${COMMON_LICENSE_DIR}/GPL-2.0-only;md5=801f80980d171dd6
 
 SRC_URI = "file://svirt-interpose.c"
 
-S = "${WORKDIR}"
-
+S = "${WORKDIR}/src"
+UNPACKDIR = "${S}"
 LDFLAGS += "-lxenstore -lselinux"
 
 ASNEEDED = ""

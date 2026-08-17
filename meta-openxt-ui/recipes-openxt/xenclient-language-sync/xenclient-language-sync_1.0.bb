@@ -9,8 +9,8 @@ SRC_URI = "file://language-sync \
 INITSCRIPT_NAME = "language-sync"
 INITSCRIPT_PARAMS = "defaults 80 11"
 
-S = "${WORKDIR}"
-
+S = "${WORKDIR}/src"
+UNPACKDIR = "${S}"
 inherit update-rc.d
 
 do_install() {

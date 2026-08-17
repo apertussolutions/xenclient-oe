@@ -6,8 +6,8 @@ SRC_URI = " \
     file://get-config-key.c \
 "
 
-S = "${WORKDIR}"
-
+S = "${WORKDIR}/src"
+UNPACKDIR = "${S}"
 do_compile() {
 	oe_runmake get-config-key
 }

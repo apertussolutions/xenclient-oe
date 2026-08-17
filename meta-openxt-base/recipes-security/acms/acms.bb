@@ -42,8 +42,8 @@ SRC_URI[adl.sha256sum] = "c2ffa0441d8dd072e3f9287581ca0e982e1a08359bd1b4adca9976
 
 PR = "r3"
 
-S = "${WORKDIR}"
-
+S = "${WORKDIR}/src"
+UNPACKDIR = "${S}"
 inherit deploy
 
 do_install() {

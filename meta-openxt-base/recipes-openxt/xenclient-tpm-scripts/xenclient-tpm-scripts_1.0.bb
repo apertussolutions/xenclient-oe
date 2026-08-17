@@ -4,8 +4,10 @@ LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/GPL-2.0-only;md5=801f80980d171d
 
 SRC_URI = " \
     file://tpm-functions \
-    file://*-detect.sh \
-    file://*-fix.sh \
+    file://dellminvers-detect.sh \
+    file://montavina-detect.sh \
+    file://pcr1-detect.sh \
+    file://pcr1-fix.sh \
 "
 
 RDEPENDS:${PN} = " \
@@ -16,13 +18,15 @@ RDEPENDS:${PN} = " \
 FILES:${PN} = "${libdir}/tpm-scripts"
 
 do_install() {
-	install -d ${D}${libdir}/tpm-scripts
-	install -m 0755 ${WORKDIR}/tpm-functions ${D}${libdir}/tpm-scripts
-	install -d ${D}${libdir}/tpm-scripts/quirks.d
-	for detect in $(ls -1 ${WORKDIR}/*-detect.sh); do
-		install -m 0755 ${detect} ${D}${libdir}/tpm-scripts/quirks.d
-	done
-	for fix in $(ls -1 ${WORKDIR}/*-fix.sh); do
-		install -m 0755 ${fix} ${D}${libdir}/tpm-scripts/quirks.d
-	done
+    install -d ${D}${libdir}/tpm-scripts
+    install -m 0755 ${WORKDIR}/tpm-functions ${D}${libdir}/tpm-scripts
+    install -d ${D}${libdir}/tpm-scripts/quirks.d
+    for detect in ${WORKDIR}/*-detect.sh; do
+        [ -e "${detect}" ] || continue
+        install -m 0755 ${detect} ${D}${libdir}/tpm-scripts/quirks.d
+    done
+    for fix in ${WORKDIR}/*-fix.sh; do
+        [ -e "${fix}" ] || continue
+        install -m 0755 ${fix} ${D}${libdir}/tpm-scripts/quirks.d
+    done
 }

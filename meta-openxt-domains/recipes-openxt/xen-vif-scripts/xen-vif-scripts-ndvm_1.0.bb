@@ -7,8 +7,8 @@ SRC_URI = " \
     file://xen-vif-backend.rules \
 "
 
-S = "${WORKDIR}"
-
+S = "${WORKDIR}/src"
+UNPACKDIR = "${S}"
 inherit allarch
 
 do_install() {

@@ -66,4 +66,4 @@ FILES:${PN} += "\
     /boot/fbx64.efi \
 "
 
-BBCLASSEXTEND="native"
+BBCLASSEXTEND = "native"
