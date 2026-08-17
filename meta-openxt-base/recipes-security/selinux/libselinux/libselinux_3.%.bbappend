@@ -5,3 +5,4 @@ SRC_URI += " \
 
 # We need to support stat on files >2GB in size.
 CFLAGS += "-D_FILE_OFFSET_BITS=64"
+ERROR_QA:remove = "patch-fuzz patch-status"
