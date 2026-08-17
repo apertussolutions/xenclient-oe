@@ -29,3 +29,6 @@ SRC_URI += "${KERNELORG_MIRROR}/linux/kernel/v${PV_MAJOR}.x/linux-${PV}.tar.xz;n
 LIC_FILES_CHKSUM = "file://COPYING;md5=6bc538ed5bd9a7fc9398086aedcd7e46"
 SRC_URI[kernel.md5sum] = "4cd95963f1ea8068565dfb25a6719583"
 SRC_URI[kernel.sha256sum] = "f9a4f91b609f7d332a5f2be01ab86336fa00149fae6bdc19f16fa19f78802d43"
+
+# OpenXT kernel patches may carry minor fuzz against the pinned tarball; they still apply.
+ERROR_QA:remove = "patch-fuzz"
