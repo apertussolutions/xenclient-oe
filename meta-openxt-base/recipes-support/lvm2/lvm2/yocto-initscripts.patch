@@ -1,26 +1,38 @@
 Upstream-Status: Inappropriate [OpenXT]
 
---- a/scripts/Makefile.in
-+++ b/scripts/Makefile.in
-@@ -74,6 +74,16 @@ ifeq ("@BLKDEACTIVATE@", "yes")
- 	$(Q) $(INSTALL_SCRIPT) blk_availability_init_red_hat $(initdir)/blk-availability
- endif
+diff -ruN a/configure.ac b/configure.ac
+--- a/configure.ac	2026-08-17 18:10:26.012250872 -0400
++++ b/configure.ac	2026-08-17 18:13:23.152249791 -0400
+@@ -2103,11 +2103,13 @@
+ scripts/lvm2_cmirrord_systemd_red_hat.service
+ scripts/lvm2_lvmdbusd_systemd_red_hat.service
+ scripts/lvm2_lvmpolld_init_red_hat
++scripts/lvm2_lvmpolld_init_yocto
+ scripts/lvm2_lvmpolld_systemd_red_hat.service
+ scripts/lvm2_lvmpolld_systemd_red_hat.socket
+ scripts/lvmlockd.service
+ scripts/lvmlocks.service
+ scripts/lvm2_monitoring_init_red_hat
++scripts/lvm2_monitoring_init_yocto
+ scripts/lvm2_monitoring_systemd_red_hat.service
+ scripts/lvm2_tmpfiles_red_hat.conf
+ scripts/lvmdump.sh
+diff -ruN a/Makefile.in b/Makefile.in
+--- a/Makefile.in	2026-08-17 18:10:25.332250876 -0400
++++ b/Makefile.in	2026-08-17 18:13:23.152249791 -0400
+@@ -138,6 +138,9 @@
+ install_initscripts:
+ 	$(MAKE) -C scripts install_initscripts
  
-+# FIXME Some are not ported yet.
 +install_initscripts_yocto:
-+	$(INSTALL_DIR) $(initdir)
-+ifeq ("@BUILD_DMEVENTD@", "yes")
-+	$(INSTALL_SCRIPT) lvm2_monitoring_init_yocto $(initdir)/lvm2-monitor
-+endif
-+ifeq ("@BUILD_LVMPOLLD@", "yes")
-+	$(INSTALL_SCRIPT) lvm2_lvmpolld_init_yocto $(initdir)/lvm2-lvmpolld
-+endif
++	$(MAKE) -C scripts install_initscripts_yocto
 +
- CFLAGS_lvm2_activation_generator_systemd_red_hat.o += $(EXTRA_EXEC_CFLAGS)
- 
- lvm2_activation_generator_systemd_red_hat: $(OBJECTS) $(LVMINTERNAL_LIBS)
---- /dev/null
-+++ b/scripts/lvm2_lvmpolld_init_yocto.in
+ install_systemd_generators:
+ 	$(MAKE) -C scripts install_systemd_generators
+ 	$(MAKE) -C man install_systemd_generators
+diff -ruN a/scripts/lvm2_lvmpolld_init_yocto.in b/scripts/lvm2_lvmpolld_init_yocto.in
+--- a/scripts/lvm2_lvmpolld_init_yocto.in	1969-12-31 19:00:00.000000000 -0500
++++ b/scripts/lvm2_lvmpolld_init_yocto.in	2026-08-17 18:13:23.152249791 -0400
 @@ -0,0 +1,84 @@
 +#!/bin/bash
 +#
@@ -106,8 +118,9 @@ Upstream-Status: Inappropriate [OpenXT]
 +do_status
 +
 +exit $rc
---- /dev/null
-+++ b/scripts/lvm2_monitoring_init_yocto.in
+diff -ruN a/scripts/lvm2_monitoring_init_yocto.in b/scripts/lvm2_monitoring_init_yocto.in
+--- a/scripts/lvm2_monitoring_init_yocto.in	1969-12-31 19:00:00.000000000 -0500
++++ b/scripts/lvm2_monitoring_init_yocto.in	2026-08-17 18:13:23.152249791 -0400
 @@ -0,0 +1,82 @@
 +#!/bin/bash
 +#
@@ -191,31 +204,23 @@ Upstream-Status: Inappropriate [OpenXT]
 +do_status
 +
 +exit $rc
---- a/Makefile.in
-+++ b/Makefile.in
-@@ -141,6 +141,9 @@ install_system_dirs:
- install_initscripts:
- 	$(MAKE) -C scripts install_initscripts
+diff -ruN a/scripts/Makefile.in b/scripts/Makefile.in
+--- a/scripts/Makefile.in	2026-08-17 18:10:23.840250885 -0400
++++ b/scripts/Makefile.in	2026-08-17 18:13:23.152249791 -0400
+@@ -83,6 +83,16 @@
+ 	$(Q) $(INSTALL_SCRIPT) blk_availability_init_red_hat $(initdir)/blk-availability
+ endif
  
++# FIXME Some are not ported yet.
 +install_initscripts_yocto:
-+	$(MAKE) -C scripts install_initscripts_yocto
++	$(INSTALL_DIR) $(initdir)
++ifeq ("@BUILD_DMEVENTD@", "yes")
++	$(INSTALL_SCRIPT) lvm2_monitoring_init_yocto $(initdir)/lvm2-monitor
++endif
++ifeq ("@BUILD_LVMPOLLD@", "yes")
++	$(INSTALL_SCRIPT) lvm2_lvmpolld_init_yocto $(initdir)/lvm2-lvmpolld
++endif
 +
- install_systemd_generators:
- 	$(MAKE) -C scripts install_systemd_generators
- 	$(MAKE) -C man install_systemd_generators
---- a/configure.ac
-+++ b/configure.ac
-@@ -1822,11 +1822,13 @@ scripts/dm_event_systemd_red_hat.socket
- scripts/lvm2_cmirrord_systemd_red_hat.service
- scripts/lvm2_lvmdbusd_systemd_red_hat.service
- scripts/lvm2_lvmpolld_init_red_hat
-+scripts/lvm2_lvmpolld_init_yocto
- scripts/lvm2_lvmpolld_systemd_red_hat.service
- scripts/lvm2_lvmpolld_systemd_red_hat.socket
- scripts/lvmlockd.service
- scripts/lvmlocks.service
- scripts/lvm2_monitoring_init_red_hat
-+scripts/lvm2_monitoring_init_yocto
- scripts/lvm2_monitoring_systemd_red_hat.service
- scripts/lvm2_tmpfiles_red_hat.conf
- scripts/lvmdump.sh
+ install_systemd_units:	install_dbus_service
+ 	$(SHOW) "    [INSTALL] systemd_units"
+ 	$(Q) $(INSTALL_DIR) $(systemd_unit_dir)
