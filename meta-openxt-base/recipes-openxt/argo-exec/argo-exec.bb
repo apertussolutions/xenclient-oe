@@ -17,7 +17,7 @@ DEPENDS = "xen-tools libargo"
 S = "${WORKDIR}/src"
 UNPACKDIR = "${S}"
 CFLAGS += "-Wall -Werror"
-export LDLIBS="-largo"
+export LDLIBS = "-largo"
 
 PACKAGES =+ "argo-input-receiver argo-input-sender"
 

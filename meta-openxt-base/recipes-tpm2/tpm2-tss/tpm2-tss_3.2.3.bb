@@ -91,7 +91,7 @@ FILES:${PN} = "\
 RDEPENDS:libtss2 = "libgcrypt"
 
 # This is patched in 3.2.2, NVD DB was not updated to reflect this backport
-CVE_CHECK_IGNORE += "CVE-2023-22745"
+CVE_STATUS[CVE-2023-22745] = "cpe-stable-backport: patched in 3.2.2; NVD not updated"
 
 # Minimal TSS2 package for initramfs (required libraries for pcr binaries)
 FILES:${PN}-pcr = "${libdir}/libtss2-tcti-device.so.*"
