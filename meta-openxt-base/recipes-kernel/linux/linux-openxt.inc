@@ -21,3 +21,6 @@ do_configure:prepend() {
         ln -sf "${UNPACKDIR}/defconfig" "${WORKDIR}/defconfig"
     fi
 }
+
+# gcc 15 defaults to -std=gnu23; Linux 6.1 realmode and headers still need C11.
+EXTRA_OEMAKE += "KCFLAGS=-std=gnu11"
