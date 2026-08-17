@@ -61,7 +61,7 @@ RDEPENDS:${PN} = " \
     vhd-scripts \
     secure-vm \
     xenclient-sec-scripts \
-    pmtools \
+    acpica \
     svirt-interpose \
     selinux-load \
     ethtool \
