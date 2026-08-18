@@ -31,9 +31,12 @@ inherit pkgconfig
 COMPATIBLE_HOST = 'i686-oe-linux|(x86_64.*).*-linux|aarch64.*-linux'
 
 # No spaces around '=' — bare '=' becomes an empty make variable name.
+# efivar.pc adds -I${includedir}/efivar (for #include <efivar.h>), but
+# efivar.h itself uses #include <efivar/efivar-types.h>, which needs
+# ${includedir} on the search path as well.
 EXTRA_OEMAKE += "\
     CROSS_COMPILE= \
-    C_INCLUDE_PATH=${STAGING_INCDIR}/efivar \
+    C_INCLUDE_PATH=${STAGING_INCDIR}/efivar:${STAGING_INCDIR} \
 "
 
 do_install() {
