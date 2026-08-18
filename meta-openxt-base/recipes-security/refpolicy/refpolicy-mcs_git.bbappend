@@ -170,9 +170,10 @@ SRC_URI += " \
     file://patches/xen-privcmd.patch \
 "
 
-DEPENDS:append = " \
-    strace-native \
-"
+# strace-native dropped for wrynose: OpenXT-pinned strace 5.12 fails to
+# build on modern host GCC (too many args to sys_func). Not required to
+# compile or package the refpolicy.
+# DEPENDS:append = " strace-native "
 
 S = "${UNPACKDIR}/refpolicy"
 
@@ -213,10 +214,9 @@ modules.conf) from the configuration elements passed by the layer. \
 See 'make conf' of the refpolicy for more information."
 do_policy_conf[dirs] = "${B}"
 
-do_install:append() {
-    install -d ${D}/etc/selinux
-    install -m 644 ${UNPACKDIR}/config ${D}/etc/selinux/config
-}
+# /etc/selinux/config is installed by meta-selinux install_config() using
+# POLICY_NAME (xc_policy) and DEFAULT_ENFORCING. The old file://config path
+# is no longer shipped under FILESEXTRAPATHS.
 
 sysroot_stage_all:append () {
     sysroot_stage_dir ${D}${sysconfdir} ${SYSROOT_DESTDIR}${sysconfdir}

@@ -20,8 +20,8 @@ userdom_user_tmp_file(glass_tmp_t)
 userdom_user_runtime_content(glass_tmp_t)
 
 type glass_var_run_t;
-files_pid_file(glass_var_run_t)
-init_daemon_pid_file(glass_var_run_t, file, "glass.pid")
+files_runtime_file(glass_var_run_t)
+init_daemon_runtime_file(glass_var_run_t, file, "glass.pid")
 
 type glass_tmpfs_t;
 files_tmpfs_file(glass_tmpfs_t)
@@ -70,8 +70,8 @@ logging_send_syslog_msg(glass_t)
 xen_dbus_chat(glass_t)
 
 optional_policy(`
-	udev_read_db(glass_t)
-	udev_read_pid_files(glass_t)
+	udev_read_runtime_files(glass_t)
+	udev_read_runtime_files(glass_t)
 	udev_create_kobject_uevent_sockets(glass_t)
 ')
 

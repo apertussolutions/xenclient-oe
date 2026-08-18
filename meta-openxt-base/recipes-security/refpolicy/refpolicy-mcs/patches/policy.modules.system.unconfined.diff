@@ -89,21 +89,35 @@ Upstream-Status: Inappropriate [OpenXT]
  
 --- a/policy/modules/system/unconfined.te
 +++ b/policy/modules/system/unconfined.te
-@@ -266,6 +266,10 @@
+@@ -21,6 +21,11 @@
+ 
+ type unconfined_execmem_t alias ada_t;
+ type unconfined_execmem_exec_t alias ada_exec_t;
++
++type unconfined_readonly_t;
++domain_type(unconfined_readonly_t)
++role system_r types unconfined_readonly_t;
++role unconfined_r types unconfined_readonly_t;
+ init_system_domain(unconfined_execmem_t, unconfined_execmem_exec_t)
+ role unconfined_r types unconfined_execmem_t;
+ 
+@@ -266,6 +271,10 @@
  	xserver_dbus_chat_xdm(unconfined_t)
  ')
  
 +optional_policy(`
-+	xen_dbus_chat(unconfined_t)
++xen_dbus_chat(unconfined_t)
 +')
 +
  ########################################
  #
  # Unconfined Execmem Local policy
-@@ -288,3 +292,14 @@
- ',`
-         gen_user(unconfined_u, unconfined, unconfined_r, s0, s0 - mls_systemhigh, mcs_allcats)
- ')
+@@ -276,6 +285,18 @@
+ 
+ optional_policy(`
+ 	unconfined_dbus_chat(unconfined_execmem_t)
++')
++
 +
 +########################################
 +#
@@ -113,5 +127,7 @@ Upstream-Status: Inappropriate [OpenXT]
 +unconfined_readonly_domain(unconfined_readonly_t)
 +
 +optional_policy(`
-+	networkmanager_dbus_chat(unconfined_readonly_t)
-+')
++networkmanager_dbus_chat(unconfined_readonly_t)
+ ')
+ 
+ ########################################

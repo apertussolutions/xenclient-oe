@@ -54,7 +54,7 @@ fs_tmpfs_filetrans(xc_installer_t, xc_installer_tmpfs_t, { dir file })
 
 updatemgr_dontaudit_rw_stream_sockets(xc_installer_t)
 corecmd_exec_bin(xc_installer_t)
-modutils_domtrans_depmod(xc_installer_t)
+modutils_domtrans(xc_installer_t)
 dpkg_domtrans(xc_installer_t)
 fstools_domtrans(xc_installer_t)
 kernel_read_system_state(xc_installer_t)

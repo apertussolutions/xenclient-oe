@@ -30,10 +30,8 @@ init_daemon_domain(vusbd_t,vusbd_exec_t)
 
 type vusbc_t;
 type vusbc_exec_t;
-application_type(vusbc_t)
-domain_entry_file(vusbc_t,vusbc_exec_t)
+application_domain(vusbc_t, vusbc_exec_t)
 role system_r types vusbc_t;
-xen_domtrans(vusbc_t,vusbc_exec_t)
 
 type vusbd_etc_t;
 files_config_file(vusbd_etc_t)
@@ -66,9 +64,9 @@ kernel_read_xen_state(vusbd_t)
 kernel_write_xen_state(vusbd_t)
 kernel_write_xen_state(vusbd_t)
 xen_rw_xenstore(vusbd_t)
-udev_read_db(vusbd_t)
+udev_read_runtime_files(vusbd_t)
 # For /var/run/udev/queue.bin
-udev_read_pid_files(vusbd_t)
+udev_read_runtime_files(vusbd_t)
 
 corecmd_search_bin(vusbd_t)
 vusbc_exec_domtrans(vusbd_t)
@@ -101,7 +99,7 @@ xen_stream_connect_xenstore(vusbc_t)
 xen_write_tmp(vusbc_t)
 fs_rw_xenfs_files(vusbc_t)
 files_read_etc_files(vusbc_t)
-udev_read_db(vusbc_t)
+udev_read_runtime_files(vusbc_t)
 
 allow vusbc_t self:capability dac_override;
 allow vusbc_t self:process { getsched signal };

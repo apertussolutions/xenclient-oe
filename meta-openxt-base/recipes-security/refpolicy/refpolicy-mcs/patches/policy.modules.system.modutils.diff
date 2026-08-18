@@ -31,7 +31,7 @@ Upstream-Status: Inappropriate [OpenXT]
  ')
  
  optional_policy(`
-+       iptables_dontaudit_read_pids(kmod_t)
++       iptables_dontaudit_read_runtime_files(kmod_t)
 +')
 +
 +optional_policy(`

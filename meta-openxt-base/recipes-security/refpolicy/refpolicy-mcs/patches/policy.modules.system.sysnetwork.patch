@@ -174,10 +174,10 @@ Upstream-Status: Inappropriate [OpenXT]
  files_read_etc_runtime_files(dhcpc_t)
 +# to allow reading of /var/run/resolv.conf ... should consider a better place
 +#   for resolv.conf with a more descriptive type
-+files_read_generic_pids(dhcpc_t)
++files_read_all_runtime_files(dhcpc_t)
 +# to allow reading of NetworkManager configuration from
 +#   /var/run/nm-dhclient-brbridged.conf
-+networkmanager_read_pid_files(dhcpc_t)
++networkmanager_read_runtime_files(dhcpc_t)
  files_read_usr_files(dhcpc_t)
  files_search_home(dhcpc_t)
  files_search_var_lib(dhcpc_t)

@@ -2,7 +2,7 @@ Upstream-Status: Inappropriate [OpenXT]
 
 --- a/policy/modules/kernel/devices.fc
 +++ b/policy/modules/kernel/devices.fc
-@@ -219,15 +219,21 @@
+@@ -219,7 +219,10 @@
  
  /dev/wmi/dell-smbios	-c	gen_context(system_u:object_r:acpi_bios_t,s0)
  
@@ -13,19 +13,6 @@ Upstream-Status: Inappropriate [OpenXT]
  /dev/xen/evtchn		-c	gen_context(system_u:object_r:xen_device_t,s0)
  /dev/xen/gntdev		-c	gen_context(system_u:object_r:xen_device_t,s0)
  /dev/xen/gntalloc	-c	gen_context(system_u:object_r:xen_device_t,s0)
--/dev/xen/hypercall	-c	gen_context(system_u:object_r:xen_device_t,s0)
- /dev/xen/privcmd	-c	gen_context(system_u:object_r:xen_device_t,s0)
- /dev/xen/xenbus		-c	gen_context(system_u:object_r:xen_device_t,s0)
- /dev/xen/xenbus_backend	-c	gen_context(system_u:object_r:xen_device_t,s0)
--
-+/dev/xen/hypercall	-c	gen_context(system_u:object_r:xen_device_t,s0)
-+
-+
-+ifdef(`distro_debian',`
-+# this is a static /dev dir "backup mount"
- ifdef(`distro_debian',`
- # this is a static /dev dir "backup mount"
- # if you want to disable udev, you will have to boot permissive and relabel!
 --- a/policy/modules/kernel/devices.if
 +++ b/policy/modules/kernel/devices.if
 @@ -4994,6 +4994,24 @@

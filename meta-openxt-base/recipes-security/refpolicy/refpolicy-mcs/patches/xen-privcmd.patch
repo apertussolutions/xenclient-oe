@@ -38,25 +38,26 @@ Upstream-Status: Inappropriate [OpenXT]
  	fs_manage_fusefs_dirs(xm_t)
 --- a/policy/modules/kernel/devices.fc
 +++ b/policy/modules/kernel/devices.fc
-@@ -226,10 +226,10 @@
+@@ -226,8 +226,8 @@
  /dev/xen/evtchn		-c	gen_context(system_u:object_r:xen_device_t,s0)
  /dev/xen/gntdev		-c	gen_context(system_u:object_r:xen_device_t,s0)
  /dev/xen/gntalloc	-c	gen_context(system_u:object_r:xen_device_t,s0)
+-/dev/xen/hypercall	-c	gen_context(system_u:object_r:xen_device_t,s0)
 -/dev/xen/privcmd	-c	gen_context(system_u:object_r:xen_device_t,s0)
++/dev/xen/hypercall	-c	gen_context(system_u:object_r:xenpriv_device_t,s0)
 +/dev/xen/privcmd	-c	gen_context(system_u:object_r:xenpriv_device_t,s0)
  /dev/xen/xenbus		-c	gen_context(system_u:object_r:xenstore_dev_t,s0)
  /dev/xen/xenbus_backend	-c	gen_context(system_u:object_r:xen_device_t,s0)
--/dev/xen/hypercall	-c	gen_context(system_u:object_r:xen_device_t,s0)
-+/dev/xen/hypercall	-c	gen_context(system_u:object_r:xenpriv_device_t,s0)
  
- 
- ifdef(`distro_debian',`
 --- a/policy/modules/kernel/devices.if
 +++ b/policy/modules/kernel/devices.if
-@@ -5977,6 +5977,25 @@
+@@ -5975,6 +5975,26 @@
+ 	allow $1 xen_device_t:chr_file map;
+ ')
  
- ########################################
- ## <summary>
++
++########################################
++## <summary>
 +##	Read and write Xen privcmd devices.
 +## </summary>
 +## <param name="domain">
@@ -74,11 +75,9 @@ Upstream-Status: Inappropriate [OpenXT]
 +	allow $1 xenpriv_device_t:chr_file { map };
 +')
 +
-+########################################
-+## <summary>
+ ########################################
+ ## <summary>
  ##	Read and write Xenstore/xenbus devices.
- ## </summary>
- ## <param name="domain">
 --- a/policy/modules/kernel/devices.te
 +++ b/policy/modules/kernel/devices.te
 @@ -443,6 +443,9 @@

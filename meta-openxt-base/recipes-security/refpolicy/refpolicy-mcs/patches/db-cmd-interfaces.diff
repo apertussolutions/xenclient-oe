@@ -17,7 +17,7 @@ Upstream-Status: Inappropriate [OpenXT]
  ')
  
  optional_policy(`
-+	db_cmd_domtrans(NetworkManager_t)
++db_cmd_domtrans(NetworkManager_t)
 +')
 +
 +optional_policy(`
@@ -26,18 +26,14 @@ Upstream-Status: Inappropriate [OpenXT]
  
 --- a/policy/modules/roles/sysadm.te
 +++ b/policy/modules/roles/sysadm.te
-@@ -323,8 +323,12 @@
- 	consoletype_run(sysadm_t, sysadm_r)
+@@ -324,6 +324,10 @@
  ')
  
--optional_policy(`
--	container_admin(sysadm_t, sysadm_r)
-+	optional_policy(`
-+	       db_cmd_run(sysadm_t, sysadm_r)
-+	')
+ optional_policy(`
++db_cmd_run(sysadm_t, sysadm_r)
++')
 +
-+	optional_policy(`
-+		dbus_role_template(sysadm, sysadm_r, sysadm_t)
++optional_policy(`
+ 	container_admin(sysadm_t, sysadm_r)
  
  	# Debug BPF programs.
- 	container_run_system_engine_bpf(sysadm_t)

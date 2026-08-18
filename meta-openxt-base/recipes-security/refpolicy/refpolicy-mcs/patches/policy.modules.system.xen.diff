@@ -12,7 +12,7 @@ Upstream-Status: Inappropriate [OpenXT]
 +/config/system/dom0-networking-disabled         --              gen_context(system_u:object_r:xend_config_t,s0)
 --- a/policy/modules/system/xen.if
 +++ b/policy/modules/system/xen.if
-@@ -206,3 +206,207 @@
+@@ -206,3 +206,261 @@
  	files_search_runtime($1)
  	stream_connect_pattern($1, xenstored_runtime_t, xenstored_runtime_t, xm_t)
  ')
@@ -219,6 +219,60 @@ Upstream-Status: Inappropriate [OpenXT]
 +	')
 +
 +	dontaudit $1 xend_t:unix_stream_socket rw_stream_socket_perms;
++')
++
++########################################
++## <summary>
++##	Allow use of xend file descriptors.
++## </summary>
++## <param name="domain">
++##	<summary>
++##	Domain allowed access.
++##	</summary>
++## </param>
++#
++interface(`xen_use_fds',`
++	gen_require(`
++		type xend_t;
++	')
++
++	allow $1 xend_t:fd use;
++')
++
++########################################
++## <summary>
++##	Do not audit use of xend file descriptors.
++## </summary>
++## <param name="domain">
++##	<summary>
++##	Domain to not audit.
++##	</summary>
++## </param>
++#
++interface(`xen_dontaudit_use_fds',`
++	gen_require(`
++		type xend_t;
++	')
++
++	dontaudit $1 xend_t:fd use;
++')
++########################################
++## <summary>
++##	Execute a domain transition to run xend.
++## </summary>
++## <param name="domain">
++##	<summary>
++##	Domain allowed to transition.
++##	</summary>
++## </param>
++#
++interface(`xen_domtrans',`
++	gen_require(`
++		type xend_t, xend_exec_t;
++	')
++
++	corecmd_search_bin($1)
++	domtrans_pattern($1, xend_exec_t, xend_t)
 +')
 --- a/policy/modules/system/xen.te
 +++ b/policy/modules/system/xen.te

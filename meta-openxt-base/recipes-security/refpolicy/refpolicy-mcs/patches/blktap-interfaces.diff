@@ -2,18 +2,17 @@ Upstream-Status: Inappropriate [OpenXT]
 
 --- a/policy/modules/apps/qemu.te
 +++ b/policy/modules/apps/qemu.te
-@@ -175,6 +175,11 @@
- # Unconfined local policy
+@@ -176,6 +176,10 @@
  #
  
-+# qemu emulates disk for early boot code
-+optional_policy(`
-+	blktap_rw_blk_file(qemu_t)
+ optional_policy(`
++blktap_rw_blk_file(qemu_t)
 +')
 +
- optional_policy(`
++optional_policy(`
  	type unconfined_qemu_t;
  	application_type(unconfined_qemu_t)
+ 	unconfined_domain(unconfined_qemu_t)
 --- a/policy/modules/system/xen.te
 +++ b/policy/modules/system/xen.te
 @@ -247,6 +247,16 @@
@@ -35,27 +34,25 @@ Upstream-Status: Inappropriate [OpenXT]
  kernel_write_xen_state(xend_t)
 --- a/policy/modules/roles/sysadm.te
 +++ b/policy/modules/roles/sysadm.te
-@@ -1071,7 +1071,12 @@
+@@ -1145,6 +1145,11 @@
  ')
  
  optional_policy(`
--	snort_admin(sysadm_t, sysadm_r)
-+	tapctl_run(sysadm_t, sysadm_r)
-+	dev_list_xen(sysadm_t)
++tapctl_run(sysadm_t, sysadm_r)
++dev_list_xen(sysadm_t)
 +')
 +
 +optional_policy(`
-+	thunderbird_role(sysadm_r, sysadm_t)
+ 	thunderbird_role(sysadm, sysadm_t, sysadm_application_exec_domain, sysadm_r)
  ')
  
- optional_policy(`
 --- a/policy/modules/system/lvm.te
 +++ b/policy/modules/system/lvm.te
 @@ -255,6 +255,10 @@
  ')
  
  optional_policy(`
-+	blktap_rw_blk_file(lvm_t)
++blktap_rw_blk_file(lvm_t)
 +')
 +
 +optional_policy(`
@@ -71,7 +68,7 @@ Upstream-Status: Inappropriate [OpenXT]
 +')
 +
 +optional_policy(`
-+	blktap_read_blk_file(mount_t)
++blktap_read_blk_file(mount_t)
  ')
  
  optional_policy(`

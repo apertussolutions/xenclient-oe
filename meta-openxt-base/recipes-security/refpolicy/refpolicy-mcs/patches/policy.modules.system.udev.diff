@@ -23,22 +23,49 @@ Upstream-Status: Inappropriate [OpenXT]
  dev_rw_sysfs(udev_t)
  dev_manage_all_dev_nodes(udev_t)
  dev_rw_generic_files(udev_t)
-@@ -219,6 +226,8 @@
+@@ -213,11 +220,15 @@
+ sysnet_manage_config(udev_t)
+ sysnet_etc_filetrans_config(udev_t)
+ 
+-systemd_map_hwdb(udev_t)
+-systemd_read_hwdb(udev_t)
++optional_policy(`
++	systemd_map_hwdb(udev_t)
++	systemd_read_hwdb(udev_t)
++')
+ 
  userdom_dontaudit_getattr_user_home_dirs(udev_t)
  userdom_dontaudit_search_user_home_content(udev_t)
- 
-+iptables_domtrans(udev_t)
 +
++iptables_domtrans(udev_t)
+ 
  ifdef(`distro_debian',`
  	# for https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=851933
- 	files_read_default_files(udev_t)
-@@ -389,15 +398,25 @@
+@@ -356,6 +367,10 @@
+ ')
+ 
+ optional_policy(`
++	network_slave_dbus_chat(udev_t)
++')
++
++optional_policy(`
+ 	openct_read_runtime_files(udev_t)
+ 	openct_domtrans(udev_t)
+ ')
+@@ -389,15 +404,32 @@
  	xen_manage_log(udev_t)
  	xen_read_image_files(udev_t)
  	fs_manage_xenfs_files(udev_t)
 +	dev_manage_xen(udev_t)
 +	xen_stream_connect_xenstore(udev_t)
 +	fs_rw_xenfs_files(udev_t)
++')
++
++optional_policy(`
++	xc_list_iso_files(udev_t)
++	xc_getattr_iso_files(udev_t)
++	xc_search_storage(udev_t)
++	xc_dontaudit_search_config_dir(udev_t)
  ')
  
  optional_policy(`
@@ -61,7 +88,7 @@ Upstream-Status: Inappropriate [OpenXT]
  
  ########################################
  #
-@@ -448,3 +467,4 @@
+@@ -448,3 +480,4 @@
  storage_getattr_fixed_disk_dev(udevadm_t)
  
  userdom_use_user_terminals(udevadm_t)
