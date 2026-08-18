@@ -1,7 +1,8 @@
 Upstream-Status: Inappropriate [OpenXT]
 
---- a/OvmfPkg/Include/Dsc/OvmfDisplayPcds.dsc.inc
-+++ b/OvmfPkg/Include/Dsc/OvmfDisplayPcds.dsc.inc
+diff -Naur --binary a/OvmfPkg/Include/Dsc/OvmfDisplayPcds.dsc.inc b/OvmfPkg/Include/Dsc/OvmfDisplayPcds.dsc.inc
+--- a/OvmfPkg/Include/Dsc/OvmfDisplayPcds.dsc.inc	2026-08-17 20:41:40.424195486 -0400
++++ b/OvmfPkg/Include/Dsc/OvmfDisplayPcds.dsc.inc	2026-08-17 20:41:40.424195486 -0400
 @@ -2,10 +2,10 @@
  #    SPDX-License-Identifier: BSD-2-Clause-Patent
  ##
