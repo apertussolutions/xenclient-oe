@@ -12,12 +12,21 @@ OE_CORE_PATH ?= "${@ \
             t + '/layers/openembedded-core', \
         ) if __import__('os').path.isdir(p)), \
         t + '/../layers/openembedded-core'))(d.getVar('TOPDIR'))}"
-FILESEXTRAPATHS:prepend := "${OE_CORE_PATH}/meta/recipes-bsp/grub/files:"
+FILESEXTRAPATHS:prepend := "${THISDIR}/files:${THISDIR}/patches:${OE_CORE_PATH}/meta/recipes-bsp/grub/files:"
 require recipes-bsp/grub/grub2.inc
 
 # OpenXT still builds PVH/PV grub from 2.04; OE-Core grub2.inc checksum
 # tracks the distro grub PV (2.14 on wrynose). Override for this recipe.
 SRC_URI[sha256sum] = "f10c85ae3e204dbaec39ae22fa3c5e99f0665417e91c2cb49b7e5031658ba6ea"
+
+# grub2.inc patches target OE grub 2.14; replace with 2.04-compatible set.
+SRC_URI:remove = "\
+    file://0001-autogen.sh-exclude-.pc-from-po-POTFILES.in.patch \
+    file://0002-grub-module-explicitly-keeps-symbole-.module_license.patch \
+    file://0003-grub.d-10_linux.in-add-oe-s-kernel-name.patch \
+    file://0001-Revert-configure-Check-linker-for-image-base-support.patch \
+    file://0002-Revert-configure-Print-a-more-helpful-error-if-autoc.patch \
+"
 
 require conf/image-uefi.conf
 
@@ -33,6 +42,9 @@ DEPENDS:append:class-target = " grub-efi-native"
 RDEPENDS:${PN}:class-target = "grub-common virtual-grub-bootconf"
 
 SRC_URI += " \
+	file://0001-autogen.sh-exclude-.pc-from-po-POTFILES.in-2.04.patch \
+	file://no-multiboot-display-reset.patch \
+	file://remove-editing-and-shell.patch \
 	file://grub-xen.cfg \
 "
 
