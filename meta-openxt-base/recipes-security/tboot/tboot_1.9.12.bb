@@ -24,8 +24,15 @@ SRC_URI[sha256sum] = "007212deacab8eb159d71449766f9b2e0523439f1c4fd64d1932eb38cb
 inherit deploy
 
 # safestringlib/safeclib/mem_primitives_lib.c has a lot of fallthrough.
-CFLAGS:append = "-Wno-implicit-fallthrough"
+# GCC 15 also flags rijndaelEncrypt array-parameter mismatches as errors
+# under tboot's -Werror build.
+CFLAGS:append = " -Wno-implicit-fallthrough -Wno-error=array-parameter"
 EXTRA_OEMAKE = "INSTALL_STRIP=''"
+
+# Config.mk enables -Werror; GCC 15 raises new fatals on this tree.
+do_configure:append() {
+    sed -i 's/-Werror//g' "${S}/Config.mk"
+}
 
 do_compile() {
     oe_runmake SUBDIRS="tboot" CC="${HOST_PREFIX}gcc ${TOOLCHAIN_OPTIONS}" CPP="${HOST_PREFIX}cpp ${TOOLCHAIN_OPTIONS}"
