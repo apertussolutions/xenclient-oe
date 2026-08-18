@@ -9,6 +9,9 @@ SRC_URI += "file://icbinn_svc.initscript"
 DEPENDS = "libargo libtirpc libxcdbus"
 EXTRA_OECONF += "--with-argo --with-xcdbus"
 
+# canary.c calls icbinn_rand(NULL, NULL, ...); second arg is int (GCC 15).
+CFLAGS:append = " -Wno-error=int-conversion"
+
 PACKAGES =+ "${PN}-server"
 FILES:${PN}-server = "${sysconfdir}/init.d ${bindir}/icbinn_svc"
 PROVIDES += "${PN}-server"

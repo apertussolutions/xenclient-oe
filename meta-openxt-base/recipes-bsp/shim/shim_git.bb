@@ -60,12 +60,13 @@ typedef __PTRDIFF_TYPE__ ptrdiff_t;
 #endif /* _SHIM_CRYPTLIB_STDDEF_H_ */
 END_STDDEF
 	echo 'CFLAGS += -DGNU_EFI_3_0_COMPAT' >> ${S}/Make.defaults
+	# Newer binutils objcopy rejects "--target efi-app-*" on ELF inputs;
+	# "--output-target=" is the supported spelling.
+	sed -i 's/--target efi-app-/--output-target=efi-app-/' ${S}/Make.defaults
 }
 
 # No spaces around '=' — make argv splits on spaces and treats bare '=' as
 # an empty variable name (GNU make: "empty variable name").
-# GNU_EFI_3_0_COMPAT: shim 15 calls ReallocatePool(old, oldsz, newsz); gnu-efi
-# 4.x default ABI flipped argument order.
 EXTRA_OEMAKE = "\
     CROSS_COMPILE=${TARGET_PREFIX} \
     prefix=${STAGING_DIR_HOST}/${prefix} \
@@ -85,8 +86,6 @@ EXTRA_OEMAKE = "\
     REQUIRE_TPM=1 \
     ALLOW_32BIT_KERNEL_ON_X64=1 \
 "
-
-CFLAGS:append = " -DGNU_EFI_3_0_COMPAT"
 
 COMPATIBLE_HOST = 'i686-oe-linux|(x86_64.*).*-linux|aarch64.*-linux'
 
