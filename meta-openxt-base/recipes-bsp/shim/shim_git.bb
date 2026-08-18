@@ -32,24 +32,26 @@ SRC_URI = " \
 SRCREV = "51413d1deb0df0debdf1d208723131ff0e36d3a3"
 
 
+# No spaces around '=' — make argv splits on spaces and treats bare '=' as
+# an empty variable name (GNU make: "empty variable name").
 EXTRA_OEMAKE = "\
-    CROSS_COMPILE = "${TARGET_PREFIX}" \
-    prefix = "${STAGING_DIR_HOST}/${prefix}" \
-    LIB_GCC = "`${CC} -print-libgcc-file-name`" \
-    LIB_PATH = "${STAGING_LIBDIR_NATIVE}" \
-    EFI_PATH = "${STAGING_LIBDIR_NATIVE}" \
-    EFI_INCLUDE = "${STAGING_INCDIR_NATIVE}/efi" \
-    RELEASE = "_${DISTRO}_${DISTRO_VERSION}" \
-    DEFAULT_LOADER = \\\\\\xen.efi \
-    OPENSSL = ${STAGING_BINDIR_NATIVE}/openssl \
-    HEXDUMP = ${STAGING_BINDIR_NATIVE}/hexdump \
-    PK12UTIL = ${STAGING_BINDIR_NATIVE}/pk12util \
-    CERTUTIL = ${STAGING_BINDIR_NATIVE}/certutil \
-    AR = ${AR} \
-    ARCH = x86_64 \
-    KEEP_DISCARDABLE_RELOC = 1 \
-    REQUIRE_TPM = 1 \
-    ALLOW_32BIT_KERNEL_ON_X64 = 1 \
+    CROSS_COMPILE=${TARGET_PREFIX} \
+    prefix=${STAGING_DIR_HOST}/${prefix} \
+    LIB_GCC=`${CC} -print-libgcc-file-name` \
+    LIB_PATH=${STAGING_LIBDIR_NATIVE} \
+    EFI_PATH=${STAGING_LIBDIR_NATIVE} \
+    EFI_INCLUDE=${STAGING_INCDIR_NATIVE}/efi \
+    RELEASE=_${DISTRO}_${DISTRO_VERSION} \
+    DEFAULT_LOADER=\\\\\\xen.efi \
+    OPENSSL=${STAGING_BINDIR_NATIVE}/openssl \
+    HEXDUMP=${STAGING_BINDIR_NATIVE}/hexdump \
+    PK12UTIL=${STAGING_BINDIR_NATIVE}/pk12util \
+    CERTUTIL=${STAGING_BINDIR_NATIVE}/certutil \
+    AR=${AR} \
+    ARCH=x86_64 \
+    KEEP_DISCARDABLE_RELOC=1 \
+    REQUIRE_TPM=1 \
+    ALLOW_32BIT_KERNEL_ON_X64=1 \
 "
 
 COMPATIBLE_HOST = 'i686-oe-linux|(x86_64.*).*-linux|aarch64.*-linux'
