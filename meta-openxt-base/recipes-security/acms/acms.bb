@@ -5,7 +5,7 @@ SECTION = "bootloaders"
 LICENSE = "Intel-ACMs"
 FILESEXTRAPATHS ?= "${THISDIR}/acms"
 LIC_FILES_CHKSUM = " \
-    file://license.txt;md5=24983614c000aac0d87e5aea9d13b8be \
+    file://license.txt;md5=a09f1c93a6eddddaab2ad748d3d2b4d3 \
 "
 
 SRC_URI = " \
