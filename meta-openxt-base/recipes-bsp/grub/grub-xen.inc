@@ -74,7 +74,7 @@ do_mkimage() {
 	echo "normal (memdisk)/grub-xen.cfg" > grub-bootstrap.cfg
 	# The memdisk config searches for a grub.cfg on the local boot media,
 	# or falls back to loading bzImage
-	tar -c -C ${WORKDIR} -f ${B}/memdisk.tar grub-xen.cfg
+	tar -c -C ${UNPACKDIR} -f ${B}/memdisk.tar grub-xen.cfg
 	tar tf memdisk.tar
 	grub-mkimage -c grub-bootstrap.cfg -p / -d ./grub-core/ \
 	               -O ${GRUB_TARGET}-${GRUBPLATFORM} \

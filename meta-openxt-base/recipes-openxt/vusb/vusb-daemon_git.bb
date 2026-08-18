@@ -15,8 +15,9 @@ SRC_URI = "git://github.com/OpenXT/vusb-daemon.git;protocol=https;branch=master 
 EXTRA_OECONF += "--with-libexpat=${STAGING_LIBDIR}"
 EXTRA_OECONF += "--with-libxenstore=${STAGING_LIBDIR}"
 
-# udev.c snprintf format-truncation promoted by -Werror under GCC 15.
-CFLAGS:append = " -Wno-error=format-truncation"
+# project.h defines globals in the header; GCC defaults to -fno-common.
+# udev.c snprintf format-truncation is promoted by -Werror under GCC 15.
+CFLAGS:append = " -fcommon -Wno-error=format-truncation"
 
 
 inherit autotools update-rc.d pkgconfig xc-rpcgen-c
