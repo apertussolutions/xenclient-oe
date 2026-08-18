@@ -33,8 +33,10 @@ SRCREV = "51413d1deb0df0debdf1d208723131ff0e36d3a3"
 
 
 
-# gnu-efi 4.x efibind.h includes <stddef.h> mid-typedef; Cryptlib's old stddef.h
-# re-entered efilib via OpenSslSupport before UINTN existed. Replace it.
+# gnu-efi 4.x: (1) efibind.h includes <stddef.h> mid-typedef — Cryptlib's old
+# stddef re-entered efilib before UINTN existed; (2) ReallocatePool ABI flipped
+# — shim 15 still uses the 3.0 argument order. Make.defaults overwrites CFLAGS,
+# so inject the compat define there.
 do_configure:prepend() {
 	cat > ${S}/Cryptlib/Include/stddef.h <<'END_STDDEF'
 /** @file
@@ -57,10 +59,13 @@ typedef __PTRDIFF_TYPE__ ptrdiff_t;
 
 #endif /* _SHIM_CRYPTLIB_STDDEF_H_ */
 END_STDDEF
+	echo 'CFLAGS += -DGNU_EFI_3_0_COMPAT' >> ${S}/Make.defaults
 }
 
 # No spaces around '=' — make argv splits on spaces and treats bare '=' as
 # an empty variable name (GNU make: "empty variable name").
+# GNU_EFI_3_0_COMPAT: shim 15 calls ReallocatePool(old, oldsz, newsz); gnu-efi
+# 4.x default ABI flipped argument order.
 EXTRA_OEMAKE = "\
     CROSS_COMPILE=${TARGET_PREFIX} \
     prefix=${STAGING_DIR_HOST}/${prefix} \
@@ -80,6 +85,8 @@ EXTRA_OEMAKE = "\
     REQUIRE_TPM=1 \
     ALLOW_32BIT_KERNEL_ON_X64=1 \
 "
+
+CFLAGS:append = " -DGNU_EFI_3_0_COMPAT"
 
 COMPATIBLE_HOST = 'i686-oe-linux|(x86_64.*).*-linux|aarch64.*-linux'
 

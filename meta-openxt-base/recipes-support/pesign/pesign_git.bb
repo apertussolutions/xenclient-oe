@@ -40,6 +40,9 @@ EXTRA_OEMAKE += "\
     C_INCLUDE_PATH=${STAGING_INCDIR}/efivar:${STAGING_INCDIR} \
 "
 
+# pesign enables -Werror; GCC 15 adds calloc-transposed-args / enum-conversion.
+CFLAGS:append = " -Wno-error=calloc-transposed-args -Wno-error=enum-conversion"
+
 do_install() {
     install -d ${D}${bindir}
     install "${B}/src/pesign" ${D}${bindir}
