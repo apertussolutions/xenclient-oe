@@ -134,7 +134,7 @@ EXTRA_OECONF += " \
     --enable-pie \
     --enable-readonly-ide \
     --enable-trace-backends=nop \
-    --enable-werror \
+    --disable-werror \
     --enable-xen \
     --extra-cflags="${CFLAGS}" \
 "

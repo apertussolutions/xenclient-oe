@@ -13,7 +13,8 @@ EXTRA_OECONF += "--with-argo --with-xcdbus"
 # treats -Wint-conversion as a hard error (not only under -Werror).
 # server.c uses fallocate64() without feature macros; under GCC 15 that is
 # an error via -Werror=implicit-function-declaration.
-CFLAGS:append = " -Wno-int-conversion -Wno-error=implicit-function-declaration"
+# client/prototypes.h defines global `icb` in a header (-fno-common default).
+CFLAGS:append = " -fcommon -Wno-int-conversion -Wno-error=implicit-function-declaration"
 
 PACKAGES =+ "${PN}-server"
 FILES:${PN}-server = "${sysconfdir}/init.d ${bindir}/icbinn_svc"
