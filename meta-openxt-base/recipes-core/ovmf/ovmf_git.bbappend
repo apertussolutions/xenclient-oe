@@ -41,7 +41,7 @@ do_compile:class-target:append() {
     if ${@bb.utils.contains('PACKAGECONFIG', 'e1000', 'true', 'false', d)}; then
         bbnote "Building with E1000 (support for netboot)."
         rm -rf ${S}/Build/Ovmf$OVMF_DIR_SUFFIX
-        ${S}/OvmfPkg/build.sh $PARALLEL_JOBS -a $OVMF_ARCH -b RELEASE -t ${FIXED_GCCVER} -D E1000_ENABLE -D XEN_VARIABLE_ENABLE=TRUE -D SECURE_BOOT_ENABLE=TRUE
+        ${S}/OvmfPkg/build.sh $PARALLEL_JOBS -a $OVMF_ARCH -b RELEASE -t ${FIXED_GCCVER} -D E1000_ENABLE -D SECURE_BOOT_ENABLE=TRUE
         ln ${build_dir}/FV/OVMF.fd ${UNPACKDIR}/ovmf/ovmf.e1000.fd
         ln ${build_dir}/FV/OVMF_CODE.fd ${UNPACKDIR}/ovmf/ovmf.e1000.code.fd
     fi
