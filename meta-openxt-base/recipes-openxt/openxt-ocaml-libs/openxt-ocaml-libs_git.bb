@@ -45,4 +45,6 @@ do_install() {
 }
 
 # .cma/.cmi files require the runtime environment.
-INSANE_SKIP:${PN}-dev = "file-rdeps"
+# Ocaml archives embed absolute build paths.
+INSANE_SKIP:${PN}-dev = "file-rdeps buildpaths"
+INSANE_SKIP:${PN}-staticdev = "buildpaths"

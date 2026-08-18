@@ -113,4 +113,6 @@ do_install() {
 # Xen 4.21 installs ocaml glue plugins under /usr/lib/xen/ocaml/.
 FILES:${PN} += "${libdir}/xen/ocaml"
 
-INSANE_SKIP:${PN}-dev = "file-rdeps"
+# Ocaml archives embed absolute build paths.
+INSANE_SKIP:${PN}-dev = "file-rdeps buildpaths"
+INSANE_SKIP:${PN}-staticdev = "buildpaths"
