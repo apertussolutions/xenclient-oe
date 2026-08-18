@@ -10,3 +10,7 @@ S = "${UNPACKDIR}/${BP}/xcxenstore"
 ASNEEDED = ""
 
 inherit autotools-brokensep pkgconfig
+
+# sample/teststore.c fails under GCC 15 -Werror=implicit-function-declaration
+# (missing unistd.h / lib headers) and is not installed — skip it.
+EXTRA_OEMAKE += "SUBDIRS=src"
