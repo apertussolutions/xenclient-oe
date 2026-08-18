@@ -106,3 +106,6 @@ RDEPENDS:${PN}-tools-vm += " \
     libargo \
     ${PN}-tools \
 "
+
+# OCaml debug binaries embed TMPDIR paths.
+INSANE_SKIP:${PN}-dbg += "buildpaths"

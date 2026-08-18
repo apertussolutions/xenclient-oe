@@ -39,6 +39,10 @@ INITSCRIPT_PARAMS:tapback = "defaults 61 39"
 
 TARGET_CPPFLAGS += "-DTAP_CTL_NO_DEFAULT_CGROUP_SLICE -DOPEN_XT"
 
+# include/util.h: #ifndef __TAPDISK_UTIL_H__ vs #define __TAPDISK_UTIL_H_
+# (mismatched guard). GCC 15 promotes this to error under -Werror.
+CFLAGS:append = " -Wno-error=header-guard"
+
 do_configure:prepend() {
 	touch ${S}/EXTRAVERSION
 }
