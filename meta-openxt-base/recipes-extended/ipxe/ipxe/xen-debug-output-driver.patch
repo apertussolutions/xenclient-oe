@@ -1,16 +1,9 @@
 Upstream-Status: Inappropriate [OpenXT]
 
-commit 3fa17a7ff80c64a3907731cf1665aa863594c416
-Author: Julian Pidancet <julian.pidancet@citrix.com>
-Date:   Fri Nov 11 17:57:55 2011 +0000
-
-    Add Xen debug output driver for iPXE
-
-Index: src/config/config.c
-===================================================================
---- src.orig/config/config.c
-+++ src/config/config.c
-@@ -100,6 +100,9 @@ REQUIRE_OBJECT ( pxemenu );
+diff -Naur a/config/config.c b/config/config.c
+--- a/config/config.c	2026-08-17 20:58:34.724189296 -0400
++++ b/config/config.c	2026-08-17 20:58:34.820189295 -0400
+@@ -104,6 +104,9 @@
  #ifdef PXE_STACK
  REQUIRE_OBJECT ( pxe_call );
  #endif
@@ -20,22 +13,20 @@ Index: src/config/config.c
  
  /*
   * Drag in all requested download protocols
-Index: src/config/console.h
-===================================================================
---- src.orig/config/console.h
-+++ src/config/console.h
-@@ -41,6 +41,7 @@ FILE_LICENCE ( GPL2_OR_LATER_OR_UBDL );
- //#define	CONSOLE_VMWARE		/* VMware logfile console */
- //#define	CONSOLE_DEBUGCON	/* Bochs/QEMU/KVM debug port console */
- //#define	CONSOLE_INT13		/* INT13 disk log console */
-+#define	CONSOLE_XEN	/* Xen debug console port. */
+diff -Naur a/config/console.h b/config/console.h
+--- a/config/console.h	2026-08-17 20:58:34.724189296 -0400
++++ b/config/console.h	2026-08-17 20:58:34.840189295 -0400
+@@ -54,6 +54,7 @@
  
- /*
-  * Very obscure console types
-Index: src/core/xen_console.c
-===================================================================
---- /dev/null
-+++ src/core/xen_console.c
+ /* Console types supported only on x86 CPUs */
+ #if defined ( __i386__ ) || defined ( __x86_64__ )
++  #define CONSOLE_XEN		/* Xen debug console port. */
+   //#define CONSOLE_DEBUGCON	/* Bochs/QEMU/KVM debug port console */
+   //#define CONSOLE_DIRECT_VGA	/* Direct access to VGA card */
+   //#define CONSOLE_PC_KBD	/* Direct access to PC keyboard */
+diff -Naur a/core/xen_console.c b/core/xen_console.c
+--- a/core/xen_console.c	1969-12-31 19:00:00.000000000 -0500
++++ b/core/xen_console.c	2026-08-17 20:58:34.844189295 -0400
 @@ -0,0 +1,20 @@
 +#include <ipxe/init.h>
 +#include <ipxe/console.h>
@@ -55,5 +46,5 @@ Index: src/core/xen_console.c
 +
 +
 +struct console_driver xen_console __console_driver = {
-+	.putchar = xen_putc,
++.putchar = xen_putc,
 +};
