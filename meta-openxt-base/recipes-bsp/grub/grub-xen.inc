@@ -38,6 +38,10 @@ SECURITY_CFLAGS = ""
 # would then get executed and fault.
 CFLAGS:append = " -fno-reorder-functions"
 
+# grub 2.04 xzembed defines enum { false, true } bool; C23 makes those
+# keywords. Compile as gnu17 so bool/false/true are not keywords.
+CFLAGS:append = " -std=gnu17"
+
 DEPENDS:append:class-target = " grub-efi-native"
 RDEPENDS:${PN}:class-target = "grub-common virtual-grub-bootconf"
 
