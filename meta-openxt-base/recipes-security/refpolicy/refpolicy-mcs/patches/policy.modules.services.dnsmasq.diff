@@ -12,10 +12,11 @@ Upstream-Status: Inappropriate [OpenXT]
  /run/libvirt/network(/.*)?		gen_context(system_u:object_r:dnsmasq_runtime_t,s0)
 --- a/policy/modules/services/dnsmasq.if
 +++ b/policy/modules/services/dnsmasq.if
-@@ -137,6 +137,25 @@ interface(`dnsmasq_write_config',`
+@@ -61,7 +61,26 @@
  
  ########################################
  ## <summary>
+-##	Send null signals to dnsmasq.
 +##     Manage dnsmasq config files.
 +## </summary>
 +## <param name="domain">
@@ -35,12 +36,13 @@ Upstream-Status: Inappropriate [OpenXT]
 +
 +########################################
 +## <summary>
- ##	Delete dnsmasq pid files.  (Deprecated)
++##	Delete dnsmasq pid files.  (Deprecated)
  ## </summary>
  ## <param name="domain">
+ ##	<summary>
 --- a/policy/modules/services/dnsmasq.te
 +++ b/policy/modules/services/dnsmasq.te
-@@ -14,6 +14,7 @@ init_script_file(dnsmasq_initrc_exec_t)
+@@ -14,6 +14,7 @@
  
  type dnsmasq_etc_t;
  files_config_file(dnsmasq_etc_t)
@@ -48,7 +50,7 @@ Upstream-Status: Inappropriate [OpenXT]
  
  type dnsmasq_lease_t;
  files_type(dnsmasq_lease_t)
-@@ -27,6 +28,10 @@ init_unit_file(dnsmasq_unit_t)
+@@ -27,6 +28,10 @@
  type dnsmasq_var_log_t;
  logging_log_file(dnsmasq_var_log_t)
  
@@ -59,7 +61,7 @@ Upstream-Status: Inappropriate [OpenXT]
  ########################################
  #
  # Local policy
-@@ -39,6 +44,7 @@ allow dnsmasq_t self:fifo_file rw_fifo_f
+@@ -39,6 +44,7 @@
  allow dnsmasq_t self:tcp_socket { accept listen };
  allow dnsmasq_t self:packet_socket create_socket_perms;
  allow dnsmasq_t self:rawip_socket create_socket_perms;
@@ -67,7 +69,7 @@ Upstream-Status: Inappropriate [OpenXT]
  
  allow dnsmasq_t dnsmasq_etc_t:dir list_dir_perms;
  allow dnsmasq_t dnsmasq_etc_t:file read_file_perms;
-@@ -55,6 +61,12 @@ manage_dirs_pattern(dnsmasq_t, dnsmasq_r
+@@ -55,6 +61,12 @@
  manage_files_pattern(dnsmasq_t, dnsmasq_runtime_t, dnsmasq_runtime_t)
  files_runtime_filetrans(dnsmasq_t, dnsmasq_runtime_t, { dir file })
  
@@ -80,7 +82,7 @@ Upstream-Status: Inappropriate [OpenXT]
  kernel_read_kernel_sysctls(dnsmasq_t)
  kernel_read_net_sysctls(dnsmasq_t)
  kernel_read_network_state(dnsmasq_t)
-@@ -62,6 +74,7 @@ kernel_read_system_state(dnsmasq_t)
+@@ -62,6 +74,7 @@
  kernel_request_load_module(dnsmasq_t)
  
  corecmd_exec_shell(dnsmasq_t)

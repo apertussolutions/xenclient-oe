@@ -2,7 +2,7 @@ Upstream-Status: Inappropriate [OpenXT]
 
 --- a/policy/modules/system/xen.te
 +++ b/policy/modules/system/xen.te
-@@ -271,6 +271,8 @@ tapdisk_domtrans(xend_t)
+@@ -257,6 +257,8 @@
  tapctl_domtrans(xend_t)
  tapdisk_filetrans_control_dir(xend_t)
  
@@ -13,7 +13,7 @@ Upstream-Status: Inappropriate [OpenXT]
  kernel_write_xen_state(xend_t)
 --- a/policy/modules/system/init.te
 +++ b/policy/modules/system/init.te
-@@ -1177,6 +1177,10 @@ optional_policy(`
+@@ -1352,6 +1352,10 @@
  ')
  
  optional_policy(`
@@ -26,7 +26,7 @@ Upstream-Status: Inappropriate [OpenXT]
  	dbus_read_config(initrc_t)
 --- a/policy/modules/system/unconfined.te
 +++ b/policy/modules/system/unconfined.te
-@@ -91,6 +91,10 @@ optional_policy(`
+@@ -110,6 +110,10 @@
  ')
  
  optional_policy(`

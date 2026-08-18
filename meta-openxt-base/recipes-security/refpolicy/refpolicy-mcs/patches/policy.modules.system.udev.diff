@@ -1,22 +1,20 @@
 Upstream-Status: Inappropriate [OpenXT]
 
-ndex: refpolicy/policy/modules/system/udev.fc
-===================================================================
 --- a/policy/modules/system/udev.te
 +++ b/policy/modules/system/udev.te
-@@ -66,6 +66,11 @@ allow udev_t self:rawip_socket create_so
+@@ -66,6 +66,11 @@
+ 
  # for systemd-udevd to rename interfaces
  allow udev_t self:netlink_route_socket nlmsg_write;
- 
++
 +# Ignore CAP_IPC_LOCK denial triggered by mmap(MAP_LOCKED);
 +# the operation will still succeed.  See the following kernel commit:
 +# http://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=a5a6579db33af91f4f5134e14be758dc71c1b694
 +dontaudit udev_t self:capability ipc_lock;
-+
+ 
  can_exec(udev_t, udev_exec_t)
  
- allow udev_t udev_helper_exec_t:dir list_dir_perms;
-@@ -111,6 +116,8 @@ kernel_dontaudit_search_unlabeled(udev_t
+@@ -115,6 +120,8 @@
  
  corecmd_exec_all_executables(udev_t)
  
@@ -25,8 +23,8 @@ ndex: refpolicy/policy/modules/system/udev.fc
  dev_rw_sysfs(udev_t)
  dev_manage_all_dev_nodes(udev_t)
  dev_rw_generic_files(udev_t)
-@@ -200,6 +207,8 @@ sysnet_etc_filetrans_config(udev_t)
- 
+@@ -219,6 +226,8 @@
+ userdom_dontaudit_getattr_user_home_dirs(udev_t)
  userdom_dontaudit_search_user_home_content(udev_t)
  
 +iptables_domtrans(udev_t)
@@ -34,7 +32,7 @@ ndex: refpolicy/policy/modules/system/udev.fc
  ifdef(`distro_debian',`
  	# for https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=851933
  	files_read_default_files(udev_t)
-@@ -381,12 +390,22 @@ optional_policy(`
+@@ -389,15 +398,25 @@
  	xen_manage_log(udev_t)
  	xen_read_image_files(udev_t)
  	fs_manage_xenfs_files(udev_t)
@@ -47,6 +45,9 @@ ndex: refpolicy/policy/modules/system/udev.fc
  	xserver_read_xdm_runtime_files(udev_t)
  ')
  
+-optional_policy(`
+-	zfs_read_config(udev_t)
+-')
 +fs_manage_tmpfs_chr_files(udev_t)
 +fs_manage_tmpfs_files(udev_t)
 +fs_manage_tmpfs_symlinks(udev_t)
@@ -54,11 +55,14 @@ ndex: refpolicy/policy/modules/system/udev.fc
 +
 +vusbd_read_etc_files(udev_t)
 +
++########################################
++#
++# udevadm Local policy
+ 
  ########################################
  #
- # udevadm Local policy
-@@ -427,3 +454,4 @@ seutil_read_file_contexts(udevadm_t)
+@@ -448,3 +467,4 @@
+ storage_getattr_fixed_disk_dev(udevadm_t)
  
- init_dontaudit_use_fds(udevadm_t)
- term_dontaudit_use_console(udevadm_t)
+ userdom_use_user_terminals(udevadm_t)
 +dev_dontaudit_rw_generic_chr_files(udevadm_t)

@@ -2,10 +2,13 @@ Upstream-Status: Inappropriate [OpenXT]
 
 --- a/policy/modules/roles/sysadm.te
 +++ b/policy/modules/roles/sysadm.te
-@@ -1414,3 +1414,6 @@ ifndef(`distro_redhat',`
+@@ -90,6 +90,9 @@
  	')
  ')
  
 +optional_policy(`
 +	xsmutil_run(sysadm_t, sysadm_r)
 +')
+ ifdef(`distro_gentoo',`
+ 	init_exec_rc(sysadm_t)
+ ')

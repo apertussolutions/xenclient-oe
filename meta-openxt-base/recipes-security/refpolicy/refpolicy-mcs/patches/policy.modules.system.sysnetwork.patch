@@ -2,20 +2,25 @@ Upstream-Status: Inappropriate [OpenXT]
 
 --- a/policy/modules/system/sysnetwork.fc
 +++ b/policy/modules/system/sysnetwork.fc
-@@ -18,9 +18,11 @@ ifdef(`distro_debian',`
+@@ -18,12 +18,14 @@
  /etc/hosts		--	gen_context(system_u:object_r:net_conf_t,s0)
  /etc/hosts\.allow.*	--	gen_context(system_u:object_r:net_conf_t,s0)
  /etc/hosts\.deny.*	--	gen_context(system_u:object_r:net_conf_t,s0)
 +/etc/hosts		-l	gen_context(system_u:object_r:net_conf_t,s0)
 +/run/hosts		--	gen_context(system_u:object_r:net_conf_t,s0)
  /etc/hostname		--	gen_context(system_u:object_r:net_conf_t,s0)
+-/etc/kea(/.*)?			gen_context(system_u:object_r:dhcp_etc_t,s0)
  /etc/denyhosts.*	--	gen_context(system_u:object_r:net_conf_t,s0)
+-/etc/machine-info	--	gen_context(system_u:object_r:net_conf_t,s0)
 -/etc/resolv\.conf.*	--	gen_context(system_u:object_r:net_conf_t,s0)
 +/etc/resolv\.conf.*		gen_context(system_u:object_r:net_conf_t,s0)
  /etc/yp\.conf.*		--	gen_context(system_u:object_r:net_conf_t,s0)
++
++/etc/dhcp3(/.*)?		gen_context(system_u:object_r:dhcp_etc_t,s0)
  
  /etc/dhcp3(/.*)?		gen_context(system_u:object_r:dhcp_etc_t,s0)
-@@ -33,6 +35,15 @@ ifdef(`distro_redhat',`
+ /etc/dhcp3?/dhclient.*		gen_context(system_u:object_r:dhcp_etc_t,s0)
+@@ -36,6 +38,15 @@
  /etc/sysconfig/networking(/.*)? gen_context(system_u:object_r:net_conf_t,s0)
  /etc/sysconfig/network-scripts(/.*)? gen_context(system_u:object_r:net_conf_t,s0)
  ')
@@ -31,7 +36,7 @@ Upstream-Status: Inappropriate [OpenXT]
  
  #
  # /usr
-@@ -71,6 +82,10 @@ ifdef(`distro_redhat',`
+@@ -75,6 +86,10 @@
  /usr/sbin/mii-tool\.net-tools		--	gen_context(system_u:object_r:ifconfig_exec_t,s0)
  /usr/sbin/pump			--	gen_context(system_u:object_r:dhcpc_exec_t,s0)
  /usr/sbin/tc			--	gen_context(system_u:object_r:ifconfig_exec_t,s0)
@@ -42,10 +47,11 @@ Upstream-Status: Inappropriate [OpenXT]
  
  #
  # /var
-@@ -97,3 +112,10 @@ ifdef(`distro_debian',`
+@@ -100,3 +115,11 @@
+ /run/network(/.*)?	gen_context(system_u:object_r:net_conf_t,s0)
  /run/resolvconf/.* --	gen_context(system_u:object_r:net_conf_t,s0)
  ')
- 
++
 +/var/volatile/etc/resolv\.conf.*	--	gen_context(system_u:object_r:net_conf_t,s0)
 +
 +#
@@ -55,26 +61,23 @@ Upstream-Status: Inappropriate [OpenXT]
 +
 --- a/policy/modules/system/sysnetwork.if
 +++ b/policy/modules/system/sysnetwork.if
-@@ -347,6 +347,7 @@ interface(`sysnet_read_config',`
+@@ -581,7 +581,8 @@
+ 	')
  
  	files_search_etc($1)
- 	allow $1 net_conf_t:file read_file_perms;
+-	allow $1 net_conf_t:file manage_file_perms;
++	allow $1 net_conf_t:file read_file_perms;
 +	allow $1 net_conf_t:lnk_file read_lnk_file_perms;
  
  	ifdef(`distro_debian',`
  		files_search_runtime($1)
-@@ -505,6 +506,7 @@ interface(`sysnet_manage_config',`
+@@ -957,6 +958,24 @@
  
- 	files_search_etc($1)
- 	allow $1 net_conf_t:file manage_file_perms;
-+	allow $1 net_conf_t:lnk_file manage_lnk_file_perms;
- 
- 	ifdef(`distro_debian',`
- 		files_search_runtime($1)
-@@ -727,6 +729,24 @@ interface(`sysnet_search_dhcp_state',`
- ')
- 
- ########################################
+ 	files_search_var_lib($1)
+ 	allow $1 dhcp_state_t:dir search_dir_perms;
++')
++
++########################################
 +## <summary>
 +##	Dontaudit attemps to write to state dir.
 +## </summary>
@@ -90,15 +93,44 @@ Upstream-Status: Inappropriate [OpenXT]
 +	')
 +
 +	dontaudit $1 dhcp_state_t:dir write;
+ ')
+ 
+ ########################################
+@@ -1107,3 +1126,31 @@
+ 
+ 	sysnet_read_config($1)
+ ')
++
++########################################
++## <summary>
++##	Read dhcpc PID files (OpenXT).
++## </summary>
++## <param name="domain">
++##	<summary>
++##	Domain allowed access.
++##	</summary>
++## </param>
++#
++interface(`sysnet_read_dhcpc_pid',`
++	sysnet_read_dhcpc_runtime_files($1)
 +')
 +
 +########################################
- ## <summary>
- ##	Create DHCP state data.
- ## </summary>
++## <summary>
++##	Delete dhcpc PID files (OpenXT).
++## </summary>
++## <param name="domain">
++##	<summary>
++##	Domain allowed access.
++##	</summary>
++## </param>
++#
++interface(`sysnet_delete_dhcpc_pid',`
++	sysnet_delete_dhcpc_runtime_files($1)
++')
 --- a/policy/modules/system/sysnetwork.te
 +++ b/policy/modules/system/sysnetwork.te
-@@ -15,6 +15,7 @@ files_config_file(dhcp_etc_t)
+@@ -23,6 +23,7 @@
  # this is shared between dhcpc and dhcpd:
  type dhcp_state_t;
  files_type(dhcp_state_t)
@@ -106,15 +138,17 @@ Upstream-Status: Inappropriate [OpenXT]
  
  type dhcpc_t;
  type dhcpc_exec_t;
-@@ -40,6 +41,7 @@ files_runtime_file(ifconfig_runtime_t)
+@@ -51,7 +52,8 @@
+ ')
  
  type net_conf_t;
- files_type(net_conf_t)
+-files_config_file(net_conf_t)
++files_type(net_conf_t)
 +files_mountpoint(net_conf_t)
  
  ifdef(`distro_debian',`
  	init_daemon_runtime_file(net_conf_t, dir, "network")
-@@ -99,6 +101,7 @@ kernel_rw_net_sysctls(dhcpc_t)
+@@ -116,6 +118,7 @@
  
  corecmd_exec_bin(dhcpc_t)
  corecmd_exec_shell(dhcpc_t)
@@ -122,15 +156,19 @@ Upstream-Status: Inappropriate [OpenXT]
  
  corenet_all_recvfrom_netlabel(dhcpc_t)
  corenet_tcp_sendrecv_all_if(dhcpc_t)
-@@ -115,6 +118,7 @@ corenet_udp_bind_all_unreserved_ports(dh
+@@ -132,9 +135,10 @@
  corenet_tcp_connect_all_ports(dhcpc_t)
  corenet_sendrecv_dhcpd_client_packets(dhcpc_t)
  corenet_sendrecv_all_server_packets(dhcpc_t)
+-corenet_sendrecv_icmp_packets(dhcpc_t)
 +corenet_udp_bind_all_ports(dhcpc_t)
  
  dev_read_sysfs(dhcpc_t)
++# for SSP:
  # for SSP:
-@@ -125,6 +129,12 @@ domain_dontaudit_read_all_domains_state(
+ dev_read_rand(dhcpc_t)
+ dev_read_urand(dhcpc_t)
+@@ -144,6 +148,12 @@
  
  files_read_etc_files(dhcpc_t)
  files_read_etc_runtime_files(dhcpc_t)
@@ -143,7 +181,7 @@ Upstream-Status: Inappropriate [OpenXT]
  files_read_usr_files(dhcpc_t)
  files_search_home(dhcpc_t)
  files_search_var_lib(dhcpc_t)
-@@ -211,11 +221,10 @@ optional_policy(`
+@@ -226,11 +236,10 @@
  	modutils_run(dhcpc_t, dhcpc_roles)
  ')
  
@@ -158,25 +196,25 @@ Upstream-Status: Inappropriate [OpenXT]
  
  optional_policy(`
  	networkmanager_domtrans(dhcpc_t)
-@@ -316,6 +325,7 @@ kernel_use_fds(ifconfig_t)
+@@ -334,6 +343,7 @@
  kernel_read_system_state(ifconfig_t)
  kernel_read_network_state(ifconfig_t)
  kernel_request_load_module(ifconfig_t)
 +kernel_load_module(ifconfig_t)
  kernel_search_network_sysctl(ifconfig_t)
  kernel_rw_net_sysctls(ifconfig_t)
- 
-@@ -327,6 +337,9 @@ dev_read_sysfs(ifconfig_t)
+ kernel_search_debugfs(ifconfig_t)
+@@ -344,6 +354,9 @@
+ dev_dontaudit_rw_cardmgr(ifconfig_t)
  # for IPSEC setup:
  dev_read_urand(ifconfig_t)
- 
++
 +# Early devtmpfs /dev/console access prior to udev relabel
 +dev_dontaudit_rw_generic_chr_files(ifconfig_t)
-+
+ 
  domain_use_interactive_fds(ifconfig_t)
  
- files_read_etc_files(ifconfig_t)
-@@ -355,6 +368,7 @@ logging_send_syslog_msg(ifconfig_t)
+@@ -374,6 +387,7 @@
  miscfiles_read_localization(ifconfig_t)
  
  seutil_use_runinit_fds(ifconfig_t)

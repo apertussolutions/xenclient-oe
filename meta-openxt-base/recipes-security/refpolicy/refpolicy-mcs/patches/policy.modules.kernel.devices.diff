@@ -2,7 +2,7 @@ Upstream-Status: Inappropriate [OpenXT]
 
 --- a/policy/modules/kernel/devices.fc
 +++ b/policy/modules/kernel/devices.fc
-@@ -194,12 +194,18 @@ ifdef(`distro_suse', `
+@@ -219,15 +219,21 @@
  
  /dev/wmi/dell-smbios	-c	gen_context(system_u:object_r:acpi_bios_t,s0)
  
@@ -13,17 +13,22 @@ Upstream-Status: Inappropriate [OpenXT]
  /dev/xen/evtchn		-c	gen_context(system_u:object_r:xen_device_t,s0)
  /dev/xen/gntdev		-c	gen_context(system_u:object_r:xen_device_t,s0)
  /dev/xen/gntalloc	-c	gen_context(system_u:object_r:xen_device_t,s0)
+-/dev/xen/hypercall	-c	gen_context(system_u:object_r:xen_device_t,s0)
  /dev/xen/privcmd	-c	gen_context(system_u:object_r:xen_device_t,s0)
  /dev/xen/xenbus		-c	gen_context(system_u:object_r:xen_device_t,s0)
-+/dev/xen/xenbus_backend	-c	gen_context(system_u:object_r:xen_device_t,s0)
+ /dev/xen/xenbus_backend	-c	gen_context(system_u:object_r:xen_device_t,s0)
+-
 +/dev/xen/hypercall	-c	gen_context(system_u:object_r:xen_device_t,s0)
 +
- 
++
++ifdef(`distro_debian',`
++# this is a static /dev dir "backup mount"
  ifdef(`distro_debian',`
  # this is a static /dev dir "backup mount"
+ # if you want to disable udev, you will have to boot permissive and relabel!
 --- a/policy/modules/kernel/devices.if
 +++ b/policy/modules/kernel/devices.if
-@@ -4558,6 +4558,24 @@ interface(`dev_relabel_sysfs_dirs',`
+@@ -4994,6 +4994,24 @@
  
  ########################################
  ## <summary>
@@ -48,7 +53,7 @@ Upstream-Status: Inappropriate [OpenXT]
  ##	Relabel from/to all sysfs types.
  ## </summary>
  ## <param name="domain">
-@@ -5333,6 +5351,8 @@ interface(`dev_rw_xen',`
+@@ -5951,6 +5969,8 @@
  		type device_t, xen_device_t;
  	')
  
@@ -57,7 +62,7 @@ Upstream-Status: Inappropriate [OpenXT]
  	rw_chr_files_pattern($1, device_t, xen_device_t)
  	allow $1 xen_device_t:chr_file map;
  ')
-@@ -5352,6 +5372,10 @@ interface(`dev_manage_xen',`
+@@ -5970,6 +5990,10 @@
  		type device_t, xen_device_t;
  	')
  
@@ -68,7 +73,7 @@ Upstream-Status: Inappropriate [OpenXT]
  	manage_chr_files_pattern($1, device_t, xen_device_t)
  ')
  
-@@ -5376,7 +5400,34 @@ interface(`dev_filetrans_xen',`
+@@ -5994,7 +6018,34 @@
  		type device_t, xen_device_t;
  	')
  
@@ -104,9 +109,9 @@ Upstream-Status: Inappropriate [OpenXT]
  ')
  
  ########################################
-@@ -5567,3 +5618,189 @@ interface(`dev_unconfined',`
+@@ -6261,3 +6312,189 @@
  
- 	typeattribute $1 devices_unconfined_type;
+ 	read_chr_files_pattern($1, device_t, fastrpc_secure_device_t)
  ')
 +
 +########################################
@@ -296,7 +301,7 @@ Upstream-Status: Inappropriate [OpenXT]
 +')
 --- a/policy/modules/kernel/devices.te
 +++ b/policy/modules/kernel/devices.te
-@@ -9,6 +9,7 @@ attribute device_node;
+@@ -9,6 +9,7 @@
  attribute memory_raw_read;
  attribute memory_raw_write;
  attribute devices_unconfined_type;
@@ -304,10 +309,10 @@ Upstream-Status: Inappropriate [OpenXT]
  attribute sysfs_types;
  
  #
-@@ -388,3 +389,11 @@ allow devices_unconfined_type self:capab
- allow devices_unconfined_type device_node:blk_file { manage_blk_file_perms relabelfrom relabelto map execute quotaon mounton audit_access execmod watch };
- allow devices_unconfined_type device_node:chr_file { manage_chr_file_perms relabelfrom relabelto map execute quotaon mounton execmod audit_access watch };
- allow devices_unconfined_type mtrr_device_t:file { manage_file_perms relabelfrom relabelto map execute quotaon mounton execute_no_trans entrypoint execmod audit_access watch };
+@@ -477,3 +478,11 @@
+ allow devices_unconfined_type device_node:blk_file { execmod execute manage_blk_file_perms map mounton quotaon relabel_blk_file_perms watch watch_mount watch_reads watch_sb watch_with_perm };
+ allow devices_unconfined_type device_node:chr_file { execmod execute manage_chr_file_perms map mounton quotaon relabel_chr_file_perms watch watch_mount watch_reads watch_sb watch_with_perm };
+ allow devices_unconfined_type mtrr_device_t:file { entrypoint exec_file_perms execmod manage_file_perms mounton quotaon relabel_file_perms watch watch_mount watch_reads watch_sb watch_with_perm };
 +
 +########################################
 +#

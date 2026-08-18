@@ -2,34 +2,15 @@ Upstream-Status: Inappropriate [OpenXT]
 
 --- a/policy/modules/kernel/kernel.if
 +++ b/policy/modules/kernel/kernel.if
-@@ -511,6 +511,26 @@ interface(`kernel_write_key',`
+@@ -545,6 +545,7 @@
+ 
+ 	allow $1 kernel_t:key write;
+ ')
++
  
  ########################################
  ## <summary>
-+##	Read the process state of kernel_t stuff.
-+## </summary>
-+## <param name="domain">
-+##	<summary>
-+##	Domain allowed access.
-+##	</summary>
-+## </param>
-+#
-+interface(`kernel_read_state',`
-+	gen_require(`
-+		type kernel_t;
-+	')
-+
-+	allow $1 kernel_t:dir search_dir_perms;
-+	allow $1 kernel_t:file read_file_perms;
-+	allow $1 kernel_t:lnk_file read_lnk_file_perms;
-+')
-+
-+########################################
-+## <summary>
- ##	Allows caller to read the ring buffer.
- ## </summary>
- ## <param name="domain">
-@@ -1546,6 +1566,25 @@ interface(`kernel_read_xen_state',`
+@@ -1737,6 +1738,25 @@
  
  ########################################
  ## <summary>
@@ -55,10 +36,14 @@ Upstream-Status: Inappropriate [OpenXT]
  ##	Allow caller to read the xen state symbolic links.
  ## </summary>
  ## <param name="domain">
-@@ -1586,6 +1625,25 @@ interface(`kernel_write_xen_state',`
+@@ -1773,6 +1793,25 @@
+ 	')
  
- ########################################
- ## <summary>
+ 	write_files_pattern($1, { proc_t proc_xen_t }, proc_xen_t)
++')
++
++########################################
++## <summary>
 +##	Do not audit attempts to write xen state information.
 +## </summary>
 +## <param name="domain">
@@ -74,14 +59,10 @@ Upstream-Status: Inappropriate [OpenXT]
 +	')
 +
 +	dontaudit $1 proc_xen_t:file write_file_perms;
-+')
-+
-+########################################
-+## <summary>
- ##	Allow attempts to list all proc directories.
- ## </summary>
- ## <param name="domain">
-@@ -3388,6 +3446,24 @@ interface(`kernel_dontaudit_udp_recvfrom
+ ')
+ 
+ ########################################
+@@ -3835,6 +3874,24 @@
  	dontaudit $1 unlabeled_t:udp_socket recvfrom;
  ')
  
@@ -108,19 +89,19 @@ Upstream-Status: Inappropriate [OpenXT]
  ##	Receive Raw IP packets from an unlabeled connection.
 --- a/policy/modules/kernel/kernel.te
 +++ b/policy/modules/kernel/kernel.te
-@@ -22,6 +22,9 @@ neverallow ~can_load_kernmodule self:cap
+@@ -25,6 +25,9 @@
+ 
  # domains with unconfined access to kernel resources
  attribute kern_unconfined;
- 
++
 +# domains with unconfined readonly access to kernel resources
 +attribute kern_unconfined_readonly;
-+
+ 
  # regular entries in proc
  attribute proc_type;
- 
-@@ -350,7 +353,10 @@ files_mounton_etc_runtime_dirs(kernel_t)
- files_list_home(kernel_t)
+@@ -386,7 +389,10 @@
  files_read_usr_files(kernel_t)
+ files_mounton_default(kernel_t)
  
 +kernel_request_load_module(kernel_t)
 +
@@ -129,10 +110,10 @@ Upstream-Status: Inappropriate [OpenXT]
  
  mls_process_read_all_levels(kernel_t)
  mls_process_write_all_levels(kernel_t)
-@@ -548,3 +554,14 @@ allow kern_unconfined unlabeled_t:filesy
- allow kern_unconfined unlabeled_t:association { sendto recvfrom setcontext polmatch };
- allow kern_unconfined unlabeled_t:packet { send recv relabelto forward_in forward_out };
- allow kern_unconfined unlabeled_t:process { fork signal_perms ptrace getsched setsched getsession getpgid setpgid getcap setcap share getattr setexec setfscreate noatsecure siginh setrlimit rlimitinh setcurrent setkeycreate setsockcreate getrlimit };
+@@ -621,3 +627,14 @@
+ allow kern_unconfined unlabeled_t:association { polmatch recvfrom sendto setcontext };
+ allow kern_unconfined unlabeled_t:packet { forward_in forward_out recv relabelto send };
+ allow kern_unconfined unlabeled_t:process { fork getattr getcap getpgid getrlimit getsched getsession noatsecure ptrace rlimitinh setcap setcurrent setexec setfscreate setkeycreate setpgid setrlimit setsched setsockcreate share siginh signal_perms };
 +
 +########################################
 +#

@@ -2,19 +2,19 @@ Upstream-Status: Inappropriate [OpenXT]
 
 --- a/policy/modules/roles/staff.te
 +++ b/policy/modules/roles/staff.te
-@@ -45,6 +45,7 @@ optional_policy(`
+@@ -50,6 +50,7 @@
  
  optional_policy(`
- 	ssh_role_template(staff, staff_r, staff_t)
-+	ssh_inherit_env(staff_t)
+ 	ssh_role_template(staff, staff_t, staff_application_exec_domain, staff_r)
++ssh_inherit_env(staff_t)
  ')
  
  optional_policy(`
-@@ -53,6 +54,7 @@ optional_policy(`
+@@ -58,6 +59,7 @@
  
  optional_policy(`
  	sysadm_role_change(staff_r, staff_t)
-+	userdom_dontaudit_signal_admin_users(staff_t)
++userdom_dontaudit_signal_admin_users(staff_t)
  	userdom_dontaudit_use_user_terminals(staff_t)
  ')
  

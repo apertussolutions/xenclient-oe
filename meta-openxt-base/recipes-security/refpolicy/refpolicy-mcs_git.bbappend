@@ -95,6 +95,7 @@ SRC_URI += " \
 # Patches.
 # 0001-udev-allow-udev_t-to-watch-udev_rules_t-dir.patch dropped: already in
 # upstream refpolicy 2.20260312 (udev_rules_t fc + watch allows).
+# policy.modules.services.hal.diff dropped: HAL module removed upstream.
 SRC_URI += " \
     file://patches/fc-subs-config-aliases.patch \
     file://patches/policy.modules.admin.alsa.diff \
@@ -116,7 +117,6 @@ SRC_URI += " \
     file://patches/policy.modules.services.cron.diff \
     file://patches/policy.modules.services.dbus.diff \
     file://patches/policy.modules.services.dnsmasq.diff \
-    file://patches/policy.modules.services.hal.diff \
     file://patches/policy.modules.services.networkmanager.diff \
     file://patches/policy.modules.services.ssh.diff \
     file://patches/policy.modules.services.virt.diff \

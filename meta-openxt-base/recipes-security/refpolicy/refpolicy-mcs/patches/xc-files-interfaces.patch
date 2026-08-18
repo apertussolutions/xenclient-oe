@@ -2,7 +2,7 @@ Upstream-Status: Inappropriate [OpenXT]
 
 --- a/policy/modules/services/dbus.te
 +++ b/policy/modules/services/dbus.te
-@@ -227,6 +227,10 @@ optional_policy(`
+@@ -326,6 +326,10 @@
  	xserver_use_xdm_fds(system_dbusd_t)
  ')
  
@@ -15,7 +15,7 @@ Upstream-Status: Inappropriate [OpenXT]
  # Common session bus local policy
 --- a/policy/modules/admin/dmidecode.te
 +++ b/policy/modules/admin/dmidecode.te
-@@ -57,3 +57,7 @@ xen_dontaudit_rw_unix_stream_sockets(dmi
+@@ -57,3 +57,7 @@
  optional_policy(`
  	statusreport_write_storage_files(dmidecode_t)
  ')
@@ -25,7 +25,7 @@ Upstream-Status: Inappropriate [OpenXT]
 +')
 --- a/policy/modules/admin/firstboot.te
 +++ b/policy/modules/admin/firstboot.te
-@@ -120,6 +120,11 @@ optional_policy(`
+@@ -116,6 +116,11 @@
  ')
  
  optional_policy(`
@@ -39,7 +39,7 @@ Upstream-Status: Inappropriate [OpenXT]
  	xserver_unconfined(firstboot_t)
 --- a/policy/modules/apps/loadkeys.te
 +++ b/policy/modules/apps/loadkeys.te
-@@ -59,3 +59,8 @@ optional_policy(`
+@@ -62,3 +62,8 @@
  optional_policy(`
  	nscd_dontaudit_search_runtime(loadkeys_t)
  ')
@@ -50,7 +50,7 @@ Upstream-Status: Inappropriate [OpenXT]
 +')
 --- a/policy/modules/services/networkmanager.te
 +++ b/policy/modules/services/networkmanager.te
-@@ -403,6 +403,10 @@ optional_policy(`
+@@ -401,6 +401,10 @@
  ')
  
  optional_policy(`
@@ -63,7 +63,7 @@ Upstream-Status: Inappropriate [OpenXT]
  	xen_rw_xenstore(NetworkManager_t)
 --- a/policy/modules/apps/qemu.te
 +++ b/policy/modules/apps/qemu.te
-@@ -116,6 +116,13 @@ optional_policy(`
+@@ -158,6 +158,13 @@
  ')
  
  optional_policy(`
@@ -79,19 +79,19 @@ Upstream-Status: Inappropriate [OpenXT]
  
 --- a/policy/modules/system/xen.te
 +++ b/policy/modules/system/xen.te
-@@ -143,6 +143,11 @@ domain_type(xm_t)
- type xend_config_t;
- files_type(xend_config_t);
- 
+@@ -134,6 +134,11 @@
+ type xm_t;
+ type xm_exec_t;
+ init_system_domain(xm_t, xm_exec_t)
++
 +# var/lib/ovf/* files
 +type xend_ovf_iso_t;
 +xc_iso_type(xend_ovf_iso_t)
 +xc_ovf_var_lib_filetrans(xend_t, xend_ovf_iso_t, file)
-+
+ 
  ########################################
  #
- # blktap local policy
-@@ -342,6 +347,24 @@ files_rw_etc_files(xend_t)
+@@ -328,6 +333,24 @@
  # accessing vmlinuz from service VM disks
  kernel_read_unlabeled_files(xend_t)
  
@@ -116,7 +116,7 @@ Upstream-Status: Inappropriate [OpenXT]
  fs_getattr_all_fs(xend_t)
  fs_list_auto_mountpoints(xend_t)
  fs_read_dos_files(xend_t)
-@@ -480,6 +503,10 @@ optional_policy(`
+@@ -463,6 +486,10 @@
  	vhdutil_domtrans(xend_t)
  ')
  
@@ -129,7 +129,7 @@ Upstream-Status: Inappropriate [OpenXT]
  # Xen console local policy
 --- a/policy/modules/kernel/files.if
 +++ b/policy/modules/kernel/files.if
-@@ -3045,6 +3045,8 @@ interface(`files_read_etc_files',`
+@@ -3390,6 +3390,8 @@
  	read_files_pattern($1, etc_t, etc_t)
  	allow $1 etc_t:file map;
  	read_lnk_files_pattern($1, etc_t, etc_t)
@@ -140,7 +140,19 @@ Upstream-Status: Inappropriate [OpenXT]
  ########################################
 --- a/policy/modules/services/ssh.te
 +++ b/policy/modules/services/ssh.te
-@@ -136,6 +136,10 @@ allow ssh_server ssh_home_t:dir list_dir
+@@ -89,6 +89,11 @@
+ 
+ ifdef(`distro_debian',`
+ 	init_daemon_runtime_file(sshd_runtime_t, dir, "sshd")
++')
++
++# XC: ssh_keygen_t makes and stores keys in /config/ssh
++optional_policy(`
++	xc_config_dir_search(ssh_keygen_t)
+ ')
+ 
+ ##############################
+@@ -141,6 +146,10 @@
  read_files_pattern(ssh_server, ssh_home_t, ssh_home_t)
  read_lnk_files_pattern(ssh_server, ssh_home_t, ssh_home_t)
  
@@ -151,19 +163,19 @@ Upstream-Status: Inappropriate [OpenXT]
  kernel_read_kernel_sysctls(ssh_t)
  kernel_read_system_state(ssh_t)
  
-@@ -211,6 +215,11 @@ optional_policy(`
- ')
- 
- optional_policy(`
-+	xc_files_rw_argo_chr(ssh_t)
-+	xc_search_config_dirs(ssh_t)
+@@ -225,6 +234,11 @@
+ 	tunable_policy(`ssh_use_gpg_agent',`
+ 		gpg_stream_connect_agent(ssh_t)
+ 	')
 +')
 +
 +optional_policy(`
- 	xserver_user_x_domain_template(ssh, ssh_t, ssh_tmpfs_t)
- 	xserver_domtrans_xauth(ssh_t)
++	xc_files_rw_argo_chr(ssh_t)
++	xc_search_config_dirs(ssh_t)
  ')
-@@ -327,6 +336,10 @@ optional_policy(`
+ 
+ optional_policy(`
+@@ -363,6 +377,10 @@
  ')
  
  optional_policy(`
@@ -174,33 +186,24 @@ Upstream-Status: Inappropriate [OpenXT]
  	xserver_domtrans_xauth(sshd_t)
  	xserver_link_xdm_keys(sshd_t)
  ')
-@@ -378,3 +391,8 @@ optional_policy(`
- optional_policy(`
- 	udev_read_db(ssh_keygen_t)
- ')
-+
-+# XC: ssh_keygen_t makes and stores keys in /config/ssh
-+optional_policy(`
-+	xc_config_dir_search(ssh_keygen_t)
-+')
 --- a/policy/modules/system/authlogin.te
 +++ b/policy/modules/system/authlogin.te
-@@ -155,6 +155,12 @@ optional_policy(`
- 	nis_authenticate(chkpwd_t)
- ')
+@@ -184,6 +184,12 @@
  
+ optional_policy(`
+ 	nis_authenticate(chkpwd_t)
++')
++
 +# these have got to be leaked file descriptors
 +optional_policy(`
 +	dev_search_sysfs(chkpwd_t)
 +	xc_search_config_dirs(chkpwd_t)
-+')
-+
+ ')
+ 
  ########################################
- #
- # PAM local policy
 --- a/policy/modules/system/fstools.te
 +++ b/policy/modules/system/fstools.te
-@@ -231,3 +231,7 @@ optional_policy(`
+@@ -277,3 +277,7 @@
  	xen_append_log(fsadm_t)
  	xen_rw_image_files(fsadm_t)
  ')
@@ -210,7 +213,7 @@ Upstream-Status: Inappropriate [OpenXT]
 +')
 --- a/policy/modules/system/init.te
 +++ b/policy/modules/system/init.te
-@@ -597,6 +597,10 @@ optional_policy(`
+@@ -754,6 +754,10 @@
  ')
  
  optional_policy(`
@@ -223,7 +226,7 @@ Upstream-Status: Inappropriate [OpenXT]
  
 --- a/policy/modules/system/logging.te
 +++ b/policy/modules/system/logging.te
-@@ -629,6 +629,11 @@ optional_policy(`
+@@ -674,6 +674,11 @@
  ')
  
  optional_policy(`
@@ -237,7 +240,7 @@ Upstream-Status: Inappropriate [OpenXT]
  ')
 --- a/policy/modules/system/lvm.te
 +++ b/policy/modules/system/lvm.te
-@@ -405,9 +405,12 @@ optional_policy(`
+@@ -317,9 +317,12 @@
  ')
  
  optional_policy(`
@@ -252,7 +255,7 @@ Upstream-Status: Inappropriate [OpenXT]
  optional_policy(`
 --- a/policy/modules/system/mount.te
 +++ b/policy/modules/system/mount.te
-@@ -262,3 +262,7 @@ optional_policy(`
+@@ -290,4 +290,8 @@
  	statusreport_write_storage_files(mount_t)
  	statusreport_getattr_storage_files(mount_t)
  ')
@@ -260,9 +263,10 @@ Upstream-Status: Inappropriate [OpenXT]
 +optional_policy(`
 +	xc_dontaudit_rw_argo_chr(mount_t)
 +')
+ fs_getattr_dos_fs(mount_t)
 --- a/policy/modules/system/selinuxutil.te
 +++ b/policy/modules/system/selinuxutil.te
-@@ -353,6 +353,12 @@ if(secure_mode) {
+@@ -362,6 +362,12 @@
  	userdom_spec_domtrans_all_users(newrole_t)
  }
  
@@ -275,18 +279,18 @@ Upstream-Status: Inappropriate [OpenXT]
  tunable_policy(`allow_polyinstantiation',`
  	files_polyinstantiate_all(newrole_t)
  ')
-@@ -593,6 +599,10 @@ optional_policy(`
+@@ -651,6 +657,10 @@
+ 	updatemgr_dontaudit_use_fd(semanage_t)
+ 	updatemgr_dontaudit_rw_fifo_files(semanage_t)
  	updatemgr_dontaudit_rw_stream_sockets(semanage_t)
- ')
- 
-+optional_policy(`
-+	xc_search_config_dirs(semanage_t)
 +')
 +
++optional_policy(`
++	xc_search_config_dirs(semanage_t)
+ ')
+ 
  ########################################
- #
- # Setfiles local policy
-@@ -734,3 +744,7 @@ optional_policy(`
+@@ -810,3 +820,7 @@
  	updatemgr_dontaudit_rw_fifo_files(setfiles_t)
  	updatemgr_dontaudit_rw_stream_sockets(setfiles_t)
  ')
@@ -296,7 +300,7 @@ Upstream-Status: Inappropriate [OpenXT]
 +')
 --- a/policy/modules/system/sysnetwork.te
 +++ b/policy/modules/system/sysnetwork.te
-@@ -417,6 +417,10 @@ optional_policy(`
+@@ -421,6 +421,10 @@
  ')
  
  optional_policy(`
@@ -309,7 +313,7 @@ Upstream-Status: Inappropriate [OpenXT]
  
 --- a/policy/modules/system/udev.te
 +++ b/policy/modules/system/udev.te
-@@ -400,6 +400,13 @@ optional_policy(`
+@@ -408,6 +408,13 @@
  ')
  
  optional_policy(`

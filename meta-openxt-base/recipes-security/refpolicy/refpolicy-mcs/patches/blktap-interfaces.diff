@@ -2,7 +2,7 @@ Upstream-Status: Inappropriate [OpenXT]
 
 --- a/policy/modules/apps/qemu.te
 +++ b/policy/modules/apps/qemu.te
-@@ -133,6 +133,11 @@ optional_policy(`
+@@ -175,6 +175,11 @@
  # Unconfined local policy
  #
  
@@ -16,7 +16,7 @@ Upstream-Status: Inappropriate [OpenXT]
  	application_type(unconfined_qemu_t)
 --- a/policy/modules/system/xen.te
 +++ b/policy/modules/system/xen.te
-@@ -261,6 +261,16 @@ qemu_signull(xend_t)
+@@ -247,6 +247,16 @@
  # transition to dmidecode
  dmidecode_domtrans(xend_t)
  
@@ -35,21 +35,23 @@ Upstream-Status: Inappropriate [OpenXT]
  kernel_write_xen_state(xend_t)
 --- a/policy/modules/roles/sysadm.te
 +++ b/policy/modules/roles/sysadm.te
-@@ -1148,6 +1148,11 @@ optional_policy(`
+@@ -1071,7 +1071,12 @@
  ')
  
  optional_policy(`
+-	snort_admin(sysadm_t, sysadm_r)
 +	tapctl_run(sysadm_t, sysadm_r)
 +	dev_list_xen(sysadm_t)
 +')
 +
 +optional_policy(`
- 	thunderbird_role(sysadm_r, sysadm_t)
++	thunderbird_role(sysadm_r, sysadm_t)
  ')
  
+ optional_policy(`
 --- a/policy/modules/system/lvm.te
 +++ b/policy/modules/system/lvm.te
-@@ -340,6 +340,10 @@ ifdef(`distro_redhat',`
+@@ -255,6 +255,10 @@
  ')
  
  optional_policy(`
@@ -62,14 +64,14 @@ Upstream-Status: Inappropriate [OpenXT]
  
 --- a/policy/modules/system/mount.te
 +++ b/policy/modules/system/mount.te
-@@ -184,6 +184,10 @@ tunable_policy(`allow_mount_anyfile',`
- ')
- 
- optional_policy(`
-+	blktap_read_blk_file(mount_t)
+@@ -189,6 +189,10 @@
+ 	files_list_non_auth_dirs(mount_t)
+ 	files_read_non_auth_files(mount_t)
+ 	files_mounton_non_security(mount_t)
 +')
 +
 +optional_policy(`
- 	# for nfs
- 	corenet_all_recvfrom_netlabel(mount_t)
- 	corenet_tcp_sendrecv_all_if(mount_t)
++	blktap_read_blk_file(mount_t)
+ ')
+ 
+ optional_policy(`

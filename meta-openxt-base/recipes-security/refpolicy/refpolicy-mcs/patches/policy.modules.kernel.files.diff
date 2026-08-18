@@ -2,7 +2,7 @@ Upstream-Status: Inappropriate [OpenXT]
 
 --- a/policy/modules/kernel/files.fc
 +++ b/policy/modules/kernel/files.fc
-@@ -46,6 +46,8 @@ ifdef(`distro_suse',`
+@@ -51,6 +51,8 @@
  #
  /etc			-d	gen_context(system_u:object_r:etc_t,s0)
  /etc/.*				gen_context(system_u:object_r:etc_t,s0)
@@ -11,7 +11,7 @@ Upstream-Status: Inappropriate [OpenXT]
  /etc/\.fstab\.hal\..+	--	gen_context(system_u:object_r:etc_runtime_t,s0)
  /etc/blkid(/.*)?		gen_context(system_u:object_r:etc_runtime_t,s0)
  /etc/cmtab		--	gen_context(system_u:object_r:etc_runtime_t,s0)
-@@ -65,6 +67,8 @@ ifdef(`distro_suse',`
+@@ -71,6 +73,8 @@
  /etc/ipsec\.d/examples(/.*)?	gen_context(system_u:object_r:etc_t,s0)
  
  /etc/network/ifstate	--	gen_context(system_u:object_r:etc_runtime_t,s0)
@@ -20,16 +20,16 @@ Upstream-Status: Inappropriate [OpenXT]
  
  /etc/ptal/ptal-printd-like -- 	gen_context(system_u:object_r:etc_runtime_t,s0)
  
-@@ -89,6 +93,8 @@ ifdef(`distro_suse',`
+@@ -88,6 +92,8 @@
+ /etc/defkeymap\.map	--	gen_context(system_u:object_r:etc_runtime_t,s0)
  /etc/rc\.d/init\.d/\.depend.* -- gen_context(system_u:object_r:etc_runtime_t,s0)
  ')
- 
-+/var/volatile/system-connections(/.*)?	gen_context(system_u:object_r:etc_t,s0)
 +
++/var/volatile/system-connections(/.*)?	gen_context(system_u:object_r:etc_t,s0)
+ 
  #
  # HOME_ROOT
- # expanded by genhomedircon
-@@ -274,3 +280,16 @@ ifndef(`distro_redhat',`
+@@ -275,3 +281,16 @@
  /var/tmp/systemd-private-[^/]+/tmp	-d	gen_context(system_u:object_r:tmp_t,s0-mls_systemhigh)
  /var/tmp/systemd-private-[^/]+/tmp/.*	<<none>>
  /var/tmp/vi\.recover	-d	gen_context(system_u:object_r:tmp_t,s0)
@@ -48,7 +48,7 @@ Upstream-Status: Inappropriate [OpenXT]
 +/var/cores/*		--	gen_context(system_u:object_r:var_core_t,s0)
 --- a/policy/modules/kernel/files.if
 +++ b/policy/modules/kernel/files.if
-@@ -1281,6 +1281,7 @@ interface(`files_list_all',`
+@@ -1352,6 +1352,7 @@
  	')
  
  	allow $1 file_type:dir list_dir_perms;
@@ -56,18 +56,14 @@ Upstream-Status: Inappropriate [OpenXT]
  ')
  
  ########################################
-@@ -1684,6 +1685,7 @@ interface(`files_mounton_all_mountpoints
+@@ -3097,6 +3098,25 @@
+ 	')
  
- 	allow $1 mountpoint:dir { search_dir_perms mounton };
- 	allow $1 mountpoint:file { getattr mounton };
-+	allow $1 mountpoint:dir write;
- ')
- 
- ########################################
-@@ -2773,6 +2775,25 @@ interface(`files_read_default_symlinks',
- 
- ########################################
- ## <summary>
+ 	allow $1 default_t:lnk_file read_lnk_file_perms;
++')
++
++########################################
++## <summary>
 +##	Do not audit attempts to get attributes of symbolic
 +##	links with the default file type.
 +## </summary>
@@ -83,14 +79,10 @@ Upstream-Status: Inappropriate [OpenXT]
 +	')
 +
 +	dontaudit $1 default_t:lnk_file getattr_lnk_file_perms;
-+')
-+
-+########################################
-+## <summary>
- ##	Read sockets with the default file type.
- ## </summary>
- ## <param name="domain">
-@@ -3022,6 +3043,7 @@ interface(`files_read_etc_files',`
+ ')
+ 
+ ########################################
+@@ -3368,6 +3388,7 @@
  
  	allow $1 etc_t:dir list_dir_perms;
  	read_files_pattern($1, etc_t, etc_t)
@@ -98,10 +90,14 @@ Upstream-Status: Inappropriate [OpenXT]
  	read_lnk_files_pattern($1, etc_t, etc_t)
  ')
  
-@@ -3347,6 +3369,36 @@ interface(`files_create_boot_flag',`
+@@ -3730,6 +3751,36 @@
  
- ########################################
- ## <summary>
+ 	allow $1 etc_runtime_t:file manage_file_perms;
+ 	filetrans_pattern($1, root_t, etc_runtime_t, file, $2)
++')
++
++########################################
++## <summary>
 +##	Create a runtime configuration file.
 +## </summary>
 +## <desc>
@@ -128,14 +124,10 @@ Upstream-Status: Inappropriate [OpenXT]
 +
 +	allow $1 etc_runtime_t:file manage_file_perms;
 +	filetrans_pattern($1, var_run_t, etc_runtime_t, file, $2)
-+')
-+
-+########################################
-+## <summary>
- ##	Delete a boot flag.
- ## </summary>
- ## <desc>
-@@ -4063,6 +4115,24 @@ interface(`files_read_mnt_symlinks',`
+ ')
+ 
+ ########################################
+@@ -4542,6 +4593,24 @@
  
  ########################################
  ## <summary>
@@ -160,7 +152,7 @@ Upstream-Status: Inappropriate [OpenXT]
  ##	Create, read, write, and delete symbolic links in /mnt.
  ## </summary>
  ## <param name="domain">
-@@ -4413,6 +4483,7 @@ interface(`files_getattr_tmp_dirs',`
+@@ -4950,6 +5019,7 @@
  		type tmp_t;
  	')
  
@@ -168,7 +160,7 @@ Upstream-Status: Inappropriate [OpenXT]
  	allow $1 tmp_t:dir getattr;
  ')
  
-@@ -4432,6 +4503,7 @@ interface(`files_dontaudit_getattr_tmp_d
+@@ -4969,6 +5039,7 @@
  		type tmp_t;
  	')
  
@@ -176,7 +168,7 @@ Upstream-Status: Inappropriate [OpenXT]
  	dontaudit $1 tmp_t:dir getattr;
  ')
  
-@@ -4469,6 +4541,7 @@ interface(`files_dontaudit_search_tmp',`
+@@ -5006,6 +5077,7 @@
  		type tmp_t;
  	')
  
@@ -184,7 +176,7 @@ Upstream-Status: Inappropriate [OpenXT]
  	dontaudit $1 tmp_t:dir search_dir_perms;
  ')
  
-@@ -4506,6 +4579,7 @@ interface(`files_dontaudit_list_tmp',`
+@@ -5043,6 +5115,7 @@
  		type tmp_t;
  	')
  
@@ -192,7 +184,7 @@ Upstream-Status: Inappropriate [OpenXT]
  	dontaudit $1 tmp_t:dir list_dir_perms;
  ')
  
-@@ -4600,6 +4674,7 @@ interface(`files_read_generic_tmp_symlin
+@@ -5155,6 +5228,7 @@
  		type tmp_t;
  	')
  
@@ -200,7 +192,7 @@ Upstream-Status: Inappropriate [OpenXT]
  	read_lnk_files_pattern($1, tmp_t, tmp_t)
  ')
  
-@@ -4655,6 +4730,7 @@ interface(`files_setattr_all_tmp_dirs',`
+@@ -5210,6 +5284,7 @@
  		attribute tmpfile;
  	')
  
@@ -208,7 +200,7 @@ Upstream-Status: Inappropriate [OpenXT]
  	allow $1 tmpfile:dir { search_dir_perms setattr };
  ')
  
-@@ -4673,6 +4749,7 @@ interface(`files_list_all_tmp',`
+@@ -5228,6 +5303,7 @@
  		attribute tmpfile;
  	')
  
@@ -216,7 +208,7 @@ Upstream-Status: Inappropriate [OpenXT]
  	allow $1 tmpfile:dir list_dir_perms;
  ')
  
-@@ -4754,6 +4831,7 @@ interface(`files_relabel_all_tmp_files',
+@@ -5309,6 +5385,7 @@
  		type var_t;
  	')
  
@@ -224,7 +216,7 @@ Upstream-Status: Inappropriate [OpenXT]
  	allow $1 var_t:dir search_dir_perms;
  	relabel_files_pattern($1, tmpfile, tmpfile)
  ')
-@@ -4845,6 +4923,7 @@ interface(`files_purge_tmp',`
+@@ -5400,6 +5477,7 @@
  		attribute tmpfile;
  	')
  
@@ -232,23 +224,20 @@ Upstream-Status: Inappropriate [OpenXT]
  	allow $1 tmpfile:dir list_dir_perms;
  	delete_dirs_pattern($1, tmpfile, tmpfile)
  	delete_files_pattern($1, tmpfile, tmpfile)
-@@ -5402,9 +5481,10 @@ interface(`files_delete_kernel_symbol_ta
+@@ -6013,15 +6091,34 @@
  #
  interface(`files_search_var',`
  	gen_require(`
--		type var_t;
 +		type var_t, var_lock_t;
- 	')
- 
++	')
++
 +	allow $1 var_lock_t:lnk_file read_lnk_file_perms;
- 	allow $1 var_t:dir search_dir_perms;
- ')
- 
-@@ -5428,6 +5508,24 @@ interface(`files_dontaudit_write_var_dir
- 
- ########################################
- ## <summary>
-+##	Do not audit attempts to write to /var/lock.
++	allow $1 var_t:dir search_dir_perms;
++')
++
++########################################
++## <summary>
++##	Do not audit attempts to write to /var.
 +## </summary>
 +## <param name="domain">
 +##	<summary>
@@ -256,44 +245,74 @@ Upstream-Status: Inappropriate [OpenXT]
 +##	</summary>
 +## </param>
 +#
++interface(`files_dontaudit_write_var_dirs',`
++	gen_require(`
+ 		type var_t;
+ 	')
+ 
+-	allow $1 var_t:dir search_dir_perms;
+-')
+-
+-########################################
+-## <summary>
+-##	Do not audit attempts to write to /var.
++	dontaudit $1 var_t:dir write;
++')
++
++########################################
++## <summary>
++##	Do not audit attempts to write to /var/lock.
+ ## </summary>
+ ## <param name="domain">
+ ##	<summary>
+@@ -6029,12 +6126,12 @@
+ ##	</summary>
+ ## </param>
+ #
+-interface(`files_dontaudit_write_var_dirs',`
+-	gen_require(`
+-		type var_t;
+-	')
+-
+-	dontaudit $1 var_t:dir write;
 +interface(`files_dontaudit_write_lock_dirs',`
 +	gen_require(`
 +		type var_lock_t;
 +	')
 +
 +	dontaudit $1 var_lock_t:dir write;
-+')
-+
-+########################################
-+## <summary>
- ##	Allow attempts to write to /var.dirs
- ## </summary>
- ## <param name="domain">
-@@ -5869,9 +5967,10 @@ interface(`files_relabel_var_lib_dirs',`
+ ')
+ 
+ ########################################
+@@ -6499,9 +6596,10 @@
  #
  interface(`files_var_lib_filetrans',`
  	gen_require(`
 -		type var_t, var_lib_t;
+-	')
+-
 +		type var_t, var_lib_t, var_run_t;
- 	')
- 
++	')
++
 +	allow $1 var_run_t:lnk_file read_lnk_file_perms;
  	allow $1 var_t:dir search_dir_perms;
  	filetrans_pattern($1, var_lib_t, $2, $3, $4)
  ')
-@@ -5929,9 +6028,10 @@ interface(`files_read_var_lib_symlinks',
+@@ -6596,9 +6694,10 @@
  #
- interface(`files_manage_urandom_seed',`
+ interface(`files_manage_mounttab',`
  	gen_require(`
 -		type var_t, var_lib_t;
+-	')
+-
 +		type var_t, var_lib_t, var_run_t;
- 	')
- 
++	')
++
 +	allow $1 var_run_t:lnk_file read_lnk_file_perms;
  	allow $1 var_t:dir search_dir_perms;
  	manage_files_pattern($1, var_lib_t, var_lib_t)
  ')
-@@ -6448,6 +6548,69 @@ interface(`files_create_pid_dirs',`
+@@ -6971,6 +7070,69 @@
  
  ########################################
  ## <summary>
@@ -363,7 +382,7 @@ Upstream-Status: Inappropriate [OpenXT]
  ##	Do not audit attempts to get the attributes
  ##	of the /var/run directory.
  ## </summary>
-@@ -6486,6 +6649,25 @@ interface(`files_mounton_runtime_dirs',`
+@@ -7009,6 +7171,25 @@
  
  ########################################
  ## <summary>
@@ -389,7 +408,7 @@ Upstream-Status: Inappropriate [OpenXT]
  ##	Set the attributes of the /var/run directory.
  ## </summary>
  ## <param name="domain">
-@@ -6521,6 +6703,7 @@ interface(`files_search_runtime',`
+@@ -7044,6 +7225,7 @@
  
  	allow $1 var_run_t:lnk_file read_lnk_file_perms;
  	search_dirs_pattern($1, var_t, var_run_t)
@@ -397,7 +416,7 @@ Upstream-Status: Inappropriate [OpenXT]
  ')
  
  ########################################
-@@ -7025,6 +7208,7 @@ interface(`files_delete_all_runtime_dirs
+@@ -7339,9 +7521,46 @@
  interface(`files_manage_all_runtime_dirs',`
  	gen_require(`
  		attribute pidfile;
@@ -405,10 +424,10 @@ Upstream-Status: Inappropriate [OpenXT]
  	')
  
  	manage_dirs_pattern($1, pidfile, pidfile)
-@@ -7032,6 +7216,42 @@ interface(`files_manage_all_runtime_dirs
- 
- ########################################
- ## <summary>
++')
++
++########################################
++## <summary>
 +##	Set attributes on all runtime data dirs.
 +## </summary>
 +## <param name="domain">
@@ -441,14 +460,10 @@ Upstream-Status: Inappropriate [OpenXT]
 +	')
 +
 +	allow $1 pidfile:file setattr;
-+')
-+
-+########################################
-+## <summary>
- ##	Relabel all runtime directories.
- ## </summary>
- ## <param name="domain">
-@@ -7779,3 +7999,21 @@ interface(`files_unconfined',`
+ ')
+ 
+ ########################################
+@@ -8031,3 +8250,21 @@
  
  	typeattribute $1 files_unconfined_type;
  ')
@@ -472,7 +487,7 @@ Upstream-Status: Inappropriate [OpenXT]
 +')
 --- a/policy/modules/kernel/files.te
 +++ b/policy/modules/kernel/files.te
-@@ -6,6 +6,7 @@ policy_module(files, 1.28.4)
+@@ -6,6 +6,7 @@
  #
  
  attribute file_type;
@@ -480,7 +495,7 @@ Upstream-Status: Inappropriate [OpenXT]
  attribute files_unconfined_type;
  attribute lockfile;
  attribute mountpoint;
-@@ -61,6 +62,9 @@ files_mountpoint(default_t)
+@@ -61,6 +62,9 @@
  #
  type etc_t, configfile;
  files_type(etc_t)
@@ -490,21 +505,21 @@ Upstream-Status: Inappropriate [OpenXT]
  
  optional_policy(`
  	# for systemd ProtectSystem
-@@ -187,6 +191,13 @@ optional_policy(`
+@@ -185,6 +189,13 @@
+ optional_policy(`
+ 	systemd_tmpfilesd_managed(var_run_t)
  ')
- 
- #
++
++#
 +# var_core_t is the type of /var/cores, used
 +# for core dumps.
 +#
 +type var_core_t;
 +files_mountpoint(var_core_t)
-+
-+#
- # var_spool_t is the type of /var/spool
+ 
  #
- type var_spool_t;
-@@ -241,3 +252,14 @@ allow files_unconfined_type file_type:fi
+ # var_spool_t is the type of /var/spool
+@@ -241,3 +252,14 @@
  tunable_policy(`allow_execmod',`
  	allow files_unconfined_type file_type:file execmod;
  ')

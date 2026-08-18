@@ -2,7 +2,7 @@ Upstream-Status: Inappropriate [OpenXT]
 
 --- a/policy/modules/services/networkmanager.te
 +++ b/policy/modules/services/networkmanager.te
-@@ -391,6 +391,10 @@ optional_policy(`
+@@ -389,6 +389,10 @@
  ')
  
  optional_policy(`
@@ -15,7 +15,7 @@ Upstream-Status: Inappropriate [OpenXT]
  	vpn_signal(NetworkManager_t)
 --- a/policy/modules/system/xen.te
 +++ b/policy/modules/system/xen.te
-@@ -276,6 +276,7 @@ tapctl_domtrans(xend_t)
+@@ -262,6 +262,7 @@
  tapdisk_filetrans_control_dir(xend_t)
  
  dbd_dbus_chat(xend_t)
