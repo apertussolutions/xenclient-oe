@@ -53,6 +53,9 @@ S = "${UNPACKDIR}/qemu-${PV}"
 
 inherit autotools-brokensep pkgconfig python3native
 
+# QEMU 4.1 configure does not accept OE's autotools --disable-static.
+DISABLE_STATIC = ""
+
 # Optional glass/display integration. Provided by meta-openxt-ui (or vglass)
 # when present. 'include' (not require) so headless base builds do not fail.
 include recipes-extended/qemu-dm/qemu-dm-vglass.inc
