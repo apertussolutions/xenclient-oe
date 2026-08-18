@@ -99,10 +99,13 @@ check_module() {
 	return "$ret"
 }
 
+# Initramfs images PACKAGE_REMOVE kernel-image-*, so bzImage is only in
+# DEPLOY_DIR_IMAGE — require do_deploy, not only do_shared_workdir.
 do_image_qa[depends] += " \
 	perl-native:do_populate_sysroot \
 	openssl-native:do_populate_sysroot \
 	virtual/kernel:do_shared_workdir \
+	virtual/kernel:do_deploy \
 "
 
 IMAGE_QA_COMMANDS += " \

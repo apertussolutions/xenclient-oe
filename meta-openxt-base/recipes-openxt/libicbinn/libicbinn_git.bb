@@ -11,7 +11,9 @@ EXTRA_OECONF += "--with-argo --with-xcdbus"
 
 # canary.c calls icbinn_rand(NULL, NULL, ...); second arg is int. GCC 15
 # treats -Wint-conversion as a hard error (not only under -Werror).
-CFLAGS:append = " -Wno-int-conversion"
+# server.c uses fallocate64() without feature macros; under GCC 15 that is
+# an error via -Werror=implicit-function-declaration.
+CFLAGS:append = " -Wno-int-conversion -Wno-error=implicit-function-declaration"
 
 PACKAGES =+ "${PN}-server"
 FILES:${PN}-server = "${sysconfdir}/init.d ${bindir}/icbinn_svc"
