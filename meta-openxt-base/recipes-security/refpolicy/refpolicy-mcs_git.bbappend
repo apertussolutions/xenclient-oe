@@ -93,8 +93,9 @@ SRC_URI += " \
     file://policy/modules/system/xc-installer.te \
 "
 # Patches.
+# 0001-udev-allow-udev_t-to-watch-udev_rules_t-dir.patch dropped: already in
+# upstream refpolicy 2.20260312 (udev_rules_t fc + watch allows).
 SRC_URI += " \
-    file://patches/0001-udev-allow-udev_t-to-watch-udev_rules_t-dir.patch \
     file://patches/fc-subs-config-aliases.patch \
     file://patches/policy.modules.admin.alsa.diff \
     file://patches/policy.modules.admin.brctl.diff \
