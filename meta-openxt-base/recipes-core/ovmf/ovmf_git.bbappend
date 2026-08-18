@@ -2,12 +2,11 @@ FILESEXTRAPATHS:prepend := "${THISDIR}/${PN}:"
 
 # xcp-ng patches taken from:
 # https://github.com/xcp-ng-rpms/edk2/tree/master/SOURCES
+# wrynose (edk2-stable202511): only the resolution patch is refreshed so far.
+# Xen variable / xenorder / caching / platform-id patches still need a port
+# against the new OvmfDisplayPcds layout and Image.c/dsc/fdf churn.
 SRC_URI += " \
     file://xcp-ng-set-default-resolution-1024-768.patch \
-    file://xcp-ng-add-xen-variable.patch \
-    file://xcp-ng-add-xen-platform-device-id.patch \
-    file://xcp-ng-xenorder.patch \
-    file://xcp-ng-keep-caching-enabled.patch \
 "
 
 # Optional Intel E1000 UEFI NIC driver embedding (needs PREBOOT.EXE).
