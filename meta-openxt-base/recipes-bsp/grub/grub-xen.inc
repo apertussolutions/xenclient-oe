@@ -15,6 +15,10 @@ OE_CORE_PATH ?= "${@ \
 FILESEXTRAPATHS:prepend := "${OE_CORE_PATH}/meta/recipes-bsp/grub/files:"
 require recipes-bsp/grub/grub2.inc
 
+# OpenXT still builds PVH/PV grub from 2.04; OE-Core grub2.inc checksum
+# tracks the distro grub PV (2.14 on wrynose). Override for this recipe.
+SRC_URI[sha256sum] = "f10c85ae3e204dbaec39ae22fa3c5e99f0665417e91c2cb49b7e5031658ba6ea"
+
 require conf/image-uefi.conf
 
 # Need to be disabled otherwise there are wint_t type not defined errors
