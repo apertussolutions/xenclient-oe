@@ -51,12 +51,14 @@ EXTRA_OECONF:remove = "--disable-ocamltools"
 
 # OCAMLDESTDIR is set to $DESTDIR/$(ocamlfind printconf destdir), yet DESTDIR
 # is required for other binaries installation, so override OCAMLDESTDIR.
+# No spaces around '=' — make argv splits on spaces and treats bare '=' as
+# an empty variable name (GNU make: "empty variable name").
 EXTRA_OEMAKE += " \
-    CROSS_SYS_ROOT = ${STAGING_DIR_HOST} \
-    CROSS_COMPILE = ${HOST_PREFIX} \
-    CONFIG_IOEMU = n \
-    DESTDIR = ${D} \
-    OCAMLDESTDIR = ${D}${sitelibdir} \
+    CROSS_SYS_ROOT=${STAGING_DIR_HOST} \
+    CROSS_COMPILE=${HOST_PREFIX} \
+    CONFIG_IOEMU=n \
+    DESTDIR=${D} \
+    OCAMLDESTDIR=${D}${sitelibdir} \
     "
 
 TARGET_CC_ARCH += "${LDFLAGS}"
