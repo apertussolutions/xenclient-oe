@@ -32,6 +32,33 @@ SRC_URI = " \
 SRCREV = "51413d1deb0df0debdf1d208723131ff0e36d3a3"
 
 
+
+# gnu-efi 4.x efibind.h includes <stddef.h> mid-typedef; Cryptlib's old stddef.h
+# re-entered efilib via OpenSslSupport before UINTN existed. Replace it.
+do_configure:prepend() {
+	cat > ${S}/Cryptlib/Include/stddef.h <<'END_STDDEF'
+/** @file
+  Minimal freestanding stddef for Cryptlib vs gnu-efi 4.x.
+**/
+
+#ifndef _SHIM_CRYPTLIB_STDDEF_H_
+#define _SHIM_CRYPTLIB_STDDEF_H_
+
+typedef __SIZE_TYPE__ size_t;
+typedef __PTRDIFF_TYPE__ ptrdiff_t;
+
+#ifndef NULL
+#define NULL ((void *)0)
+#endif
+
+#ifndef offsetof
+#define offsetof(TYPE, MEMBER) __builtin_offsetof(TYPE, MEMBER)
+#endif
+
+#endif /* _SHIM_CRYPTLIB_STDDEF_H_ */
+END_STDDEF
+}
+
 # No spaces around '=' — make argv splits on spaces and treats bare '=' as
 # an empty variable name (GNU make: "empty variable name").
 EXTRA_OEMAKE = "\

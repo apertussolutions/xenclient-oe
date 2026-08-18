@@ -23,6 +23,7 @@ SRC_URI = "git://github.com/rhboot/pesign;branch=main;protocol=https \
     file://0001-Disable-warning.patch \
     file://0002-Init-error.patch \
     file://0003-cast-macro.patch \
+    file://0004-efitypes-avoid-EFI_TYPES_H-guard-clash-with-efivar.patch \
     "
 
 
