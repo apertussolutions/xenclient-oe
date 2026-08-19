@@ -1,7 +1,7 @@
 inherit grub-efi
 
 get_rootfs_uuid() {
-	UUID = $( tune2fs -l "${ROOTFS}" | awk -F: '/Filesystem UUID:/ { print $2 }')
+	UUID=$(tune2fs -l "${ROOTFS}" | awk -F: '/Filesystem UUID:/ { print $2 }')
 
 	[ -z "$UUID" ] && bbfatal "Cannot determine filesystem UUID of ${ROOTFS}"
 
@@ -9,7 +9,7 @@ get_rootfs_uuid() {
 }
 
 replace_rootfs_uuid() {
-	CFG = "${1}"
+	CFG="${1}"
 
 	sed -i "s/<<uuid-of-rootfs>>/${UUID}/g" "${CFG}"
 }
