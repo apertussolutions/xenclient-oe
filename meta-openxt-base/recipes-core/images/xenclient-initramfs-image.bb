@@ -9,6 +9,9 @@ COMPATIBLE_MACHINE = "(xenclient-dom0)"
 
 IMAGE_FEATURES = ""
 IMAGE_FSTYPES = "cpio.gz"
+# OE convention for initramfs: no ".rootfs" in IMAGE_LINK_NAME (see
+# image-artifact-names.bbclass / image-live.bbclass INITRD_LIVE).
+IMAGE_NAME_SUFFIX = ""
 IMAGE_INSTALL = " \
     busybox \
     initramfs-module-functions \

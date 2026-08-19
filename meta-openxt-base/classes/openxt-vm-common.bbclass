@@ -13,11 +13,13 @@ INSTALL_VM_INITRD ?= "0"
 python() {
     initrds = d.getVar('INITRD_VM')
     deploy = d.getVar('DEPLOY_DIR_IMAGE')
-    machine = d.getVar('MACHINE')
+    # Match OE image-live / image-artifact-names: initramfs images set
+    # IMAGE_NAME_SUFFIX="", so the deploy link is ${PN}${IMAGE_MACHINE_SUFFIX}.cpio.gz
+    machine_suffix = d.getVar('IMAGE_MACHINE_SUFFIX') or ('-' + d.getVar('MACHINE'))
 
     if initrds:
         for i in initrds.split():
-            d.appendVar('INITRD', '%s/%s-%s.cpio.gz' % (deploy, i, machine))
+            d.appendVar('INITRD', ' %s/%s%s.cpio.gz' % (deploy, i, machine_suffix))
             d.appendVarFlag('do_vm_common', 'depends', ' %s:do_image_complete' % i)
 }
 

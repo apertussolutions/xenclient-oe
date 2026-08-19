@@ -7,6 +7,8 @@ LIC_FILES_CHKSUM = " \
 "
 
 IMAGE_FSTYPES = "cpio.gz"
+# OE convention for initramfs: no ".rootfs" in IMAGE_LINK_NAME.
+IMAGE_NAME_SUFFIX = ""
 
 COMPATIBLE_MACHINE = "(xenclient-stubdomain)"
 
