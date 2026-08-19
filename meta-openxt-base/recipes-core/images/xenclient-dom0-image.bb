@@ -24,6 +24,10 @@ export IMAGE_BASENAME = "xenclient-dom0-image"
 
 COMPATIBLE_MACHINE = "(xenclient-dom0)"
 
+# OE DEFAULT_IMAGE_LINGUAS:libc-glibc includes "c", but OpenXT only
+# generates en_US/en_GB binary locales (see GLIBC_GENERATE_LOCALES).
+# Without a C locale package, rootfs fails on locale-base-c.
+IMAGE_LINGUAS = "en-us en-gb"
 
 # xserver-xorg should not live in dom0, but UIVM.
 BAD_RECOMMENDATIONS += " \
