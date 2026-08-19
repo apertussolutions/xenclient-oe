@@ -2,7 +2,7 @@ SUMMARY = "Package for managing guest EFI variables"
 LICENSE = "BSD-2-Clause"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=4eaeb1d21fb0eea915fc93068fdf00be"
 
-inherit useradd xc-rpcgen-c
+inherit useradd xc-rpcgen-c pkgconfig
 
 DEPENDS = " \
     dbus \
