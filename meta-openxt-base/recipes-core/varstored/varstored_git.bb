@@ -60,6 +60,13 @@ GROUPADD_PARAM:${PN} = "--system --gid 415 varstored"
 do_configure:append() {
     mkdir -p rpcgen
     xc-rpcgen --templates-dir=${STAGING_RPCGENDATADIR_NATIVE} -c -o rpcgen ${STAGING_IDLDATADIR}/db.xml
+
+    # Upstream backend.h expects bool (*set_variable)(bool); OpenXT oxtdb still
+    # declares void. Align the signature (GCC 15 rejects the mismatch).
+    sed -i -e 's/bool oxtdb_set_variable(void)/bool oxtdb_set_variable(bool update)/' \
+        ${S}/include/oxtdb.h
+    sed -i -e 's/^oxtdb_set_variable(void)/oxtdb_set_variable(bool update __attribute__((unused)))/' \
+        ${S}/oxtdb-lib.c
 }
 
 # generate auth signing keys

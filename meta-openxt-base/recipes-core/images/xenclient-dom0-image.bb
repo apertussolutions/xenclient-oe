@@ -104,20 +104,35 @@ activate_xenstored_initscript() {
 ROOTFS_POSTPROCESS_COMMAND += "activate_xenstored_initscript; "
 
 # Handle required configuration of the rootfs to store persistent files on
-# encripted /config partition.
+# encrypted /config partition.
+#
+# Must run after OE read_only_rootfs_hook (creates /etc/default/ssh) and
+# OpenXT read_only_rootfs_hook_extend (creates /etc/default/ssh-argo).
+# Use :append so this stays after those hooks in ROOTFS_POSTPROCESS_COMMAND.
 rw_config_partition() {
-    # If we are using openssh but want the persistent data to be stored in the
-    # encrypted config partition, replace or append SYSCONFDIR in
-    # /etc/default/ssh.
-    # This should only be done after read_only_rootfs_hook(s) have been done.
     if [ -d ${IMAGE_ROOTFS}${sysconfdir}/ssh ]; then
-        sed -i -e '/^SYSCONFDIR=/{h;s/=.*/=\$\{SYSCONFDIR:-\/config\/etc\/ssh\}/};${x;/^$/{s//SYSCONFDIR=\$\{SYSCONFDIR:-\/config\/etc\/ssh\}/;H};x}' ${IMAGE_ROOTFS}${sysconfdir}/default/ssh
-        sed -i -e 's/HostKey .*\/ssh\/ssh_host_\(.*\)key/HostKey \/config\/etc\/ssh\/ssh_host_\1key/' ${IMAGE_ROOTFS}${sysconfdir}/ssh/sshd_config_readonly
-        echo "HostKey /config/etc/ssh/ssh_host_dsa_key" >> ${IMAGE_ROOTFS}${sysconfdir}/ssh/sshd_config
-        echo "HostKey /config/etc/ssh/ssh_host_rsa_key" >> ${IMAGE_ROOTFS}${sysconfdir}/ssh/sshd_config
-        echo "HostKey /config/etc/ssh/ssh_host_ecdsa_key" >> ${IMAGE_ROOTFS}${sysconfdir}/ssh/sshd_config
-        echo "HostKey /config/etc/ssh/ssh_host_ed25519_key" >> ${IMAGE_ROOTFS}${sysconfdir}/ssh/sshd_config
+        mkdir -p ${IMAGE_ROOTFS}${sysconfdir}/default
+        # TCP sshd uses /etc/default/ssh; argo sshd uses /etc/default/ssh-argo.
+        for sshdef in ssh ssh-argo; do
+            f="${IMAGE_ROOTFS}${sysconfdir}/default/${sshdef}"
+            if [ -f "$f" ]; then
+                sed -i -e '/^SYSCONFDIR=/{h;s/=.*/=\$\{SYSCONFDIR:-\/config\/etc\/ssh\}/};${x;/^$/{s//SYSCONFDIR=\$\{SYSCONFDIR:-\/config\/etc\/ssh\}/;H};x}' "$f"
+            else
+                echo 'SYSCONFDIR=\${SYSCONFDIR:-/config/etc/ssh}' >> "$f"
+            fi
+        done
+        for cfg in sshd_config_readonly sshd_config_readonly_argo; do
+            if [ -f ${IMAGE_ROOTFS}${sysconfdir}/ssh/$cfg ]; then
+                sed -i -e 's/HostKey .*\/ssh\/ssh_host_\(.*\)key/HostKey \/config\/etc\/ssh\/ssh_host_\1key/' ${IMAGE_ROOTFS}${sysconfdir}/ssh/$cfg
+            fi
+        done
+        if [ -f ${IMAGE_ROOTFS}${sysconfdir}/ssh/sshd_config ]; then
+            echo "HostKey /config/etc/ssh/ssh_host_dsa_key" >> ${IMAGE_ROOTFS}${sysconfdir}/ssh/sshd_config
+            echo "HostKey /config/etc/ssh/ssh_host_rsa_key" >> ${IMAGE_ROOTFS}${sysconfdir}/ssh/sshd_config
+            echo "HostKey /config/etc/ssh/ssh_host_ecdsa_key" >> ${IMAGE_ROOTFS}${sysconfdir}/ssh/sshd_config
+            echo "HostKey /config/etc/ssh/ssh_host_ed25519_key" >> ${IMAGE_ROOTFS}${sysconfdir}/ssh/sshd_config
+        fi
     fi
 }
-ROOTFS_POSTPROCESS_COMMAND += "rw_config_partition; "
+ROOTFS_POSTPROCESS_COMMAND:append = " rw_config_partition"
 ROOTFS_POSTPROCESS_COMMAND += "start_tty_on_hvc0;"
