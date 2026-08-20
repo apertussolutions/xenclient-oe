@@ -1,8 +1,8 @@
 Upstream-Status: Inappropriate [OpenXT]
 
---- a/gtk2/toolbar/standalone-gtk.c
-+++ b/gtk2/toolbar/standalone-gtk.c
-@@ -290,6 +290,9 @@ main(int argc, char *argv[])
+--- a/gtk2/toolbar/standalone-gtk.c	2026-08-20 10:52:05.666829365 -0400
++++ b/gtk2/toolbar/standalone-gtk.c	2026-08-20 10:52:05.678829365 -0400
+@@ -246,6 +246,9 @@
    GtkWidget *frame;
  #endif /* OPENXT_BRANDING */
  
@@ -12,9 +12,9 @@ Upstream-Status: Inappropriate [OpenXT]
    setlocale(LC_ALL, "");
    bindtextdomain(PACKAGE, LOCALEDIR);
    textdomain(PACKAGE);
-@@ -369,6 +372,9 @@ main(int argc, char *argv[])
+@@ -311,6 +314,9 @@
+   g_signal_connect(G_OBJECT(window), "size-request",
  		   G_CALLBACK(size_request_cb), NULL);
- #endif
  
 +  if (!show_toolbar)
 +    goto skip_toolbar;
@@ -22,7 +22,7 @@ Upstream-Status: Inappropriate [OpenXT]
    gtk_widget_show_all(GTK_WIDGET(window));
  
  #ifdef OPENXT_BRANDING
-@@ -409,6 +415,7 @@ main(int argc, char *argv[])
+@@ -351,6 +357,7 @@
      helper_win_set_position(window, x, y);
    }
  

@@ -1,7 +1,7 @@
 Upstream-Status: Inappropriate [OpenXT]
 
---- a/gtk2/toolbar/common-gtk.c
-+++ b/gtk2/toolbar/common-gtk.c
+--- a/gtk2/toolbar/common-gtk.c	2026-08-20 10:51:14.126829680 -0400
++++ b/gtk2/toolbar/common-gtk.c	2026-08-20 10:51:14.142829680 -0400
 @@ -52,6 +52,8 @@
  #define OBJECT_DATA_BUTTON_TYPE "BUTTON_TYPE"
  #define OBJECT_DATA_COMMAND "COMMAND"
@@ -11,7 +11,7 @@ Upstream-Status: Inappropriate [OpenXT]
  /* exported functions */
  GtkWidget *uim_toolbar_standalone_new(void);
  GtkWidget *uim_toolbar_trayicon_new(void);
-@@ -646,7 +648,11 @@ button_create(GtkWidget *widget, GtkSize
+@@ -579,7 +581,11 @@
    GtkWidget *button;
  
    if (register_icon(icon_name)) {
@@ -23,7 +23,7 @@ Upstream-Status: Inappropriate [OpenXT]
      button = gtk_button_new();
      gtk_container_add(GTK_CONTAINER(button), img);
    } else {
-@@ -885,10 +891,15 @@ helper_toolbar_prop_list_update(GtkWidge
+@@ -818,10 +824,15 @@
  		      GINT_TO_POINTER(BUTTON_TOOL));
      g_object_set_data(G_OBJECT(tool_button), OBJECT_DATA_COMMAND,
  		      (gpointer)command_entry[i].command);
@@ -41,8 +41,8 @@ Upstream-Status: Inappropriate [OpenXT]
        img = gtk_label_new("");
        gtk_label_set_markup(GTK_LABEL(img), command_entry[i].label);
      }
---- a/gtk2/toolbar/standalone-gtk.c
-+++ b/gtk2/toolbar/standalone-gtk.c
+--- a/gtk2/toolbar/standalone-gtk.c	2026-08-20 10:51:14.134829680 -0400
++++ b/gtk2/toolbar/standalone-gtk.c	2026-08-20 10:51:43.506829501 -0400
 @@ -42,6 +42,9 @@
  #include <gtk/gtk.h>
  #include "uim/uim.h"
@@ -53,7 +53,7 @@ Upstream-Status: Inappropriate [OpenXT]
  extern GtkWidget *uim_toolbar_standalone_new(void);
  
  static gboolean toolbar_dragging = FALSE;
-@@ -282,8 +285,10 @@ main(int argc, char *argv[])
+@@ -238,8 +241,10 @@
    GtkWidget *toolbar;
    GtkWidget *window;
    GtkWidget *hbox;
@@ -64,7 +64,7 @@ Upstream-Status: Inappropriate [OpenXT]
  
    setlocale(LC_ALL, "");
    bindtextdomain(PACKAGE, LOCALEDIR);
-@@ -296,6 +301,10 @@ main(int argc, char *argv[])
+@@ -252,6 +257,10 @@
  
    window = gtk_window_new(GTK_WINDOW_POPUP);
  
@@ -75,7 +75,7 @@ Upstream-Status: Inappropriate [OpenXT]
    gtk_window_set_type_hint(GTK_WINDOW(window), GDK_WINDOW_TYPE_HINT_DOCK);
  
    gtk_window_set_skip_taskbar_hint(GTK_WINDOW(window), TRUE);
-@@ -304,24 +313,34 @@ main(int argc, char *argv[])
+@@ -260,31 +269,43 @@
  
    gtk_widget_add_events(window, GDK_BUTTON_PRESS_MASK);
  
@@ -85,12 +85,7 @@ Upstream-Status: Inappropriate [OpenXT]
    gtk_container_add(GTK_CONTAINER(window), frame);
 +#endif /* OPENXT_BRANDING */
  
- #if GTK_CHECK_VERSION(3, 2, 0)
-   hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
- #else
    hbox = gtk_hbox_new(FALSE, 0);
- #endif
-+
 +#ifdef OPENXT_BRANDING
 +  gtk_container_add(GTK_CONTAINER(window), hbox);
 +#else /* !OPENXT_BRANDING */
@@ -107,18 +102,12 @@ Upstream-Status: Inappropriate [OpenXT]
    gtk_box_pack_start(GTK_BOX(hbox), toolbar, FALSE, FALSE, 0);
  
 +#ifndef OPENXT_BRANDING
- #if GTK_CHECK_VERSION(2, 90, 0)
-   g_signal_connect(G_OBJECT(handle), "draw",
- 		   G_CALLBACK(handle_draw_cb), NULL);
-@@ -329,15 +348,20 @@ main(int argc, char *argv[])
    g_signal_connect(G_OBJECT(handle), "expose-event",
  		   G_CALLBACK(handle_expose_event_cb), NULL);
- #endif
 +#endif /* OPENXT_BRANDING */
  
    g_signal_connect(G_OBJECT(window), "delete_event",
  		   G_CALLBACK(delete_event), NULL);
-+
 +#ifndef OPENXT_BRANDING
    g_signal_connect(G_OBJECT(window), "button-press-event",
  		   G_CALLBACK(button_press_event_cb), toolbar);
@@ -127,11 +116,10 @@ Upstream-Status: Inappropriate [OpenXT]
    g_signal_connect(G_OBJECT(window), "motion-notify-event",
  		   G_CALLBACK(motion_notify_event_cb), NULL);
 +#endif /* OPENXT_BRANDING */
-+
    g_signal_connect(G_OBJECT(window), "size-allocate",
  		   G_CALLBACK(size_allocate_cb), NULL);
- #if !GTK_CHECK_VERSION(2, 90, 0)
-@@ -347,6 +371,13 @@ main(int argc, char *argv[])
+   g_signal_connect(G_OBJECT(window), "size-request",
+@@ -292,6 +313,13 @@
  
    gtk_widget_show_all(GTK_WIDGET(window));
  
@@ -145,7 +133,7 @@ Upstream-Status: Inappropriate [OpenXT]
    if (argc > 1) {
      gint x, y;
      if (!gtk_window_parse_geometry(GTK_WINDOW(window), argv[1])) {
-@@ -368,8 +399,13 @@ main(int argc, char *argv[])
+@@ -313,8 +341,13 @@
      sc_w = gdk_screen_width();
      sc_h = gdk_screen_height();
  

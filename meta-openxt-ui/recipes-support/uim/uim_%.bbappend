@@ -1,6 +1,7 @@
 FILESEXTRAPATHS:prepend := "${THISDIR}/patches:"
 
-SRC_URI += " \
+# GTK toolbar branding is target-only; uim-native has no gtk2 sources built.
+SRC_URI:append:class-target = " \
     file://openxt-branding.patch \
     file://disable-right-click-menu.patch \
     file://filter-input-methods.patch \
