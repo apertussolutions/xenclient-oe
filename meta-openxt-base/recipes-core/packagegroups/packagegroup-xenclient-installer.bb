@@ -6,6 +6,9 @@ PR = "r11"
 
 inherit packagegroup
 
+# Depends on xen-tools libraries that debian.bbclass dynamically renames.
+PACKAGE_ARCH = "${MACHINE_ARCH}"
+
 RDEPENDS:${PN} = " \
     acms \
     bc \

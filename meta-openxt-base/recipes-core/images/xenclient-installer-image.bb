@@ -49,9 +49,9 @@ IMAGE_INSTALL = "\
     libdrm-radeon \
 "
 # The entire installer rootfs is passed as the initramfs.
-# Inflate the maximum value to 512M to reflect that (original definition is
-# 128M in bitbake.conf)
-INITRAMFS_MAXSIZE = "524288"
+# Inflate well past OE's 128M default. Wrynose firmware + xen + kernel
+# modules push the cpio over 512M (~561M observed).
+INITRAMFS_MAXSIZE = "786432"
 
 inherit openxt-image
 inherit xenclient-licences
