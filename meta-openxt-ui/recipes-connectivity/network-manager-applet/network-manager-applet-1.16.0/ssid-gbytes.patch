@@ -1,0 +1,19 @@
+Upstream-Status: Inappropriate [OpenXT]
+
+nm_setting_wireless_get_ssid() returns GBytes * in libnm 1.22, not GByteArray.
+
+--- a/src/wireless-security/ws-wpa-psk.c
++++ b/src/wireless-security/ws-wpa-psk.c
+@@ -154,8 +154,10 @@
+ 
+ 	if (strlen (key) < 64) {
+ 		char keyHash[64 + 1];
+-		const GByteArray *ssid = nm_setting_wireless_get_ssid (s_wireless);
+-		GString *ssidNullTerminated = g_string_new_len ((const gchar *)ssid->data, ssid->len);
++		GBytes *ssid = nm_setting_wireless_get_ssid (s_wireless);
++		gsize ssid_len = 0;
++		const guint8 *ssid_data = ssid ? g_bytes_get_data (ssid, &ssid_len) : NULL;
++		GString *ssidNullTerminated = g_string_new_len ((const gchar *)ssid_data, ssid_len);
+ 
+ 		PBKDF2_HMAC_SHA_1nat_string (key, ssidNullTerminated->str, 4096, 32, keyHash);
+ 		key = keyHash;

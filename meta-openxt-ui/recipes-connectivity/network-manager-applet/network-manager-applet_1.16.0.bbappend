@@ -8,6 +8,7 @@ SRC_URI += " \
     file://disable-auto-ethernet.patch \
     file://org.openxt.nmapplet.xml \
     file://meson-merge-file-no-positional.patch \
+    file://ssid-gbytes.patch \
 "
 
 do_configure:prepend() {
