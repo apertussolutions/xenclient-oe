@@ -122,7 +122,10 @@ validate_disk_signature() {
         bbfatal "DISK_SIGNATURE ${DISK_SIGNATURE} must be an 8 digit hex string"
 }
 
-CONVERSION_CMD:disk() {
+# Must be a variable (not a shell function). Dash rejects ':' in function
+# names, so CONVERSION_CMD:disk() would fail do_image_ext3 with
+# "Syntax error: Bad function name".
+openxt_conversion_disk() {
 	validate_disk_signature
 	if [ "${PCBIOS}" = "1" ]; then
 		build_syslinux_cfg
@@ -132,3 +135,4 @@ CONVERSION_CMD:disk() {
 	fi
 	build_boot_dd "${type}"
 }
+CONVERSION_CMD:disk = "openxt_conversion_disk"
