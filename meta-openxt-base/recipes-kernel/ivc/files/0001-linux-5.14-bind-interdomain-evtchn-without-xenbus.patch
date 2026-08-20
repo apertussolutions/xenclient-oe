@@ -1,0 +1,49 @@
+Upstream-Status: Inappropriate [OpenXT]
+
+From: OpenXT <openxt@openxt.org>
+Subject: [PATCH] linux 5.14+: bind interdomain evtchn without xenbus_device
+
+Linux 5.14 changed bind_interdomain_evtchn_to_irqhandler_lateeoi() to
+take a struct xenbus_device * instead of a remote domain id. IVC is not
+a xenbus frontend, so bind the interdomain channel with the hypercall
+and then attach a late-EOI IRQ handler to the local port.
+
+---
+ ks/platform/linux/platform.c | 21 ++++++++++++++++++++-
+ 1 file changed, 20 insertions(+), 1 deletion(-)
+
+diff --git a/ks/platform/linux/platform.c b/ks/platform/linux/platform.c
+--- a/ks/platform/linux/platform.c
++++ b/ks/platform/linux/platform.c
+@@ -806,10 +806,29 @@ _ks_platform_bind_event_callback(uint16_t remoteDomId, evtchn_port_t port, uint3
+     info->callback = callback;
+     if(interDomain)
+     {
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,14,0)
++        struct evtchn_bind_interdomain bind = {
++            .remote_dom = remoteDomId,
++            .remote_port = port,
++        };
++
++        rc = HYPERVISOR_event_channel_op(EVTCHNOP_bind_interdomain, &bind);
++        if (rc) {
++            vfree(info);
++            info = NULL;
++            return ACCESS_DENIED;
++        }
++        info->event_channel = bind.local_port;
++        info->irq = bind_evtchn_to_irqhandler_lateeoi(
++                    bind.local_port,
++                    ks_platform_event_interrupt_handler,
++                    0, "libivc", info);
++#else
+         info->irq = bind_interdomain_evtchn_to_irqhandler_lateeoi(
+                     remoteDomId, port,
+                     ks_platform_event_interrupt_handler,
+                     0, "libivc", info);
++#endif
+     }
+     else
+     {
+--
+2.43.0
