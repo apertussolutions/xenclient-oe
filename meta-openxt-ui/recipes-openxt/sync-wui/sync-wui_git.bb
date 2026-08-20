@@ -15,8 +15,6 @@ SRCREV = "${AUTOREV}"
 SRC_URI = "git://github.com/OpenXT/sync-wui.git;protocol=https;branch=master"
 
 
-inherit package_tar
-
 do_configure() {
 	:
 }
@@ -38,14 +36,6 @@ do_install() {
 
     cp VERSION ${D}/sync-wui/
     cp VERSION ${D}/sync-wui-sources/
-}
-
-do_populate_sysroot() {
-	:
-}
-
-do_package_write_ipk() {
-	:
 }
 
 PACKAGES += "${PN}-sources"
