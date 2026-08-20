@@ -1,0 +1,16 @@
+Upstream-Status: Pending
+
+GCC 15 -Werror=calloc-transposed-args: calloc(nmemb, size) wants
+the element count first.
+
+--- a/src/input-proxy-receiver.c
++++ b/src/input-proxy-receiver.c
+@@ -140,7 +140,7 @@
+     if (!opt->name && untrusted_caps_msg.name[0]) {
+         unsigned i;
+ 
+-        opt->name = calloc(sizeof(untrusted_caps_msg.name), 1);
++        opt->name = calloc(1, sizeof(untrusted_caps_msg.name));
+         for (i = 0; i < sizeof(untrusted_caps_msg.name); i++) {
+             if (untrusted_caps_msg.name[i] == 0)
+                 /* opt->name initially zero-ed, so no need to copy that \0 */

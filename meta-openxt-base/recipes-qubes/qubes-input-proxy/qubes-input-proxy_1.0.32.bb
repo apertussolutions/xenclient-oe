@@ -5,6 +5,7 @@ LIC_FILES_CHKSUM = "file://debian/copyright;beginline=8;endline=22;md5=e4f60d1e5
 SRC_URI = " \
 	git://github.com/QubesOS/qubes-app-linux-input-proxy.git;protocol=https;branch=master \
 	file://uinput.conf \
+	file://calloc-transposed-args.patch \
 "
 SRCREV = "e952c35a7c46a18931880b0b08da7382e472406d"
 
