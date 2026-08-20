@@ -19,9 +19,8 @@ PACKAGECONFIG[gcr] = "-Dgcr=true,-Dgcr=false,gcr"
 PACKAGECONFIG[iso_codes] = "-Diso_codes=true,-Diso_codes=false,iso-codes,iso-codes"
 PACKAGECONFIG[mobile_broadband_provider_info] = "-Dmobile_broadband_provider_info=true,-Dmobile_broadband_provider_info=false,mobile-broadband-provider-info,mobile-broadband-provider-info"
 
-# go introspection is not supported for mipsn32/riscv32, but vapi needs it
-#
-EXTRA_OEMESON:mipsarchn32:append = " -Dvapi=false"
-EXTRA_OEMESON:riscv32:append = " -Dvapi=false"
+# vapigen cannot find libnm.vapi with NetworkManager 1.22 in the sysroot.
+# UIVM does not need Vala bindings.
+EXTRA_OEMESON += "-Dvapi=false"
 
 GTKDOC_MESON_OPTION = "gtk_doc"
