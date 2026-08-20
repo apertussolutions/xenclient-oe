@@ -13,4 +13,4 @@ CFLAGS:append = " -DOPENXT_BRANDING"
 # This should not be necessary, yet autoconf will not set PKG_CONFIG
 # automatically (it does for other projects...), which in turn will fail all
 # PKG_CHECK_MODULES.
-export PKG_CONFIG="pkg-config"
+export PKG_CONFIG = "pkg-config"
