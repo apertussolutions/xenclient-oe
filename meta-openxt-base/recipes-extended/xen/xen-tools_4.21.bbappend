@@ -9,10 +9,15 @@ SRC_URI:append = "\
     file://xenstored.initscript \
     file://xen-init-dom0.initscript \
     file://xl.conf \
+    file://0001-vchan-socket-proxy-add-reconnect-marker-support.patch \
 "
 
 PROVIDES =+ "virtual/xenstored"
 RPROVIDES:${PN}-xenstored = "virtual-xenstored"
+
+# meta-virt packages the binary as xen-tools-vchan; OpenXT recipes
+# RDEPEND on the historical package name vchan-socket-proxy.
+RPROVIDES:${PN}-vchan += "vchan-socket-proxy"
 
 # OpenXT uses init scripts rather than systemd; rename xenstored for alternatives.
 FILES:${PN}-console += "${INIT_D_DIR}/xenconsoled"
