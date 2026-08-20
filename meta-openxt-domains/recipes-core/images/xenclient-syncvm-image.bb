@@ -20,6 +20,9 @@ export IMAGE_BASENAME = "xenclient-syncvm-image"
 
 COMPATIBLE_MACHINE = "(xenclient-syncvm)"
 
+# Avoid OE DEFAULT_IMAGE_LINGUAS "c" (OpenXT only generates en_US/en_GB).
+IMAGE_LINGUAS = "en-us"
+
 INITSCRIPT_REMOVE = " \
     finish.sh \
     rmnologin.sh \
