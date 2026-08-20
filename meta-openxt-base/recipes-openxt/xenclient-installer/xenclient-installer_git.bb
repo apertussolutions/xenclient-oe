@@ -49,6 +49,9 @@ PACKAGES += " \
 FILES:${PN} = "/install/*"
 FILES:${PN}-answerfiles = "/*.ans"
 FILES:${PN}-part2 = "/*"
+# Part2 ships a /run script; YP 6.0 QA_EMPTY_DIRS expects /run to be a
+# directory and os.listdir() crashes on the file.
+INSANE_SKIP:${PN}-part2 += "empty-dirs"
 
 RDEPENDS:${PN} = " \
     busybox \
