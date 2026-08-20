@@ -133,6 +133,7 @@ openxt_conversion_disk() {
 	if [ "${EFI}" = "1" ]; then
 		build_efi_cfg
 	fi
-	build_boot_dd "${type}"
+	build_boot_dd "$1"
 }
-CONVERSION_CMD:disk = "openxt_conversion_disk"
+# ${type} is the input fstype (e.g. ext3), set by image.bbclass before expand.
+CONVERSION_CMD:disk = "openxt_conversion_disk ${type}"
