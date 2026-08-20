@@ -1,54 +1,38 @@
 Upstream-Status: Inappropriate [OpenXT]
 
+Refresh OpenXT --dnsout-interface against dnsmasq 2.93.
+
 --- a/src/dnsmasq.h
 +++ b/src/dnsmasq.h
-@@ -578,6 +578,7 @@ struct irec {
-   struct in_addr netmask; /* only valid for IPv4 */
-   int tftp_ok, dhcp_ok, mtu, done, warned, dad, dns_auth, index, multicast_done, found, label;
-   char *name; 
-+  int idx;
-   struct irec *next;
- };
- 
-@@ -1031,7 +1032,8 @@ extern struct daemon {
+@@ -1201,7 +1201,8 @@
    struct cond_domain *cond_domain, *synth_domains;
    char *runfile; 
    char *lease_change_command;
 -  struct iname *if_names, *if_addrs, *if_except, *dhcp_except, *auth_peers, *tftp_interfaces;
 +  struct iname *if_names, *if_addrs, *if_except, *dhcp_except, *auth_peers, *tftp_interfaces,
 +  *dnsout_names;
-   struct bogus_addr *bogus_addr, *ignore_addr;
-   struct server *servers;
-   struct ipsets *ipsets;
---- a/src/network.c
-+++ b/src/network.c
-@@ -475,6 +475,7 @@ static int iface_allowed(struct iface_pa
- 	  daemon->interfaces = iface;
- 	  return 1;
- 	}
-+      iface->idx = if_index;
-       free(iface);
- 
-     }
+   struct bogus_addr *bogus_addr, *ignore_addr, *leasequery_addr;
+   struct server *servers, *servers_tail, *local_domains, **serverarray;
+   struct rebind_domain *no_rebind;
 --- a/src/option.c
 +++ b/src/option.c
-@@ -167,6 +167,7 @@ struct myoption {
- #define LOPT_IGNORE_CLID   358
- #define LOPT_SINGLE_PORT   359
- #define LOPT_SCRIPT_TIME   360
-+#define LOPT_DNSOUT_IF     361
-  
+@@ -201,6 +201,7 @@
+ #define LOPT_LEASEQUERY    389
+ #define LOPT_SPLIT_RELAY   390
+ #define LOPT_LOG_MALLOC    391
++#define LOPT_DNSOUT_IF     392
+ 
  #ifdef HAVE_GETOPT_LONG
  static const struct option opts[] =  
-@@ -197,6 +198,7 @@ static const struct myoption opts[] =
+@@ -231,6 +232,7 @@
      { "domain", 1, 0, 's' },
      { "domain-suffix", 1, 0, 's' },
      { "interface", 1, 0, 'i' },
 +    { "dnsout-interface", 1, 0, LOPT_DNSOUT_IF },
      { "listen-address", 1, 0, 'a' },
-     { "local-service", 0, 0, LOPT_LOCAL_SERVICE },
+     { "local-service", 2, 0, LOPT_LOCAL_SERVICE },
      { "bogus-priv", 0, 0, 'b' },
-@@ -378,6 +380,7 @@ static struct {
+@@ -445,6 +447,7 @@
    { 'H', ARG_DUP, "<path>", gettext_noop("Specify a hosts file to be read in addition to %s."), HOSTSFILE },
    { LOPT_HOST_INOTIFY, ARG_DUP, "<path>", gettext_noop("Read hosts files from a directory."), NULL },
    { 'i', ARG_DUP, "<interface>", gettext_noop("Specify interface(s) to listen on."), NULL },
@@ -56,30 +40,28 @@ Upstream-Status: Inappropriate [OpenXT]
    { 'I', ARG_DUP, "<interface>", gettext_noop("Specify interface(s) NOT to listen on.") , NULL },
    { 'j', ARG_DUP, "set:<tag>,<class>", gettext_noop("Map DHCP user class to tag."), NULL },
    { LOPT_CIRCUIT, ARG_DUP, "set:<tag>,<circuit>", gettext_noop("Map RFC3046 circuit-id to tag."), NULL },
-@@ -2450,6 +2453,20 @@ static int one_opt(int option, char *arg
- 	break;
-       /* fall through */
- 
-+      case LOPT_DNSOUT_IF: /*--dnsout-interface */
+@@ -2886,6 +2889,18 @@
+ 	arg = comma;
+       } while (arg);
+       break;
++
++    case LOPT_DNSOUT_IF: /* --dnsout-interface */
 +      do {
 +          struct iname *new = opt_malloc(sizeof (struct iname));
 +          memset(new, 0, sizeof (*new));
 +          comma = split(arg);
 +          new->next = daemon->dnsout_names;
 +          daemon->dnsout_names = new;
-+          /* new->name may be NULL if someone does
-+           * "interface=" to disable all interfaces except loop. */
 +          new->name = opt_string_alloc(arg);
 +          arg = comma;
 +      } while (arg);
 +      break;
-+
-     case 'I':  /* --except-interface */
-     case '2':  /* --no-dhcp-interface */
-       do {
+       
+     case LOPT_TFTP: /* --enable-tftp */
+       set_option_bool(OPT_TFTP);
 --- a/src/forward.c
 +++ b/src/forward.c
-@@ -2162,9 +2162,25 @@ static struct frec *allocate_frec(time_t
+@@ -2800,9 +2800,24 @@
  static int random_sock(struct server *s)
  {
    int fd;
@@ -87,21 +69,20 @@ Upstream-Status: Inappropriate [OpenXT]
 +  struct iname *ifn;
 +
 +  memset(&ifr, 0, sizeof (ifr));
-+  if ((ifn = daemon->dnsout_names))
++  if ((ifn = daemon->dnsout_names) && ifn->name)
 +      strncpy(ifr.ifr_name, ifn->name, sizeof (ifr.ifr_name));
  
    if ((fd = socket(s->source_addr.sa.sa_family, SOCK_DGRAM, 0)) != -1)
      {
-+        if (ifr.ifr_name[0])
++      if (ifr.ifr_name[0])
 +        {
-+            printf("Use interface %s\n", ifr.ifr_name);
-+            if (setsockopt(fd, SOL_SOCKET, SO_BINDTODEVICE,
-+                           (void *)&ifr, sizeof (ifr)) < 0) 
++          if (setsockopt(fd, SOL_SOCKET, SO_BINDTODEVICE,
++                         (void *)&ifr, sizeof (ifr)) < 0)
 +            {
-+                close(fd);
-+                return -1;
++              close(fd);
++              return -1;
 +            }
 +        }
-       if (local_bind(fd, &s->source_addr, s->interface, s->ifindex, 0))
- 	return fd;
- 
+       /* We need to set IPV6ONLY so we can use the same ports
+ 	 for IPv4 and IPV6, otherwise, in restriced port situations,
+ 	 we can end up with all our available ports in use for 

@@ -62,7 +62,9 @@ do_compile:prepend() {
 }
 
 # ISC dhclient is gone from wrynose; use NM's internal DHCP client.
-PACKAGECONFIG ??= "nss ifupdown dnsmasq wifi ppp modemmanager \
+# pppd 2.5 removed the old plugin ABI (ifname/ifunit/add_notifier) that
+# NM 1.22's nm-pppd-plugin.c still uses. Build without the PPP plugin.
+PACKAGECONFIG ??= "nss ifupdown dnsmasq wifi modemmanager \
     ${@bb.utils.contains('DISTRO_FEATURES', 'systemd', 'systemd', '', d)} \
     ${@bb.utils.contains('DISTRO_FEATURES', 'bluetooth', 'bluez5', '', d)} \
     ${@bb.utils.filter('DISTRO_FEATURES', 'polkit', d)} \
