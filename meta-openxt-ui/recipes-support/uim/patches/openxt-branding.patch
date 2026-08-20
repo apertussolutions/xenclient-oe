@@ -126,7 +126,7 @@ Upstream-Status: Inappropriate [OpenXT]
 +#ifdef OPENXT_BRANDING
 +  GdkGeometry geometry = {-1, OXT_TOOLBAR_HEIGHT, 0, 0, 0, 0, 0, 0, 0.0, 0.0,
 +                          GDK_GRAVITY_NORTH_WEST};
-+  gtk_window_set_geometry_hints(GTK_WIDGET(window), window, &geometry,
++  gtk_window_set_geometry_hints(GTK_WINDOW(window), NULL, &geometry,
 +	                        GDK_HINT_MIN_SIZE);
 +#endif /* OPENXT_BRANDING */
 +
