@@ -21,6 +21,9 @@ export IMAGE_BASENAME = "xenclient-ndvm-image"
 
 COMPATIBLE_MACHINE = "(xenclient-ndvm)"
 
+# Avoid OE DEFAULT_IMAGE_LINGUAS "c" (OpenXT only generates en_US/en_GB).
+IMAGE_LINGUAS = "en-us"
+
 
 BAD_RECOMMENDATIONS += " \
     avahi-daemon \
