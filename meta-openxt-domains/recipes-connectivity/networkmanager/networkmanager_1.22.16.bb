@@ -47,6 +47,7 @@ EXTRA_OECONF = " \
     --disable-ifcfg-rh \
     --disable-more-warnings \
     --disable-gtk-doc \
+    --enable-vala=no \
     --with-iptables=${sbindir}/iptables \
     --with-tests \
     --with-nmtui=yes \
