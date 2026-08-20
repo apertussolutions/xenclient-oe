@@ -7,6 +7,7 @@ SRC_URI += " \
     file://disable-show-password.patch \
     file://disable-auto-ethernet.patch \
     file://org.openxt.nmapplet.xml \
+    file://meson-merge-file-no-positional.patch \
 "
 
 do_configure:prepend() {
