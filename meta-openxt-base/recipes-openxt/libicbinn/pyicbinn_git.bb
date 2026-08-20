@@ -8,4 +8,4 @@ S = "${UNPACKDIR}/${BP}/pyicbinn"
 
 DEPENDS = "swig-native libicbinn xenclient-rpcgen-native"
 
-inherit setuptools3
+inherit pkgconfig setuptools3
