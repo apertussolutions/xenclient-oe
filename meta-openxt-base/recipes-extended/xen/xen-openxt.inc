@@ -20,13 +20,15 @@ EXTRA_OECONF:remove = " \
 # Force the target architecture for the hypervisor build to be 64-bit
 # irrespective of the current MACHINE settings.
 # Also supply a custom vendor suffix.
+# No spaces around '=': GNU make splits on spaces and treats a bare '=' as
+# an empty variable name.
 EXTRA_OEMAKE += " \
-    XEN_TARGET_ARCH = x86_64 \
-    XEN_VENDORVERSION = -xc \
+    XEN_TARGET_ARCH=x86_64 \
+    XEN_VENDORVERSION=-xc \
     "
 # Since this recipe forces the hypervisor build to target 64-bit architecture
 # even when MACHINE is 32-bit, disable this usual arch sanity check:
-INSANE_SKIP:${PN}-dbg = "arch"
+INSANE_SKIP:${PN}-dbg += "arch"
 
 do_configure() {
     echo "debug := n" > .config
