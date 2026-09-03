@@ -34,6 +34,9 @@ FILES:${PN} += " \
     ${sysconfdir}/dbus-1/system.d/uid_dbus.conf \
 "
 
+# OCaml debuginfo embeds TMPDIR; same skip as dbd.
+INSANE_SKIP:${PN}-dbg += "buildpaths"
+
 PARALLEL_MAKE = ""
 do_compile() {
     oe_runmake V=1 XEN_DIST_ROOT="${STAGING_DIR}" all

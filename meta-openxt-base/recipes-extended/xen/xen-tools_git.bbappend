@@ -31,10 +31,11 @@ B = "${S}"
 
 # OpenXT hvmloader embeds in-tree VGABIOS even with CONFIG_ROMBIOS=n.
 # firmware/Makefile only builds vgabios as a subdir when rombios is on,
-# and OE dropped the vgabios ipk / dev86-native. Build the blobs with
-# host bcc/as86 (HOSTTOOLS in openxt-main.conf) before tools compile.
+# and OE dropped the vgabios ipk / dev86-native. Use host bcc/as86 by
+# absolute path so we do not add them to HOSTTOOLS (that invalidates
+# native sstate for the whole distro).
 do_compile:prepend() {
-    oe_runmake -C tools/firmware/vgabios
+    oe_runmake -C tools/firmware/vgabios BCC=/usr/bin/bcc AS86=/usr/bin/as86
 }
 
 DEFAULT_PREFERENCE = "1"
