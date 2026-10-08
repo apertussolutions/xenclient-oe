@@ -45,7 +45,7 @@ PATCHES
 ################################################################################
 --- a/drivers/pci/pci.c
 +++ b/drivers/pci/pci.c
-@@ -5064,7 +5064,11 @@ static int pci_reset_bus_function(struct
+@@ -5122,7 +5122,11 @@ static int pci_reset_bus_function(struct
  	rc = pci_dev_reset_slot_function(dev, probe);
  	if (rc != -ENOTTY)
  		return rc;
@@ -57,10 +57,10 @@ PATCHES
 +	return rc;
  }
  
- static void pci_dev_lock(struct pci_dev *dev)
+ void pci_dev_lock(struct pci_dev *dev)
 --- a/drivers/pci/quirks.c
 +++ b/drivers/pci/quirks.c
-@@ -3771,10 +3771,15 @@ static int reset_ivb_igd(struct pci_dev
+@@ -3808,10 +3808,15 @@ static int reset_ivb_igd(struct pci_dev
  	void __iomem *mmio_base;
  	unsigned long timeout;
  	u32 val;
@@ -76,7 +76,7 @@ PATCHES
  	mmio_base = pci_iomap(dev, 0, 0);
  	if (!mmio_base)
  		return -ENOMEM;
-@@ -3805,7 +3810,10 @@ reset_complete:
+@@ -3842,7 +3847,10 @@ reset_complete:
  	iowrite32(0x00000002, mmio_base + NSDE_PWR_STATE);
  
  	pci_iounmap(dev, mmio_base);
@@ -90,7 +90,7 @@ PATCHES
  /* Device-specific reset method for Chelsio T4-based adapters */
 --- a/drivers/xen/xen-pciback/pci_stub.c
 +++ b/drivers/xen/xen-pciback/pci_stub.c
-@@ -420,10 +420,13 @@ static int pcistub_init_device(struct pc
+@@ -421,10 +421,13 @@ static int pcistub_init_device(struct pc
  	if (!dev_data->pci_saved_state)
  		dev_err(&dev->dev, "Could not store PCI conf saved state!\n");
  	else {
