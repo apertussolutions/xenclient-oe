@@ -46,6 +46,7 @@ EXTRA_OEMAKE = "\
     PK12UTIL=${STAGING_BINDIR_NATIVE}/pk12util \
     CERTUTIL=${STAGING_BINDIR_NATIVE}/certutil \
     AR=${AR} \
+    OBJCOPY=objcopy \
     ARCH=x86_64 \
     KEEP_DISCARDABLE_RELOC=1 \
     REQUIRE_TPM=1 \
@@ -53,6 +54,16 @@ EXTRA_OEMAKE = "\
 "
 
 COMPATIBLE_HOST = 'i686-oe-linux|(x86_64.*).*-linux|aarch64.*-linux'
+
+# gnu-efi 4 efibind.h includes stddef.h before UINTN. Cryptlib's stddef.h
+# must not pull efilib at that point.
+do_configure:prepend() {
+    sed -i '/#include <OpenSslSupport.h>/i\
+#ifdef X86_64_EFI_BIND\
+#else' ${S}/Cryptlib/Include/stddef.h
+    echo '#endif' >> ${S}/Cryptlib/Include/stddef.h
+    echo 'CFLAGS += -Wno-error=int-conversion' >> ${S}/Make.defaults
+}
 
 do_install() {
     install -d ${D}/boot/
