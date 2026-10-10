@@ -1,8 +1,8 @@
 SUMMARY = "Package for managing guest EFI variables"
-LICENSE = "BSD"
+LICENSE = "BSD-3-Clause"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=4eaeb1d21fb0eea915fc93068fdf00be"
 
-inherit useradd xc-rpcgen-c
+inherit pkgconfig useradd xc-rpcgen-c
 
 DEPENDS = " \
     dbus \
@@ -11,6 +11,7 @@ DEPENDS = " \
     libxml2 \
     libxcdbus \
     openssl \
+    openssl-native \
     xen-tools \
 "
 
@@ -71,7 +72,16 @@ do_compile:append() {
     echo ${S}/MicWinProPCA2011_2011-10-19.pem > ${S}/db.list
     echo ${S}/MicCorUEFCA2011_2011-06-27.pem >> ${S}/db.list
 
-    oe_runmake auth
+    # create-auth is a host helper (signs PK/KEK/db). Target CC produces a
+    # sysrooted binary whose ELF interpreter is not runnable on the build host.
+    ${BUILD_CC} ${BUILD_CFLAGS} ${BUILD_LDFLAGS} -I${S}/include \
+        -o ${B}/create-auth-native ${S}/create-auth.c ${S}/guid.c -lcrypto
+
+    openssl req -new -x509 -newkey rsa:2048 -subj "/CN=PK/" \
+        -keyout ${S}/PK.key -out ${S}/PK.pem -days 36500 -nodes -sha256
+    ${B}/create-auth-native -k ${S}/PK.key -c ${S}/PK.pem PK ${S}/PK.auth ${S}/PK.pem
+    ${B}/create-auth-native -k ${S}/PK.key -c ${S}/PK.pem KEK ${S}/KEK.auth $(cat ${S}/KEK.list)
+    ${B}/create-auth-native -k ${S}/PK.key -c ${S}/PK.pem db ${S}/db.auth $(cat ${S}/db.list)
 }
 
 do_install() {
@@ -79,9 +89,11 @@ do_install() {
     install -m 0755 ${S}/varstored ${D}/usr/sbin/varstored
 
     install -d ${D}/usr/bin
-    install -m 0755 ${S}/tools/varstore-{get,set,ls,rm,sb-state} ${D}/usr/bin
+    install -m 0755 ${S}/tools/varstore-get ${S}/tools/varstore-set \
+                    ${S}/tools/varstore-ls ${S}/tools/varstore-rm \
+                    ${S}/tools/varstore-sb-state ${D}/usr/bin
 
     install -d ${D}/var/lib/varstored
-    install -m 0755 ${S}/{PK.auth,KEK.auth,db.auth} ${D}/var/lib/varstored
+    install -m 0755 ${S}/PK.auth ${S}/KEK.auth ${S}/db.auth ${D}/var/lib/varstored
     install -m 0755 ${UNPACKDIR}/dbx.auth ${D}/var/lib/varstored
 }
