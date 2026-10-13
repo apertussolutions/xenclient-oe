@@ -10,7 +10,7 @@ Signed-off-by: Jason Andryuk <jandryuk@gmail.com>
 
 --- a/Makefile.in
 +++ b/Makefile.in
-@@ -69,19 +69,19 @@ endif
+@@ -68,19 +68,19 @@
  all:	$(TARGET) _snack.$(SOEXT)
  
  test:	test.o $(LIBNEWT)
@@ -34,4 +34,4 @@ Signed-off-by: Jason Andryuk <jandryuk@gmail.com>
 +	$(CC) $(CFLAGS) -g -o showkey showkey.o $(LIBNEWT) $(LDFLAGS) $(LIBS)
  
  _snack.$(SOEXT):   snack.c $(LIBNEWTSH)
- 	@[ -n "$(PYTHONVERS)" ] && for ver in $(PYTHONVERS); do \
+ ifneq ($(PYTHONVERS),)
