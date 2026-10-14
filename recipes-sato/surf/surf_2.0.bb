@@ -8,7 +8,8 @@ LICENSE = "MIT"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=b57e7f7720307a02d5a6598b00fe3afa"
 
 DEPENDS = " \
-    webkitgtk \
+    gtk+3 \
+    webkitgtk3 \
 "
 
 SRC_URI = " \
