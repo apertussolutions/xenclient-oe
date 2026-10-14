@@ -35,6 +35,10 @@ EXTRA_OEMAKE += "\
     C_INCLUDE_PATH=${STAGING_INCDIR}/efivar \
 "
 
+# Newer libefivar needs types+guids before efivar-time.h.
+CFLAGS:append = " -include ${STAGING_INCDIR}/efivar/efivar.h"
+CFLAGS:append = " -Wno-error=calloc-transposed-args -Wno-error=enum-conversion"
+
 do_install() {
     install -d ${D}${bindir}
     install "${B}/src/pesign" ${D}${bindir}
