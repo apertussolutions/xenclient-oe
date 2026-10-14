@@ -8,12 +8,14 @@ PREFIX = /usr
 MANPREFIX = ${PREFIX}/share/man
 LIBPREFIX = ${PREFIX}/lib/surf
 
-GTKINC = `pkg-config --cflags gtk+-3.0 webkit2gtk-4.0 x11`
-GTKLIB = `pkg-config --libs gtk+-3.0 webkit2gtk-4.0 x11`
+GTKINC = `pkg-config --cflags gtk+-3.0 webkit2gtk-4.1 x11`
+GTKLIB = `pkg-config --libs gtk+-3.0 webkit2gtk-4.1 x11`
 
 # includes and libs
-INCS = -I. -I${X11INC} ${GTKINC}
-LIBS = -lc -L${X11LIB} -lX11 ${GTKLIB} -lgthread-2.0
+# Do not use empty -I${X11INC}: pkg-config already supplies x11, and a
+# bare -I eats the next include path.
+INCS = -I. ${GTKINC}
+LIBS = -lc ${GTKLIB} -lgthread-2.0
 
 # flags
 CPPFLAGS += -DVERSION=\"${VERSION}\" -DWEBEXTDIR=\"${LIBPREFIX}\" -D_DEFAULT_SOURCE
