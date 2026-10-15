@@ -2,7 +2,7 @@ SUMMARY = "GTK+ applet for NetworkManager"
 LICENSE = "GPL-2.0-only"
 LIC_FILES_CHKSUM = "file://COPYING;md5=b234ee4d69f5fce4486a80fdaf4a4263"
 
-DEPENDS = "gtk+3 libnma libnotify libsecret networkmanager iso-codes nss openssl"
+DEPENDS = "gtk+3 libnma libnotify libsecret libgudev networkmanager iso-codes nss openssl"
 
 GNOMEBASEBUILDCLASS = "meson"
 inherit features_check gnomebase gsettings gtk-icon-cache gettext
@@ -16,6 +16,9 @@ PACKAGECONFIG ??= ""
 PACKAGECONFIG[modemmanager] = "-Dwwan=true, -Dwwan=false, modemmanager"
 PACKAGECONFIG[selinux] = "-Dselinux=true, -Dselinux=false, libselinux"
 
+# meta-networking NetworkManager is built without libteamdctl.
+EXTRA_OEMESON += "-Dteam=false"
+
 RDEPENDS:${PN} =+ "networkmanager"
 
 FILES:${PN} += " \
@@ -26,4 +29,6 @@ FILES:${PN} += " \
 
 do_configure:prepend() {
     gdbus-codegen --generate-c-code ${S}/src/popup-menu --c-namespace OpenXT --interface-prefix org.openxt. ${UNPACKDIR}/org.openxt.nmapplet.xml
+    # gdbus-codegen emits an absolute #include, which fails the buildpaths QA check.
+    sed -i 's,#include ".*/popup-menu.h",#include "popup-menu.h",' ${S}/src/popup-menu.c
 }
