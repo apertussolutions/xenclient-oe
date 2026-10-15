@@ -1,8 +1,10 @@
 Upstream-Status: Inappropriate [OpenXT]
 
---- a/src/nma-cert-chooser.c
-+++ b/src/nma-cert-chooser.c
-@@ -597,7 +597,9 @@ constructor (GType type, guint n_constru
+Index: libnma-1.8.28/src/nma-cert-chooser.c
+===================================================================
+--- libnma-1.8.28.orig/src/nma-cert-chooser.c	2020-03-05 04:09:21.000000000 -0500
++++ libnma-1.8.28/src/nma-cert-chooser.c	2026-09-12 18:58:05.210522483 -0400
+@@ -620,7 +620,9 @@
  	NMACertChooserPrivate *priv;
  	int i;
  	const gchar *title = NULL;
@@ -12,7 +14,7 @@ Upstream-Status: Inappropriate [OpenXT]
  	object = G_OBJECT_CLASS (nma_cert_chooser_parent_class)->constructor (type,
  	                                                                      n_construct_properties,
  	                                                                      construct_properties);
-@@ -643,6 +643,8 @@ constructor (GType type, guint n_construct_properties, GObjectConstructParam *co
+@@ -643,6 +645,8 @@
  	priv->vtable->init (cert_chooser);
  	priv->vtable->set_flags (cert_chooser, flags);
  	priv->vtable->set_title (cert_chooser, title);
@@ -21,9 +23,11 @@ Upstream-Status: Inappropriate [OpenXT]
  
  	return object;
  }
---- a/src/nma-file-cert-chooser.c
-+++ b/src/nma-file-cert-chooser.c
-@@ -238,6 +238,15 @@ show_toggled_cb (GtkCheckButton *button,
+Index: libnma-1.8.28/src/nma-file-cert-chooser.c
+===================================================================
+--- libnma-1.8.28.orig/src/nma-file-cert-chooser.c	2020-03-05 15:27:18.000000000 -0500
++++ libnma-1.8.28/src/nma-file-cert-chooser.c	2026-09-12 18:58:05.214522483 -0400
+@@ -280,6 +280,15 @@
  }
  
  static void
@@ -38,8 +42,8 @@ Upstream-Status: Inappropriate [OpenXT]
 +static void
  set_title (NMACertChooser *cert_chooser, const gchar *title)
  {
-	NMAFileCertChooserPrivate *priv = NMA_FILE_CERT_CHOOSER_GET_PRIVATE (cert_chooser);
-@@ -430,6 +441,7 @@ const NMACertChooserVtable nma_cert_chooser_vtable_file = {
+ 	NMAFileCertChooserPrivate *priv = NMA_FILE_CERT_CHOOSER_GET_PRIVATE (cert_chooser);
+@@ -430,6 +439,7 @@
  	.init = init,
  
  	.set_title = set_title,
@@ -47,13 +51,14 @@ Upstream-Status: Inappropriate [OpenXT]
  	.set_flags = set_flags,
  
  	.set_cert_uri = set_cert_uri,
---- a/src/nma-pkcs11-cert-chooser.c
-+++ b/src/nma-pkcs11-cert-chooser.c
-@@ -354,6 +354,15 @@ show_toggled_cb (GtkCheckButton *button, gpointer user_data)
- 		gtk_entry_set_visibility (GTK_ENTRY (priv->key_password), active);
+Index: libnma-1.8.28/src/nma-pkcs11-cert-chooser.c
+===================================================================
+--- libnma-1.8.28.orig/src/nma-pkcs11-cert-chooser.c	2019-10-30 10:03:53.000000000 -0400
++++ libnma-1.8.28/src/nma-pkcs11-cert-chooser.c	2026-09-12 18:58:05.214522483 -0400
+@@ -355,6 +355,15 @@
  }
  
-+static void
+ static void
 +set_folder (NMACertChooser *cert_chooser, const gchar *folder)
 +{
 +	NMAPkcs11CertChooserPrivate *priv = NMA_PKCS11_CERT_CHOOSER_GET_PRIVATE (cert_chooser);
@@ -62,10 +67,11 @@ Upstream-Status: Inappropriate [OpenXT]
 +		gtk_file_chooser_set_current_folder (GTK_FILE_CHOOSER (priv->cert_button), folder);
 +}
 +
- static void
++static void
  set_title (NMACertChooser *cert_chooser, const gchar *title)
  {
-@@ -536,6 +553,7 @@ const NMACertChooserVtable nma_cert_chooser_vtable_pkcs11 = {
+ 	NMAPkcs11CertChooserPrivate *priv = NMA_PKCS11_CERT_CHOOSER_GET_PRIVATE (cert_chooser);
+@@ -536,6 +545,7 @@
  	.init = init,
  
  	.set_title = set_title,
@@ -73,8 +79,10 @@ Upstream-Status: Inappropriate [OpenXT]
  	.set_flags = set_flags,
  	.set_cert_uri = set_cert_uri,
  	.get_cert_uri = get_cert_uri,
---- a/shared/nm-default.h
-+++ b/shared/nm-default.h
+Index: libnma-1.8.28/shared/nm-default.h
+===================================================================
+--- libnma-1.8.28.orig/shared/nm-default.h	2020-03-05 04:09:21.000000000 -0500
++++ libnma-1.8.28/shared/nm-default.h	2026-09-12 18:58:05.214522483 -0400
 @@ -52,6 +52,9 @@
  
  #include <gtk/gtk.h>
@@ -84,10 +92,12 @@ Upstream-Status: Inappropriate [OpenXT]
 +
  /*****************************************************************************/
  
- #if !((NETWORKMANAGER_COMPILATION) & NM_NETWORKMANAGER_COMPILATION_LIB_LEGACY)
---- a/src/nma-cert-chooser-private.h
-+++ b/src/nma-cert-chooser-private.h
-@@ -99,6 +99,7 @@ struct _NMACertChooserClass {
+ #if ((NETWORKMANAGER_COMPILATION) & NM_NETWORKMANAGER_COMPILATION_LIB) || ((NETWORKMANAGER_COMPILATION) & NM_NETWORKMANAGER_COMPILATION_LIB_LEGACY)
+Index: libnma-1.8.28/src/nma-cert-chooser-private.h
+===================================================================
+--- libnma-1.8.28.orig/src/nma-cert-chooser-private.h	2020-03-05 04:09:21.000000000 -0500
++++ libnma-1.8.28/src/nma-cert-chooser-private.h	2026-09-12 18:58:05.214522483 -0400
+@@ -85,6 +85,7 @@
   *   password if one is present.
   * @set_title: Setup the title property
   * @set_flags: Setup the flags property
@@ -95,7 +105,7 @@ Upstream-Status: Inappropriate [OpenXT]
   */
  struct _NMACertChooserVtable {
  	void                 (*init)                         (NMACertChooser *cert_chooser);
-@@ -147,6 +148,8 @@ struct _NMACertChooserVtable {
+@@ -135,6 +136,8 @@
  	                                                      const gchar *title);
  	void         (*set_flags)                            (NMACertChooser *cert_chooser,
  	                                                      NMACertChooserFlags flags);
