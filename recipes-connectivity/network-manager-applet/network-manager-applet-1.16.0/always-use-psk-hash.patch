@@ -1,22 +1,26 @@
 Upstream-Status: Inappropriate [OpenXT]
 
 #OpenXT:Use WPA-PSK mechanism to authenticate on a WLAN connection.
---- a/configure.ac
-+++ b/configure.ac
-@@ -120,6 +120,10 @@ else
-     AC_DEFINE_UNQUOTED([MOBILE_BROADBAND_PROVIDER_INFO_DATABASE],["$prefix/share/mobile-broadband-provider-info/serviceproviders.xml"],[Mobile Broadband Service Provider Information Database location])
- fi
+Index: network-manager-applet-1.16.0/configure.ac
+===================================================================
+--- network-manager-applet-1.16.0.orig/configure.ac	2020-03-07 10:56:17.000000000 -0500
++++ network-manager-applet-1.16.0/configure.ac	2026-09-12 19:11:03.406517734 -0400
+@@ -49,6 +49,10 @@
+ dnl
+ AC_TYPE_PID_T
  
 +dnl Add libcrypto for PKCS5_PBKDF2_HMAC_SHA1
 +dnl OpenXT patch always-use-psk-hash.patch
 +PKG_CHECK_MODULES(OPENSSL, libcrypto libssl,, AC_MSG_ERROR([openssl cannot be found.]))
 +
  dnl
- dnl API documentation
+ dnl translation support
  dnl
---- a/meson.build
-+++ b/meson.build
-@@ -108,6 +108,7 @@ gio_dep = dependency('gio-2.0', version: '>= 2.38')
+Index: network-manager-applet-1.16.0/meson.build
+===================================================================
+--- network-manager-applet-1.16.0.orig/meson.build	2020-03-07 10:56:17.000000000 -0500
++++ network-manager-applet-1.16.0/meson.build	2026-09-12 19:11:03.406517734 -0400
+@@ -108,6 +108,7 @@
  gmodule_export_dep = dependency('gmodule-export-2.0')
  libsecret_dep = dependency('libsecret-1', version: '>= 0.18')
  libnma_dep = dependency('libnma', version: '>= 1.8.27')
@@ -24,9 +28,11 @@ Upstream-Status: Inappropriate [OpenXT]
  
  m_dep = cc.find_library('m')
  
---- a/src/wireless-security/meson.build
-+++ b/src/wireless-security/meson.build
-@@ -49,7 +49,8 @@ deps = [
+Index: network-manager-applet-1.16.0/src/wireless-security/meson.build
+===================================================================
+--- network-manager-applet-1.16.0.orig/src/wireless-security/meson.build	2020-03-07 10:22:47.000000000 -0500
++++ network-manager-applet-1.16.0/src/wireless-security/meson.build	2026-09-12 19:11:03.406517734 -0400
+@@ -49,7 +49,8 @@
    gtk_dep,
    libnm_dep,
    libnma_dep,
@@ -36,9 +42,11 @@ Upstream-Status: Inappropriate [OpenXT]
  ]
  
  libwireless_security_libnm = static_library(
---- a/src/wireless-security/ws-wpa-psk.c
-+++ b/src/wireless-security/ws-wpa-psk.c
-@@ -29,6 +29,7 @@
+Index: network-manager-applet-1.16.0/src/wireless-security/ws-wpa-psk.c
+===================================================================
+--- network-manager-applet-1.16.0.orig/src/wireless-security/ws-wpa-psk.c	2020-03-07 10:22:47.000000000 -0500
++++ network-manager-applet-1.16.0/src/wireless-security/ws-wpa-psk.c	2026-09-12 19:11:03.406517734 -0400
+@@ -15,6 +15,7 @@
  #include "helpers.h"
  #include "nma-ui-utils.h"
  #include "utils.h"
@@ -46,7 +54,7 @@ Upstream-Status: Inappropriate [OpenXT]
  
  #define WPA_PMK_LEN 32
  
-@@ -104,6 +105,17 @@ add_to_size_group (WirelessSecurity *par
+@@ -90,6 +91,17 @@
  	gtk_size_group_add_widget (group, widget);
  }
  
@@ -64,15 +72,17 @@ Upstream-Status: Inappropriate [OpenXT]
  static void
  fill_connection (WirelessSecurity *parent, NMConnection *connection)
  {
-@@ -130,6 +142,18 @@ fill_connection (WirelessSecurity *paren
+@@ -116,6 +128,20 @@
  	widget = GTK_WIDGET (gtk_builder_get_object (parent->builder, "wpa_psk_entry"));
  	passwd_entry = widget;
  	key = gtk_entry_get_text (GTK_ENTRY (widget));
 +
 +	if (strlen (key) < 64) {
 +		char keyHash[64 + 1];
-+		const GByteArray *ssid = nm_setting_wireless_get_ssid (s_wireless);
-+		GString *ssidNullTerminated = g_string_new_len ((const gchar *)ssid->data, ssid->len);
++		GBytes *ssid = nm_setting_wireless_get_ssid (s_wireless);
++		gsize ssid_len = 0;
++		const guint8 *ssid_data = g_bytes_get_data (ssid, &ssid_len);
++		GString *ssidNullTerminated = g_string_new_len ((const gchar *)ssid_data, ssid_len);
 +
 +		PBKDF2_HMAC_SHA_1nat_string (key, ssidNullTerminated->str, 4096, 32, keyHash);
 +		key = keyHash;
@@ -83,9 +93,11 @@ Upstream-Status: Inappropriate [OpenXT]
  	g_object_set (s_wireless_sec, NM_SETTING_WIRELESS_SECURITY_PSK, key, NULL);
  
  	/* Save PSK_FLAGS to the connection */
---- a/Makefile.am
-+++ b/Makefile.am
-@@ -262,12 +262,14 @@ src_wireless_security_libwireless_security_libnm_la_CPPFLAGS = \
+Index: network-manager-applet-1.16.0/Makefile.am
+===================================================================
+--- network-manager-applet-1.16.0.orig/Makefile.am	2026-09-12 19:11:03.158517735 -0400
++++ network-manager-applet-1.16.0/Makefile.am	2026-09-12 19:11:03.406517734 -0400
+@@ -262,12 +262,14 @@
  	"-I$(srcdir)/src/utils" \
  	$(GTK3_CFLAGS) \
  	$(LIBNMA_CFLAGS) \
@@ -102,4 +114,3 @@ Upstream-Status: Inappropriate [OpenXT]
  
  $(src_wireless_security_libwireless_security_libnm_la_OBJECTS): $(wireless_security_h_gen)
  
-
