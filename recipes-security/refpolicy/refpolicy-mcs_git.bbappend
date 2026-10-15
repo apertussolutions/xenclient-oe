@@ -49,6 +49,9 @@ SRC_URI += " \
     file://policy/modules/services/glass.fc \
     file://policy/modules/services/glass.if \
     file://policy/modules/services/glass.te \
+    file://policy/modules/services/hal.fc \
+    file://policy/modules/services/hal.if \
+    file://policy/modules/services/hal.te \
     file://policy/modules/services/icbinn.fc \
     file://policy/modules/services/icbinn.if \
     file://policy/modules/services/icbinn.te \
@@ -94,9 +97,9 @@ SRC_URI += " \
 "
 # Patches.
 SRC_URI += " \
-    file://patches/0001-udev-allow-udev_t-to-watch-udev_rules_t-dir.patch \
     file://patches/fc-subs-config-aliases.patch \
     file://patches/policy.modules.admin.alsa.diff \
+    file://patches/policy.modules.admin.alsa-device.diff \
     file://patches/policy.modules.admin.brctl.diff \
     file://patches/policy.modules.admin.dmidecode.diff \
     file://patches/policy.modules.admin.dpkg.diff \
@@ -112,6 +115,7 @@ SRC_URI += " \
     file://patches/policy.modules.roles.staff.diff \
     file://patches/policy.modules.roles.sysadm.diff \
     file://patches/policy.modules.services.acpi.diff \
+    file://patches/policy.modules.services.acpi-device.diff \
     file://patches/policy.modules.services.cron.diff \
     file://patches/policy.modules.services.dbus.diff \
     file://patches/policy.modules.services.dnsmasq.diff \
@@ -131,10 +135,13 @@ SRC_URI += " \
     file://patches/policy.modules.system.selinuxutil.diff \
     file://patches/policy.modules.system.sysnetwork.patch \
     file://patches/policy.modules.system.udev.diff \
+    file://patches/policy.modules.system.udev-watch.diff \
+    file://patches/policy.modules.system.udev-unlink.diff \
     file://patches/policy.modules.system.unconfined.diff \
     file://patches/policy.modules.system.userdomain.diff \
     file://patches/policy.support.misc_patterns.spt.diff \
     file://patches/policy.modules.system.xen.diff \
+    file://patches/policy.modules.system.xen-tty.diff \
     file://patches/policy.modules.services.tcsd.patch \
     file://patches/policy.modules.services.networkmanager_xt.diff \
     file://patches/policy.modules.system.init_xt.diff \
@@ -164,12 +171,14 @@ SRC_URI += " \
     file://patches/add-missing-dbusd-permissions.patch \
     file://patches/xl-sysadm-interfaces.patch \
     file://patches/policy.modules.admin.bootloader.diff \
+    file://patches/optional-off-module-calls.patch \
     file://patches/monit-volatiles.patch \
+    file://patches/policy.modules.services.monit-boot.diff \
     file://patches/xenstore-labeling.patch \
     file://patches/xen-privcmd.patch \
 "
 
-DEPENDS:append += " \
+DEPENDS:append = " \
     strace-native \
 "
 
@@ -211,11 +220,6 @@ do_policy_conf[doc] = "Generate configuration files (booleans.conf, \
 modules.conf) from the configuration elements passed by the layer. \
 See 'make conf' of the refpolicy for more information."
 do_policy_conf[dirs] = "${B}"
-
-do_install:append() {
-    install -d ${D}/etc/selinux
-    install -m 644 ${UNPACKDIR}/config ${D}/etc/selinux/config
-}
 
 sysroot_stage_all:append () {
     sysroot_stage_dir ${D}${sysconfdir} ${SYSROOT_DESTDIR}${sysconfdir}

@@ -1,8 +1,10 @@
 Upstream-Status: Inappropriate [OpenXT]
 
+diff --git a/policy/modules/admin/alsa.fc b/policy/modules/admin/alsa.fc
+index 3f52f370f6a9..e4e263b577c3 100644
 --- a/policy/modules/admin/alsa.fc
 +++ b/policy/modules/admin/alsa.fc
-@@ -23,3 +23,9 @@ HOME_DIR/\.asoundrc				--	gen_context(sy
+@@ -23,3 +23,9 @@ HOME_DIR/\.asoundrc				--	gen_context(system_u:object_r:alsa_home_t,s0)
  /var/lib/alsa(/.*)?					gen_context(system_u:object_r:alsa_var_lib_t,s0)
  
  /var/lock/asound\.state\.lock			--	gen_context(system_u:object_r:alsa_var_lock_t,s0)
@@ -12,6 +14,8 @@ Upstream-Status: Inappropriate [OpenXT]
 +/config/asound\.state(\.new)?	gen_context(system_u:object_r:alsa_etc_t,s0)
 +
 +/tmp/alsactl\.dump       --      gen_context(system_u:object_r:alsa_tmp_t,s0)
+diff --git a/policy/modules/admin/alsa.if b/policy/modules/admin/alsa.if
+index 57dd48df4461..434d016533b9 100644
 --- a/policy/modules/admin/alsa.if
 +++ b/policy/modules/admin/alsa.if
 @@ -248,3 +248,24 @@ interface(`alsa_write_lib',`
@@ -39,9 +43,11 @@ Upstream-Status: Inappropriate [OpenXT]
 +	manage_files_pattern($1, alsa_tmp_t, alsa_tmp_t)
 +	read_lnk_files_pattern($1, alsa_tmp_t, alsa_tmp_t)
 +')
+diff --git a/policy/modules/admin/alsa.te b/policy/modules/admin/alsa.te
+index fd967cb82115..0340b2cdf062 100644
 --- a/policy/modules/admin/alsa.te
 +++ b/policy/modules/admin/alsa.te
-@@ -103,6 +103,8 @@ logging_send_syslog_msg(alsa_t)
+@@ -104,6 +104,13 @@ logging_send_syslog_msg(alsa_t)
  
  miscfiles_read_localization(alsa_t)
  
@@ -50,10 +56,6 @@ Upstream-Status: Inappropriate [OpenXT]
  userdom_manage_unpriv_user_semaphores(alsa_t)
  userdom_manage_unpriv_user_shared_mem(alsa_t)
  userdom_search_user_home_dirs(alsa_t)
-@@ -111,3 +113,8 @@ optional_policy(`
- 	hal_use_fds(alsa_t)
- 	hal_write_log(alsa_t)
- ')
 +
 +xc_config_dir_getattr(alsa_t)
 +xc_config_dir_search(alsa_t)

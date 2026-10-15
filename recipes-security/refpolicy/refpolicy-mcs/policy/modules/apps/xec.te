@@ -70,6 +70,20 @@ xc_files_rw_argo_chr(viptables_t)
 #
 allow xec_t xec_exec_t:file execute_no_trans;
 allow xec_t self:fifo_file rw_fifo_file_perms;
+optional_policy(`
+	gen_require(`
+		type monit_t;
+	')
+	allow xec_t monit_t:fd use;
+	allow xec_t monit_t:fifo_file rw_fifo_file_perms;
+')
+
+optional_policy(`
+	gen_require(`
+		type getty_t;
+	')
+	allow xec_t getty_t:fd use;
+')
 
 corecmd_exec_bin(xec_t)
 dev_read_urand(xec_t)

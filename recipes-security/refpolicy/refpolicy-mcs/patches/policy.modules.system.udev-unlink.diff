@@ -1,0 +1,15 @@
+Upstream-Status: Inappropriate [OpenXT]
+
+A control socket created before the udev_runtime_t transition is still
+tmpfs_t. udev has to unlink that socket.
+
+--- a/policy/modules/system/udev.te
++++ b/policy/modules/system/udev.te
+@@ -93,6 +93,7 @@
+ fs_tmpfs_filetrans(udev_t, udev_runtime_t, sock_file, "control")
+ fs_watch_tmpfs_dirs(udev_t)
+ allow udev_t udev_runtime_t:dir watch;
++allow udev_t tmpfs_t:sock_file unlink;
+ 
+ kernel_load_module(udev_t)
+ kernel_read_system_state(udev_t)

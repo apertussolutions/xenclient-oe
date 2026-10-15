@@ -1,48 +1,28 @@
 Upstream-Status: Inappropriate [OpenXT]
 
---- a/policy/modules/system/xen.if
-+++ b/policy/modules/system/xen.if
-@@ -237,6 +237,23 @@ interface(`xen_stream_connect_xenstore',
- 
- ########################################
- ## <summary>
-+##	Connect to xenstore through unix
-+##	domain stream socket or over
-+##	/dev/xen/xenbus
-+## </summary>
-+## <param name="domain">
-+##	<summary>
-+##	Domain allowed access.
-+##	</summary>
-+## </param>
-+#
-+interface(`xen_rw_xenstore',`
-+	xen_stream_connect_xenstore($1)
-+	dev_rw_xenstore($1)
-+')
-+
-+########################################
-+## <summary>
- ##	Connect to xend with a unix
- ##	domain stream socket.
- ## </summary>
+diff --git a/policy/modules/kernel/devices.fc b/policy/modules/kernel/devices.fc
+index 8b50b4e4c196..ed94fd1c225e 100644
 --- a/policy/modules/kernel/devices.fc
 +++ b/policy/modules/kernel/devices.fc
-@@ -187,7 +187,7 @@ ifdef(`distro_suse', `
- /dev/xen/gntdev		-c	gen_context(system_u:object_r:xen_device_t,s0)
+@@ -228,7 +228,7 @@ ifdef(`distro_suse', `
  /dev/xen/gntalloc	-c	gen_context(system_u:object_r:xen_device_t,s0)
+ /dev/xen/hypercall	-c	gen_context(system_u:object_r:xen_device_t,s0)
  /dev/xen/privcmd	-c	gen_context(system_u:object_r:xen_device_t,s0)
 -/dev/xen/xenbus		-c	gen_context(system_u:object_r:xen_device_t,s0)
 +/dev/xen/xenbus		-c	gen_context(system_u:object_r:xenstore_dev_t,s0)
  /dev/xen/xenbus_backend	-c	gen_context(system_u:object_r:xen_device_t,s0)
- /dev/xen/hypercall	-c	gen_context(system_u:object_r:xen_device_t,s0)
  
+ ifdef(`distro_debian',`
+diff --git a/policy/modules/kernel/devices.if b/policy/modules/kernel/devices.if
+index 1997d1d91c6b..d8a5b7c7fdcd 100644
 --- a/policy/modules/kernel/devices.if
 +++ b/policy/modules/kernel/devices.if
-@@ -5025,6 +5025,24 @@ interface(`dev_rw_xen',`
+@@ -5975,6 +5975,24 @@ interface(`dev_rw_xen',`
+ 	allow $1 xen_device_t:chr_file map;
+ ')
  
- ########################################
- ## <summary>
++########################################
++## <summary>
 +##	Read and write Xenstore/xenbus devices.
 +## </summary>
 +## <param name="domain">
@@ -59,14 +39,14 @@ Upstream-Status: Inappropriate [OpenXT]
 +	rw_chr_files_pattern($1, device_t, xenstore_dev_t)
 +')
 +
-+########################################
-+## <summary>
+ ########################################
+ ## <summary>
  ##	Create, read, write, and delete Xen devices.
- ## </summary>
- ## <param name="domain">
+diff --git a/policy/modules/kernel/devices.te b/policy/modules/kernel/devices.te
+index 6ca9de9b5df8..060f86b6d647 100644
 --- a/policy/modules/kernel/devices.te
 +++ b/policy/modules/kernel/devices.te
-@@ -309,6 +309,9 @@ dev_node(wireless_device_t)
+@@ -451,6 +451,9 @@ dev_node(wireless_device_t)
  type xen_device_t;
  dev_node(xen_device_t)
  
@@ -76,3 +56,31 @@ Upstream-Status: Inappropriate [OpenXT]
  type xserver_misc_device_t;
  dev_node(xserver_misc_device_t)
  
+diff --git a/policy/modules/system/xen.if b/policy/modules/system/xen.if
+index 52de7c3014e2..90f12d6a4634 100644
+--- a/policy/modules/system/xen.if
++++ b/policy/modules/system/xen.if
+@@ -235,6 +235,23 @@ interface(`xen_stream_connect_xenstore',`
+ 	stream_connect_pattern($1, xenstored_runtime_t, xenstored_runtime_t, xenstored_t)
+ ')
+ 
++########################################
++## <summary>
++##	Connect to xenstore through unix
++##	domain stream socket or over
++##	/dev/xen/xenbus
++## </summary>
++## <param name="domain">
++##	<summary>
++##	Domain allowed access.
++##	</summary>
++## </param>
++#
++interface(`xen_rw_xenstore',`
++	xen_stream_connect_xenstore($1)
++	dev_rw_xenstore($1)
++')
++
+ ########################################
+ ## <summary>
+ ##	Connect to xend with a unix

@@ -66,9 +66,8 @@ kernel_read_xen_state(vusbd_t)
 kernel_write_xen_state(vusbd_t)
 kernel_write_xen_state(vusbd_t)
 xen_rw_xenstore(vusbd_t)
-udev_read_db(vusbd_t)
 # For /var/run/udev/queue.bin
-udev_read_pid_files(vusbd_t)
+udev_read_runtime_files(vusbd_t)
 
 corecmd_search_bin(vusbd_t)
 vusbc_exec_domtrans(vusbd_t)
@@ -101,7 +100,6 @@ xen_stream_connect_xenstore(vusbc_t)
 xen_write_tmp(vusbc_t)
 fs_rw_xenfs_files(vusbc_t)
 files_read_etc_files(vusbc_t)
-udev_read_db(vusbc_t)
 
 allow vusbc_t self:capability dac_override;
 allow vusbc_t self:process { getsched signal };

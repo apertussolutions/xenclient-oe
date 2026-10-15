@@ -1,0 +1,14 @@
+Upstream-Status: Inappropriate [OpenXT]
+
+--- a/policy/modules/services/monit.te	2026-10-23 14:49:22.944992468 -0400
++++ b/policy/modules/services/monit.te	2026-10-23 14:49:22.944992468 -0400
+@@ -87,7 +87,8 @@
+ # dac_read_search : read /run/exim/*
+ # net_raw         : create raw sockets
+ # sys_ptrace      : trace processes
+-allow monit_t self:capability { dac_read_search net_raw sys_ptrace };
++allow monit_t self:capability { dac_read_search net_raw sys_ptrace sys_tty_config };
++kernel_read_fs_sysctls(monit_t)
+ # setsockopt
+ dontaudit monit_t self:capability net_admin;
+ 

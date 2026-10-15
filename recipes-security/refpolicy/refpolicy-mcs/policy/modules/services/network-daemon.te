@@ -43,7 +43,7 @@ files_read_etc_files(network_daemon_t)
 kernel_read_system_state(network_daemon_t)
 sysnet_domtrans_dhcpc(network_daemon_t)
 sysnet_domtrans_ifconfig(network_daemon_t)
-sysnet_read_dhcpc_pid(network_daemon_t)
+sysnet_read_dhcpc_runtime_files(network_daemon_t)
 sysnet_signal_dhcpc(network_daemon_t)
 dbus_connect_system_bus(network_daemon_t)
 dbus_system_bus_client(network_daemon_t)
@@ -78,6 +78,10 @@ allow network_daemon_t self:capability net_admin;
 # killall: this feels like a very slippery slope
 init_read_state(network_daemon_t)
 kernel_read_state(network_daemon_t)
+# Upstream kernel_read_state() is process access. Keep the OpenXT file reads.
+allow network_daemon_t kernel_t:dir search_dir_perms;
+allow network_daemon_t kernel_t:file read_file_perms;
+allow network_daemon_t kernel_t:lnk_file read_lnk_file_perms;
 allow network_daemon_t self:capability sys_ptrace;
 
 logging_send_syslog_msg(network_daemon_t)
@@ -143,7 +147,7 @@ networkmanager_read_etc_rw(network_slave_t)
 allow network_slave_t self:capability net_admin;
 allow network_slave_t self:dgram_socket_class_set create_socket_perms;
 allow network_slave_t self:fifo_file rw_fifo_file_perms;
-allow network_slave_t self:netlink_route_socket rw_netlink_socket_perms;
+allow network_slave_t self:netlink_route_socket create_netlink_socket_perms;
 allow network_slave_t self:process signal;
 allow network_slave_t network_slave_exec_t:file execute_no_trans;
 

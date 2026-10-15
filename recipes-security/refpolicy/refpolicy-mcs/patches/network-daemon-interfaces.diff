@@ -1,48 +1,56 @@
 Upstream-Status: Inappropriate [OpenXT]
 
+diff --git a/policy/modules/admin/brctl.te b/policy/modules/admin/brctl.te
+index d124aa267ad3..28a673ac480d 100644
 --- a/policy/modules/admin/brctl.te
 +++ b/policy/modules/admin/brctl.te
-@@ -43,6 +43,10 @@ term_dontaudit_use_console(brctl_t)
+@@ -44,6 +44,10 @@ term_dontaudit_use_console(brctl_t)
+ 
  miscfiles_read_localization(brctl_t)
  
- optional_policy(`
++optional_policy(`
 +	network_slave_rw_stream_sockets(brctl_t)
 +')
 +
-+optional_policy(`
+ optional_policy(`
  	xen_append_log(brctl_t)
- 	xen_dontaudit_rw_unix_stream_sockets(brctl_t)
  ')
+diff --git a/policy/modules/services/dnsmasq.te b/policy/modules/services/dnsmasq.te
+index acde822005da..834de434068d 100644
 --- a/policy/modules/services/dnsmasq.te
 +++ b/policy/modules/services/dnsmasq.te
-@@ -131,6 +131,10 @@ optional_policy(`
+@@ -141,6 +141,10 @@ optional_policy(`
+ 	ppp_read_runtime_files(dnsmasq_t)
  ')
  
- optional_policy(`
++optional_policy(`
 +	network_slave_rw_stream_sockets(dnsmasq_t)
 +')
 +
-+optional_policy(`
+ optional_policy(`
  	seutil_sigchld_newrole(dnsmasq_t)
  ')
- 
+diff --git a/policy/modules/services/networkmanager.te b/policy/modules/services/networkmanager.te
+index 5cc15f45c857..7ead60a4c621 100644
 --- a/policy/modules/services/networkmanager.te
 +++ b/policy/modules/services/networkmanager.te
-@@ -318,6 +318,11 @@ optional_policy(`
+@@ -314,6 +314,11 @@ optional_policy(`
+ 	netutils_exec_ping(NetworkManager_t)
  ')
  
- optional_policy(`
++optional_policy(`
 +	network_slave_rw_stream_sockets(NetworkManager_t)
 +	network_slave_domtrans(NetworkManager_t)
 +')
 +
-+optional_policy(`
+ optional_policy(`
  	nscd_domtrans(NetworkManager_t)
  	nscd_signal(NetworkManager_t)
- 	nscd_signull(NetworkManager_t)
+diff --git a/policy/modules/system/init.te b/policy/modules/system/init.te
+index ea7874664c51..4b262be2bb99 100644
 --- a/policy/modules/system/init.te
 +++ b/policy/modules/system/init.te
-@@ -1201,6 +1201,9 @@ optional_policy(`
+@@ -1388,6 +1388,9 @@ optional_policy(`
  	optional_policy(`
  		policykit_dbus_chat(initrc_t)
  	')
@@ -52,57 +60,65 @@ Upstream-Status: Inappropriate [OpenXT]
  ')
  
  optional_policy(`
+diff --git a/policy/modules/system/iptables.te b/policy/modules/system/iptables.te
+index c58528eb6107..07784ef98919 100644
 --- a/policy/modules/system/iptables.te
 +++ b/policy/modules/system/iptables.te
-@@ -122,6 +122,10 @@ optional_policy(`
+@@ -144,6 +144,10 @@ optional_policy(`
+ 	modutils_run(iptables_t, iptables_roles)
  ')
  
- optional_policy(`
++optional_policy(`
 +	network_slave_rw_stream_sockets(iptables_t)
 +')
 +
-+optional_policy(`
+ optional_policy(`
  	# for iptables -L
  	nis_use_ypbind(iptables_t)
- ')
+diff --git a/policy/modules/system/modutils.te b/policy/modules/system/modutils.te
+index 3e92c952baf1..f06da1c68b31 100644
 --- a/policy/modules/system/modutils.te
 +++ b/policy/modules/system/modutils.te
-@@ -175,6 +175,12 @@ optional_policy(`
+@@ -169,6 +169,12 @@ optional_policy(`
+ 	mount_domtrans(kmod_t)
  ')
  
- optional_policy(`
++optional_policy(`
 +	network_slave_rw_stream_sockets(kmod_t)
 +	network_slave_rw_fifo_files(kmod_t)
 +	network_slave_use_fds(kmod_t)
 +')
 +
-+optional_policy(`
+ optional_policy(`
  	nis_use_ypbind(kmod_t)
  ')
- 
+diff --git a/policy/modules/system/sysnetwork.te b/policy/modules/system/sysnetwork.te
+index 6d1dc96a3a96..f324e60b4353 100644
 --- a/policy/modules/system/sysnetwork.te
 +++ b/policy/modules/system/sysnetwork.te
-@@ -417,6 +417,10 @@ optional_policy(`
+@@ -420,6 +420,10 @@ optional_policy(`
+ 	modutils_domtrans(ifconfig_t)
  ')
  
- optional_policy(`
++optional_policy(`
 +	network_slave_rw_stream_sockets(ifconfig_t)
 +')
 +
-+optional_policy(`
+ optional_policy(`
  	nis_use_ypbind(ifconfig_t)
  ')
- 
+diff --git a/policy/modules/system/udev.te b/policy/modules/system/udev.te
+index 1438042a9d82..c5883fc6e7c2 100644
 --- a/policy/modules/system/udev.te
 +++ b/policy/modules/system/udev.te
 @@ -364,6 +364,10 @@ optional_policy(`
+ 	mount_domtrans(udev_t)
  ')
  
- optional_policy(`
++optional_policy(`
 +	network_slave_dbus_chat(udev_t)
 +')
 +
-+optional_policy(`
+ optional_policy(`
  	openct_read_runtime_files(udev_t)
  	openct_domtrans(udev_t)
- ')

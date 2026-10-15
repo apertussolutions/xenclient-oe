@@ -1,48 +1,29 @@
 Upstream-Status: Inappropriate [OpenXT]
 
---- a/policy/modules/system/selinuxutil.te
-+++ b/policy/modules/system/selinuxutil.te
-@@ -234,6 +234,12 @@ ifdef(`distro_debian',`
- 	')
+diff --git a/policy/modules/system/fstools.te b/policy/modules/system/fstools.te
+index 5d452e9674f6..fd60c12931a8 100644
+--- a/policy/modules/system/fstools.te
++++ b/policy/modules/system/fstools.te
+@@ -267,6 +267,12 @@ optional_policy(`
+ 	udev_dontaudit_rw_runtime_files(fsadm_t)
  ')
  
 +optional_policy(`
-+	updatemgr_dontaudit_use_fd(load_policy_t)
-+	updatemgr_dontaudit_rw_fifo_files(load_policy_t)
-+	updatemgr_dontaudit_rw_stream_sockets(load_policy_t)
++	updatemgr_dontaudit_use_fd(fsadm_t)
++	updatemgr_dontaudit_rw_fifo_files(fsadm_t)
++	updatemgr_dontaudit_rw_stream_sockets(fsadm_t)
 +')
 +
- ########################################
- #
- # Newrole local policy
-@@ -581,6 +587,12 @@ optional_policy(`
- 	locallogin_use_fds(semanage_t)
- ')
- 
-+optional_policy(`
-+	updatemgr_dontaudit_use_fd(semanage_t)
-+	updatemgr_dontaudit_rw_fifo_files(semanage_t)
-+	updatemgr_dontaudit_rw_stream_sockets(semanage_t)
-+')
-+
- ########################################
- #
- # Setfiles local policy
-@@ -716,3 +728,9 @@ optional_policy(`
  optional_policy(`
- 	hotplug_use_fds(setfiles_t)
- ')
-+
-+optional_policy(`
-+	updatemgr_dontaudit_use_fd(setfiles_t)
-+	updatemgr_dontaudit_rw_fifo_files(setfiles_t)
-+	updatemgr_dontaudit_rw_stream_sockets(setfiles_t)
-+')
+ 	xen_append_log(fsadm_t)
+ 	xen_rw_image_files(fsadm_t)
+diff --git a/policy/modules/system/lvm.te b/policy/modules/system/lvm.te
+index 8d1342be7595..a1e16031fe33 100644
 --- a/policy/modules/system/lvm.te
 +++ b/policy/modules/system/lvm.te
-@@ -409,3 +409,10 @@ optional_policy(`
- 	xc_read_vhd_key_files(lvm_t)
- 	xc_search_vhd_key_dirs(lvm_t)
+@@ -320,3 +320,10 @@ optional_policy(`
+ optional_policy(`
+ 	xen_append_log(lvm_t)
  ')
 +
 +optional_policy(`
@@ -51,9 +32,11 @@ Upstream-Status: Inappropriate [OpenXT]
 +	updatemgr_dontaudit_rw_stream_sockets(lvm_t)
 +	updatemgr_dontaudit_search_storage(lvm_t)
 +')
+diff --git a/policy/modules/system/mount.te b/policy/modules/system/mount.te
+index 8fa143aa41d3..f2a085ae68b4 100644
 --- a/policy/modules/system/mount.te
 +++ b/policy/modules/system/mount.te
-@@ -36,6 +36,12 @@ files_tmp_file(mount_tmp_t)
+@@ -39,6 +39,12 @@ files_tmp_file(mount_tmp_t)
  type unconfined_mount_t;
  application_domain(unconfined_mount_t, mount_exec_t)
  
@@ -66,18 +49,43 @@ Upstream-Status: Inappropriate [OpenXT]
  ########################################
  #
  # mount local policy
---- a/policy/modules/system/fstools.te
-+++ b/policy/modules/system/fstools.te
-@@ -222,6 +222,12 @@ optional_policy(`
+diff --git a/policy/modules/system/selinuxutil.te b/policy/modules/system/selinuxutil.te
+index df918732c2c4..0c59156cc874 100644
+--- a/policy/modules/system/selinuxutil.te
++++ b/policy/modules/system/selinuxutil.te
+@@ -245,6 +245,12 @@ ifdef(`distro_debian',`
+ 	')
  ')
  
- optional_policy(`
-+	updatemgr_dontaudit_use_fd(fsadm_t)
-+	updatemgr_dontaudit_rw_fifo_files(fsadm_t)
-+	updatemgr_dontaudit_rw_stream_sockets(fsadm_t)
++optional_policy(`
++	updatemgr_dontaudit_use_fd(load_policy_t)
++	updatemgr_dontaudit_rw_fifo_files(load_policy_t)
++	updatemgr_dontaudit_rw_stream_sockets(load_policy_t)
 +')
 +
-+optional_policy(`
- 	xen_append_log(fsadm_t)
- 	xen_rw_image_files(fsadm_t)
+ ########################################
+ #
+ # Newrole local policy
+@@ -641,6 +647,12 @@ optional_policy(`
+ 	locallogin_use_fds(semanage_t)
  ')
+ 
++optional_policy(`
++	updatemgr_dontaudit_use_fd(semanage_t)
++	updatemgr_dontaudit_rw_fifo_files(semanage_t)
++	updatemgr_dontaudit_rw_stream_sockets(semanage_t)
++')
++
+ ########################################
+ #
+ # Setfiles local policy
+@@ -792,3 +804,9 @@ optional_policy(`
+         unconfined_dontaudit_read_pipes(setfiles_t)
+         unconfined_dontaudit_rw_tcp_sockets(setfiles_t)
+ ')
++
++optional_policy(`
++	updatemgr_dontaudit_use_fd(setfiles_t)
++	updatemgr_dontaudit_rw_fifo_files(setfiles_t)
++	updatemgr_dontaudit_rw_stream_sockets(setfiles_t)
++')

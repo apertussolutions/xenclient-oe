@@ -1,0 +1,97 @@
+Upstream-Status: Inappropriate [OpenXT]
+
+diff -ruN a/policy/modules/services/eg25manager.te b/policy/modules/services/eg25manager.te
+--- a/policy/modules/services/eg25manager.te	2026-10-15 13:31:03.977239898 -0400
++++ b/policy/modules/services/eg25manager.te	2026-10-15 13:31:03.977239898 -0400
+@@ -63,10 +63,12 @@
+ 
+ sysnet_read_config(eg25manager_t)
+ 
+-systemd_dbus_chat_logind(eg25manager_t)
+-systemd_read_resolved_runtime(eg25manager_t)
+-systemd_use_logind_fds(eg25manager_t)
+-systemd_write_inherited_logind_inhibit_pipes(eg25manager_t)
++optional_policy(`
++	systemd_dbus_chat_logind(eg25manager_t)
++	systemd_read_resolved_runtime(eg25manager_t)
++	systemd_use_logind_fds(eg25manager_t)
++	systemd_write_inherited_logind_inhibit_pipes(eg25manager_t)
++')
+ 
+ term_use_unallocated_ttys(eg25manager_t)
+ 
+diff -ruN a/policy/modules/services/obfs4proxy.te b/policy/modules/services/obfs4proxy.te
+--- a/policy/modules/services/obfs4proxy.te	2026-10-15 13:31:03.981239898 -0400
++++ b/policy/modules/services/obfs4proxy.te	2026-10-15 13:31:03.981239898 -0400
+@@ -38,7 +38,9 @@
+ 
+ files_search_var_lib(obfs4proxy_t)
+ fs_getattr_all_dirs(obfs4proxy_t)
+-tor_rw_pt_state_var_files(obfs4proxy_t)
++optional_policy(`
++	tor_rw_pt_state_var_files(obfs4proxy_t)
++')
+ 
+ tunable_policy(`obfs4proxy_bind_all_unreserved_ports',`
+ 	corenet_sendrecv_all_server_packets(obfs4proxy_t)
+diff -ruN a/policy/modules/services/ofono.te b/policy/modules/services/ofono.te
+--- a/policy/modules/services/ofono.te	2026-10-15 13:31:03.981239898 -0400
++++ b/policy/modules/services/ofono.te	2026-10-15 13:31:03.981239898 -0400
+@@ -36,7 +36,9 @@
+ udev_search_runtime(ofono_t)
+ udev_read_runtime_files(ofono_t)
+ 
+-bluetooth_dbus_chat(ofono_t)
++optional_policy(`
++	bluetooth_dbus_chat(ofono_t)
++')
+ 
+ dbus_system_bus_client(ofono_t)
+ dbus_connect_system_bus(ofono_t)
+diff -ruN a/policy/modules/services/powerprofiles.te b/policy/modules/services/powerprofiles.te
+--- a/policy/modules/services/powerprofiles.te	2026-10-15 13:31:03.977239898 -0400
++++ b/policy/modules/services/powerprofiles.te	2026-10-15 13:31:03.977239898 -0400
+@@ -35,7 +35,9 @@
+ miscfiles_read_localization(power_profilesd_t)
+ 
+ policykit_dbus_chat(power_profilesd_t)
+-systemd_dbus_chat_logind(power_profilesd_t)
++optional_policy(`
++	systemd_dbus_chat_logind(power_profilesd_t)
++')
+ 
+ udev_search_runtime(power_profilesd_t)
+ 
+diff -ruN a/policy/modules/session/wayland.te b/policy/modules/session/wayland.te
+--- a/policy/modules/session/wayland.te	2026-10-15 13:31:03.977239898 -0400
++++ b/policy/modules/session/wayland.te	2026-10-15 13:31:03.977239898 -0400
+@@ -85,10 +85,11 @@
+ 
+ # Fonts
+ miscfiles_read_fonts(wayland_compositor)
+-xserver_use_user_fonts(wayland_compositor)
+-
+-xserver_read_xkb_libs(wayland_compositor)
+-xserver_rw_mesa_shader_cache(wayland_compositor)
++optional_policy(`
++	xserver_use_user_fonts(wayland_compositor)
++	xserver_read_xkb_libs(wayland_compositor)
++	xserver_rw_mesa_shader_cache(wayland_compositor)
++')
+ 
+ tunable_policy(`wayland_compositor_execmem',`
+ 	# Most likely needed for llvmpipe.
+diff -ruN a/policy/modules/system/needrestart.te b/policy/modules/system/needrestart.te
+--- a/policy/modules/system/needrestart.te	2026-10-15 13:31:03.981239898 -0400
++++ b/policy/modules/system/needrestart.te	2026-10-15 13:31:03.981239898 -0400
+@@ -47,7 +47,9 @@
+ dev_read_sysfs(needrestart_t)
+ dev_dontaudit_getattr_all_blk_files(needrestart_t)
+ dev_dontaudit_getattr_all_chr_files(needrestart_t)
+-gpm_dontaudit_getattr_gpmctl(needrestart_t)
++optional_policy(`
++	gpm_dontaudit_getattr_gpmctl(needrestart_t)
++')
+ 
+ corecmd_exec_all_executables(needrestart_t)
+ domain_read_all_domains_state(needrestart_t)

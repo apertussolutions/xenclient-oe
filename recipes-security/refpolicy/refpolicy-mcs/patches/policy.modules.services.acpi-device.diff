@@ -1,0 +1,12 @@
+Upstream-Status: Inappropriate [OpenXT]
+
+--- a/policy/modules/services/acpi.te	2026-10-23 14:49:22.944992468 -0400
++++ b/policy/modules/services/acpi.te	2026-10-23 14:49:22.944992468 -0400
+@@ -99,6 +99,7 @@
+ 
+ dev_read_input(acpid_t)
+ dev_read_mouse(acpid_t)
++dev_read_generic_chr_files(acpid_t)
+ dev_read_realtime_clock(acpid_t)
+ dev_read_urand(acpid_t)
+ dev_rw_acpi_bios(acpid_t)

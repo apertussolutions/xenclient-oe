@@ -1,5 +1,7 @@
 Upstream-Status: Inappropriate [OpenXT]
 
+diff --git a/policy/modules/services/dnsmasq.fc b/policy/modules/services/dnsmasq.fc
+index f338daa67573..5f37c07790fa 100644
 --- a/policy/modules/services/dnsmasq.fc
 +++ b/policy/modules/services/dnsmasq.fc
 @@ -2,6 +2,7 @@
@@ -10,12 +12,16 @@ Upstream-Status: Inappropriate [OpenXT]
  
  /run/dnsmasq.*			--	gen_context(system_u:object_r:dnsmasq_runtime_t,s0)
  /run/libvirt/network(/.*)?		gen_context(system_u:object_r:dnsmasq_runtime_t,s0)
+diff --git a/policy/modules/services/dnsmasq.if b/policy/modules/services/dnsmasq.if
+index 5bf375b185d3..e9d08018949c 100644
 --- a/policy/modules/services/dnsmasq.if
 +++ b/policy/modules/services/dnsmasq.if
-@@ -137,6 +137,25 @@ interface(`dnsmasq_write_config',`
+@@ -135,6 +135,25 @@ interface(`dnsmasq_write_config',`
+ 	files_search_etc($1)
+ ')
  
- ########################################
- ## <summary>
++########################################
++## <summary>
 +##     Manage dnsmasq config files.
 +## </summary>
 +## <param name="domain">
@@ -33,11 +39,11 @@ Upstream-Status: Inappropriate [OpenXT]
 +	files_search_etc($1)
 +')
 +
-+########################################
-+## <summary>
- ##	Delete dnsmasq pid files.  (Deprecated)
- ## </summary>
- ## <param name="domain">
+ ########################################
+ ## <summary>
+ ##	Create dnsmasq runtime directories.
+diff --git a/policy/modules/services/dnsmasq.te b/policy/modules/services/dnsmasq.te
+index ff66c5763d50..86007bdb8499 100644
 --- a/policy/modules/services/dnsmasq.te
 +++ b/policy/modules/services/dnsmasq.te
 @@ -14,6 +14,7 @@ init_script_file(dnsmasq_initrc_exec_t)
@@ -59,7 +65,7 @@ Upstream-Status: Inappropriate [OpenXT]
  ########################################
  #
  # Local policy
-@@ -39,6 +44,7 @@ allow dnsmasq_t self:fifo_file rw_fifo_f
+@@ -39,6 +44,7 @@ allow dnsmasq_t self:fifo_file rw_fifo_file_perms;
  allow dnsmasq_t self:tcp_socket { accept listen };
  allow dnsmasq_t self:packet_socket create_socket_perms;
  allow dnsmasq_t self:rawip_socket create_socket_perms;
@@ -67,7 +73,7 @@ Upstream-Status: Inappropriate [OpenXT]
  
  allow dnsmasq_t dnsmasq_etc_t:dir list_dir_perms;
  allow dnsmasq_t dnsmasq_etc_t:file read_file_perms;
-@@ -55,6 +61,12 @@ manage_dirs_pattern(dnsmasq_t, dnsmasq_r
+@@ -55,6 +61,12 @@ manage_dirs_pattern(dnsmasq_t, dnsmasq_runtime_t, dnsmasq_runtime_t)
  manage_files_pattern(dnsmasq_t, dnsmasq_runtime_t, dnsmasq_runtime_t)
  files_runtime_filetrans(dnsmasq_t, dnsmasq_runtime_t, { dir file })
  
