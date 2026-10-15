@@ -1,0 +1,44 @@
+Upstream-Status: Inappropriate [setuptools 82 dropped pkg_resources]
+
+diff -Naur orig/daemon/_metadata.py new/daemon/_metadata.py
+--- a/daemon/_metadata.py	2026-09-13 05:35:21.150289110 -0400
++++ b/daemon/_metadata.py	2026-09-13 05:35:21.198289109 -0400
+@@ -13,8 +13,8 @@
+ 
+ import datetime
+ import json
++import os
+ 
+-import pkg_resources
+ 
+ __metaclass__ = type
+ 
+@@ -41,14 +41,22 @@
+             }
+ 
+     try:
+-        distribution = pkg_resources.get_distribution(distribution_name)
+-    except pkg_resources.DistributionNotFound:
+-        distribution = None
+-
+-    if distribution is not None:
+-        if distribution.has_metadata(filename):
++        import pkg_resources
++        try:
++            distribution = pkg_resources.get_distribution(distribution_name)
++        except pkg_resources.DistributionNotFound:
++            distribution = None
++        if distribution is not None and distribution.has_metadata(filename):
+             content = distribution.get_metadata(filename)
+             version_info = json.loads(content)
++            return version_info
++    except ImportError:
++        pass
++
++    path = os.path.join(os.path.dirname(__file__), filename)
++    if os.path.isfile(path):
++        with open(path) as infofile:
++            version_info = json.loads(infofile.read())
+ 
+     return version_info
+ 
