@@ -1,9 +1,11 @@
 Upstream-Status: Inappropriate [OpenXT]
 
+diff --git a/policy/modules/system/userdomain.fc b/policy/modules/system/userdomain.fc
+index 173e314af796..9d8d2b7c133f 100644
 --- a/policy/modules/system/userdomain.fc
 +++ b/policy/modules/system/userdomain.fc
-@@ -2,6 +2,12 @@ HOME_DIR	-d	gen_context(system_u:object_
- HOME_DIR/.+		gen_context(system_u:object_r:user_home_t,s0)
+@@ -4,6 +4,12 @@ HOME_DIR/bin(/.*)?		gen_context(system_u:object_r:user_bin_t,s0)
+ HOME_DIR/\.local/bin(/.*)?		gen_context(system_u:object_r:user_bin_t,s0)
  HOME_DIR/\.pki(/.*)?	gen_context(system_u:object_r:user_cert_t,s0)
  
 +#
@@ -15,9 +17,11 @@ Upstream-Status: Inappropriate [OpenXT]
  /tmp/gconfd-%{USERNAME} -d	gen_context(system_u:object_r:user_tmp_t,s0)
  
  /run/user		-d	gen_context(system_u:object_r:user_runtime_root_t,s0)
+diff --git a/policy/modules/system/userdomain.if b/policy/modules/system/userdomain.if
+index 1c5130b31ae7..5cd2729acb23 100644
 --- a/policy/modules/system/userdomain.if
 +++ b/policy/modules/system/userdomain.if
-@@ -1643,7 +1643,6 @@ interface(`userdom_getattr_user_home_dir
+@@ -1818,7 +1818,6 @@ interface(`userdom_getattr_user_home_dirs',`
  	')
  
  	allow $1 user_home_dir_t:dir getattr_dir_perms;
@@ -25,10 +29,11 @@ Upstream-Status: Inappropriate [OpenXT]
  ')
  
  ########################################
-@@ -4492,6 +4491,24 @@ interface(`userdom_signal_all_users',`
+@@ -5052,6 +5051,24 @@ interface(`userdom_signal_all_users',`
+ 	allow $1 userdomain:process signal;
  ')
  
- ########################################
++########################################
 +## <summary>
 +##	Do not audit signals to admin user domains.
 +## </summary>
@@ -46,7 +51,6 @@ Upstream-Status: Inappropriate [OpenXT]
 +	allow $1 admindomain:process signal;
 +')
 +
-+########################################
+ ########################################
  ## <summary>
  ##	Send a SIGCHLD signal to all user domains.
- ## </summary>

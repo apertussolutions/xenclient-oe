@@ -1,8 +1,27 @@
 Upstream-Status: Inappropriate [OpenXT]
 
+diff --git a/policy/modules/system/xen.fc b/policy/modules/system/xen.fc
+index 896085201c2f..2d1a93ec3ad0 100644
 --- a/policy/modules/system/xen.fc
 +++ b/policy/modules/system/xen.fc
-@@ -18,10 +18,15 @@
+@@ -1,40 +1,62 @@
+ /dev/xen/tapctrl.*	-p	gen_context(system_u:object_r:xenctl_t,s0)
+ 
+ /usr/lib/xen-[^/]*/bin/xenconsoled	--	gen_context(system_u:object_r:xenconsoled_exec_t,s0)
++/usr/lib/xen-[^/]*/bin/xend	--	gen_context(system_u:object_r:xend_exec_t,s0)
+ /usr/lib/xen-[^/]*/bin/xenstored	--	gen_context(system_u:object_r:xenstored_exec_t,s0)
+ /usr/lib/xen-[^/]*/bin/xl	--	gen_context(system_u:object_r:xm_exec_t,s0)
++/usr/lib/xen-[^/]*/bin/xm	--	gen_context(system_u:object_r:xm_exec_t,s0)
+ /usr/lib/xen-[^/]*/xl --	gen_context(system_u:object_r:xm_exec_t,s0)
+ 
+ /usr/bin/blktapctrl	--	gen_context(system_u:object_r:blktap_exec_t,s0)
+ /usr/bin/evtchnd	--	gen_context(system_u:object_r:evtchnd_exec_t,s0)
+ /usr/bin/tapdisk	--	gen_context(system_u:object_r:blktap_exec_t,s0)
+ /usr/bin/xenconsoled	--	gen_context(system_u:object_r:xenconsoled_exec_t,s0)
++/usr/bin/xend	--	gen_context(system_u:object_r:xend_exec_t,s0)
+ /usr/bin/xenstored	--	gen_context(system_u:object_r:xenstored_exec_t,s0)
+ /usr/bin/xl	--	gen_context(system_u:object_r:xm_exec_t,s0)
++/usr/bin/xm	--	gen_context(system_u:object_r:xm_exec_t,s0)
  
  /usr/sbin/blktapctrl	--	gen_context(system_u:object_r:blktap_exec_t,s0)
  /usr/sbin/evtchnd	--	gen_context(system_u:object_r:evtchnd_exec_t,s0)
@@ -10,17 +29,18 @@ Upstream-Status: Inappropriate [OpenXT]
 +/etc/xen/oxenstored\.conf   --      gen_context(system_u:object_r:xenstored_etc_t,s0)
  /usr/sbin/tapdisk	--	gen_context(system_u:object_r:blktap_exec_t,s0)
  /usr/sbin/xenconsoled	--	gen_context(system_u:object_r:xenconsoled_exec_t,s0)
- /usr/sbin/xend	--	gen_context(system_u:object_r:xend_exec_t,s0)
++/usr/sbin/xend	--	gen_context(system_u:object_r:xend_exec_t,s0)
 +/usr/bin/xenmgr         --      gen_context(system_u:object_r:xend_exec_t,s0)
  /usr/sbin/xenstored	--	gen_context(system_u:object_r:xenstored_exec_t,s0)
 +/usr/sbin/xenstored\.xen-tools-xenstored	--	gen_context(system_u:object_r:xenstored_exec_t,s0)
 +/usr/sbin/xenstored\.xen-ocaml-libs-xenstored	--	gen_context(system_u:object_r:xenstored_exec_t,s0)
  /usr/sbin/xl	--	gen_context(system_u:object_r:xm_exec_t,s0)
- /usr/sbin/xm	--	gen_context(system_u:object_r:xm_exec_t,s0)
++/usr/sbin/xm	--	gen_context(system_u:object_r:xm_exec_t,s0)
  
-@@ -29,8 +34,10 @@
+-/var/lib/xen(/.*)?	gen_context(system_u:object_r:xen_state_t,s0)
++/var/lib/xen(/.*)?	gen_context(system_u:object_r:xend_var_lib_t,s0)
  /var/lib/xen/images(/.*)?	gen_context(system_u:object_r:xen_image_t,s0)
- /var/lib/xend(/.*)?	gen_context(system_u:object_r:xend_var_lib_t,s0)
++/var/lib/xend(/.*)?	gen_context(system_u:object_r:xend_var_lib_t,s0)
  /var/lib/xenstored(/.*)?	gen_context(system_u:object_r:xenstored_var_lib_t,s0)
 +/var/lib/xenvm(/.*)?            gen_context(system_u:object_r:xend_var_lib_t,s0)
  
@@ -28,9 +48,22 @@ Upstream-Status: Inappropriate [OpenXT]
 +/var/lock/xen(/.*)?		gen_context(system_u:object_r:xen_lock_t,s0)
  
  /var/log/evtchnd\.log.*	--	gen_context(system_u:object_r:evtchnd_var_log_t,s0)
- /var/log/xen(/.*)?	gen_context(system_u:object_r:xend_var_log_t,s0)
-@@ -47,5 +54,9 @@
- /run/xenner(/.*)?	gen_context(system_u:object_r:xend_runtime_t,s0)
+-/var/log/xen(/.*)?	gen_context(system_u:object_r:xen_log_t,s0)
+-/var/log/xen-hotplug\.log.*	--	gen_context(system_u:object_r:xen_log_t,s0)
++/var/log/xen(/.*)?	gen_context(system_u:object_r:xend_var_log_t,s0)
++/var/log/xen-hotplug\.log.*	--	gen_context(system_u:object_r:xend_var_log_t,s0)
++/var/log/xend\.log.*	--	gen_context(system_u:object_r:xend_var_log_t,s0)
++/var/log/xend-debug\.log.*	--	gen_context(system_u:object_r:xend_var_log_t,s0)
+ 
+ /run/evtchnd	-s	gen_context(system_u:object_r:evtchnd_runtime_t,s0)
+ /run/evtchnd\.pid	--	gen_context(system_u:object_r:evtchnd_runtime_t,s0)
+ /run/xenconsoled\.pid	--	gen_context(system_u:object_r:xenconsoled_runtime_t,s0)
+-/run/xen		-d	gen_context(system_u:object_r:xen_runtime_t,s0)
+-/run/xenner(/.*)?	gen_context(system_u:object_r:xen_runtime_t,s0)
++/run/xend(/.*)?	gen_context(system_u:object_r:xend_runtime_t,s0)
++/run/xen		-d	gen_context(system_u:object_r:xend_runtime_t,s0)
++/run/xend\.pid	--	gen_context(system_u:object_r:xend_runtime_t,s0)
++/run/xenner(/.*)?	gen_context(system_u:object_r:xend_runtime_t,s0)
  /run/xenstore\.pid	--	gen_context(system_u:object_r:xenstored_runtime_t,s0)
  /run/xenstored(/.*)?	gen_context(system_u:object_r:xenstored_runtime_t,s0)
 +/run/xen/qmp-libxl-.*	-s	gen_context(system_u:object_r:xend_runtime_t,s0)
@@ -39,18 +72,194 @@ Upstream-Status: Inappropriate [OpenXT]
 +
 +# config flags
 +/config/system/dom0-networking-disabled         --              gen_context(system_u:object_r:xend_config_t,s0)
+diff --git a/policy/modules/system/xen.if b/policy/modules/system/xen.if
+index 24100075b6d3..52de7c3014e2 100644
 --- a/policy/modules/system/xen.if
 +++ b/policy/modules/system/xen.if
-@@ -226,7 +226,7 @@ interface(`xen_dontaudit_rw_unix_stream_
- 		type xend_t;
+@@ -1,5 +1,80 @@
+ ## <summary>Xen hypervisor.</summary>
+ 
++########################################
++## <summary>
++##	Execute a domain transition to run xend.
++## </summary>
++## <param name="domain">
++##	<summary>
++##	Domain allowed to transition.
++##	</summary>
++## </param>
++#
++interface(`xen_domtrans',`
++	gen_require(`
++		type xend_t, xend_exec_t;
++	')
++
++	corecmd_search_bin($1)
++	domtrans_pattern($1, xend_exec_t, xend_t)
++')
++
++########################################
++## <summary>
++##	Execute xend in the caller domain.
++## </summary>
++## <param name="domain">
++##	<summary>
++##	Domain allowed access.
++##	</summary>
++## </param>
++#
++interface(`xen_exec',`
++	gen_require(`
++		type xend_exec_t;
++	')
++
++	corecmd_search_bin($1)
++	can_exec($1, xend_exec_t)
++')
++
++########################################
++## <summary>
++##	Inherit and use xen file descriptors.
++## </summary>
++## <param name="domain">
++##	<summary>
++##	Domain allowed access.
++##	</summary>
++## </param>
++#
++interface(`xen_use_fds',`
++	gen_require(`
++		type xend_t;
++	')
++
++	allow $1 xend_t:fd use;
++')
++
++########################################
++## <summary>
++##	Do not audit attempts to inherit
++##	xen file descriptors.
++## </summary>
++## <param name="domain">
++##	<summary>
++##	Domain to not audit.
++##	</summary>
++## </param>
++#
++interface(`xen_dontaudit_use_fds',`
++	gen_require(`
++		type xend_t;
++	')
++
++	dontaudit $1 xend_t:fd use;
++')
++
+ ########################################
+ ## <summary>
+ ##	Create, read, write, and delete
+@@ -13,11 +88,11 @@
+ #
+ interface(`xen_manage_image_dirs',`
+ 	gen_require(`
+-		type xen_state_t;
++		type xend_var_lib_t;
  	')
  
--	dontaudit $1 xend_t:unix_stream_socket { read write };
-+	dontaudit $1 xend_t:unix_stream_socket rw_stream_socket_perms;
+ 	files_search_var_lib($1)
+-	manage_dirs_pattern($1, xen_state_t, xen_state_t)
++	manage_dirs_pattern($1, xend_var_lib_t, xend_var_lib_t)
  ')
  
  ########################################
-@@ -246,6 +246,7 @@ interface(`xen_stream_connect_xenstore',
+@@ -32,12 +107,12 @@ interface(`xen_manage_image_dirs',`
+ #
+ interface(`xen_read_image_files',`
+ 	gen_require(`
+-		type xen_image_t, xen_state_t;
++		type xen_image_t, xend_var_lib_t;
+ 	')
+ 
+ 	files_list_var_lib($1)
+-	list_dirs_pattern($1, xen_state_t, xen_state_t)
+-	read_files_pattern($1, { xen_state_t xen_image_t }, xen_image_t)
++	list_dirs_pattern($1, xend_var_lib_t, xend_var_lib_t)
++	read_files_pattern($1, { xend_var_lib_t xen_image_t }, xen_image_t)
+ ')
+ 
+ ########################################
+@@ -52,11 +127,11 @@ interface(`xen_read_image_files',`
+ #
+ interface(`xen_rw_image_files',`
+ 	gen_require(`
+-		type xen_image_t, xen_state_t;
++		type xen_image_t, xend_var_lib_t;
+ 	')
+ 
+ 	files_list_var_lib($1)
+-	allow $1 xen_state_t:dir search_dir_perms;
++	allow $1 xend_var_lib_t:dir search_dir_perms;
+ 	rw_files_pattern($1, xen_image_t, xen_image_t)
+ ')
+ 
+@@ -72,12 +147,12 @@ interface(`xen_rw_image_files',`
+ #
+ interface(`xen_append_log',`
+ 	gen_require(`
+-		type xen_log_t;
++		type xend_var_log_t;
+ 	')
+ 
+ 	logging_search_logs($1)
+-	append_files_pattern($1, xen_log_t, xen_log_t)
+-	dontaudit $1 xen_log_t:file write;
++	append_files_pattern($1, xend_var_log_t, xend_var_log_t)
++	dontaudit $1 xend_var_log_t:file write;
+ ')
+ 
+ ########################################
+@@ -93,12 +168,12 @@ interface(`xen_append_log',`
+ #
+ interface(`xen_manage_log',`
+ 	gen_require(`
+-		type xen_log_t;
++		type xend_var_log_t;
+ 	')
+ 
+ 	logging_search_logs($1)
+-	manage_dirs_pattern($1, xen_log_t, xen_log_t)
+-	manage_files_pattern($1, xen_log_t, xen_log_t)
++	manage_dirs_pattern($1, xend_var_log_t, xend_var_log_t)
++	manage_files_pattern($1, xend_var_log_t, xend_var_log_t)
+ ')
+ 
+ #######################################
+@@ -120,6 +195,25 @@ interface(`xen_read_xenstored_runtime_files',`
+ 	read_files_pattern($1, xenstored_runtime_t, xenstored_runtime_t)
+ ')
+ 
++########################################
++## <summary>
++##	Do not audit attempts to read and write
++##	Xen unix domain stream sockets.
++## </summary>
++## <param name="domain">
++##	<summary>
++##	Domain to not audit.
++##	</summary>
++## </param>
++#
++interface(`xen_dontaudit_rw_unix_stream_sockets',`
++	gen_require(`
++		type xend_t;
++	')
++
++	dontaudit $1 xend_t:unix_stream_socket rw_stream_socket_perms;
++')
++
+ ########################################
+ ## <summary>
+ ##	Connect to xenstored with a unix
+@@ -137,12 +231,36 @@ interface(`xen_stream_connect_xenstore',`
  	')
  
  	files_search_runtime($1)
@@ -58,7 +267,50 @@ Upstream-Status: Inappropriate [OpenXT]
  	stream_connect_pattern($1, xenstored_runtime_t, xenstored_runtime_t, xenstored_t)
  ')
  
-@@ -363,3 +364,162 @@ interface(`xen_stream_connect_xm',`
+ ########################################
+ ## <summary>
+-##	Create in a xen_runtime_t directory
++##	Connect to xend with a unix
++##	domain stream socket.
++## </summary>
++## <param name="domain">
++##	<summary>
++##	Domain allowed access.
++##	</summary>
++## </param>
++#
++interface(`xen_stream_connect',`
++	gen_require(`
++		type xend_t, xend_runtime_t, xend_var_lib_t;
++	')
++
++	files_search_runtime($1)
++	stream_connect_pattern($1, xend_runtime_t, xend_runtime_t, xend_t)
++
++	files_search_var_lib($1)
++	stream_connect_pattern($1, xend_var_lib_t, xend_var_lib_t, xend_t)
++')
++
++########################################
++## <summary>
++##	Create in a xend_runtime_t directory
+ ## </summary>
+ ## <param name="domain">
+ ##	<summary>
+@@ -162,10 +280,10 @@ interface(`xen_stream_connect_xenstore',`
+ #
+ interface(`xen_runtime_filetrans',`
+ 	gen_require(`
+-		type xen_runtime_t;
++		type xend_runtime_t;
+ 	')
+ 
+-	filetrans_pattern($1, xen_runtime_t, $2, $3)
++	filetrans_pattern($1, xend_runtime_t, $2, $3)
+ ')
+ 
+ ########################################
+@@ -206,3 +324,162 @@ interface(`xen_stream_connect_xm',`
  	files_search_runtime($1)
  	stream_connect_pattern($1, xenstored_runtime_t, xenstored_runtime_t, xm_t)
  ')
@@ -221,31 +473,76 @@ Upstream-Status: Inappropriate [OpenXT]
 +
 +	getattr_files_pattern($1, xend_config_t, xend_config_t)
 +')
+diff --git a/policy/modules/system/xen.te b/policy/modules/system/xen.te
+index a930d32e0b26..3abf0d84b4ea 100644
 --- a/policy/modules/system/xen.te
 +++ b/policy/modules/system/xen.te
-@@ -82,8 +82,13 @@ type xend_runtime_t alias xend_var_run_t
- files_runtime_file(xend_runtime_t)
- files_mountpoint(xend_runtime_t)
+@@ -5,6 +5,14 @@ policy_module(xen)
+ # Declarations
+ #
  
++## <desc>
++##	<p>
++##	Determine whether xend can
++##	run blktapctrl and tapdisk.
++## </p>
++## </desc>
++gen_tunable(xend_run_blktap, false)
++
+ ## <desc>
+ ##	<p>
+ ##	Determine whether xen can
+@@ -61,30 +69,50 @@ optional_policy(`
+ 	virt_image(xen_image_t)
+ ')
+ 
++type xenctl_t;
++files_type(xenctl_t)
++
++type xend_t;
++type xend_exec_t;
++init_daemon_domain(xend_t, xend_exec_t)
++
+ type xen_lock_t;
+ files_lock_file(xen_lock_t)
+ 
+-type xen_log_t;
+-typealias xen_log_t alias xend_var_log_t;
+-logging_log_file(xen_log_t)
++type xend_runtime_t alias xend_var_run_t;
++files_runtime_file(xend_runtime_t)
++files_mountpoint(xend_runtime_t)
+ 
+-type xen_runtime_t;
+-typealias xen_runtime_t alias xend_runtime_t;
+-files_runtime_file(xen_runtime_t)
+-files_mountpoint(xen_runtime_t)
 +ifdef(`enable_mcs',`
 +        init_ranged_daemon_domain(xend_t, xend_exec_t, s0 - mcs_systemhigh)
 +')
-+
- type xend_tmp_t;
- files_tmp_file(xend_tmp_t)
+ 
+-type xen_state_t;
+-typealias xen_state_t alias xend_var_lib_t;
+-files_type(xen_state_t)
+-files_mountpoint(xen_state_t)
++type xend_tmp_t;
++files_tmp_file(xend_tmp_t)
 +files_mountpoint(xend_tmp_t)
  
- type xend_var_lib_t;
- files_type(xend_var_lib_t)
-@@ -92,10 +97,21 @@ files_mountpoint(xend_var_lib_t)
- type xend_var_log_t;
- logging_log_file(xend_var_log_t)
- 
+-type xenctl_t;
+-files_type(xenctl_t)
++type xend_var_lib_t;
++files_type(xend_var_lib_t)
++files_mountpoint(xend_var_lib_t)
++
++type xend_var_log_t;
++logging_log_file(xend_var_log_t)
++
 +# lock files
 +type xend_lock_t;
 +files_lock_file(xend_lock_t);
 +files_lock_filetrans(xend_t, xend_lock_t, file)
-+
+ 
  type xenstored_t;
  type xenstored_exec_t;
  init_daemon_domain(xenstored_t, xenstored_exec_t)
@@ -259,11 +556,11 @@ Upstream-Status: Inappropriate [OpenXT]
  type xenstored_tmp_t;
  files_tmp_file(xenstored_tmp_t)
  
-@@ -116,10 +132,16 @@ init_daemon_domain(xenconsoled_t, xencon
+@@ -105,28 +133,40 @@ init_daemon_domain(xenconsoled_t, xenconsoled_exec_t)
  
  type xenconsoled_runtime_t alias xenconsoled_var_run_t;
  files_runtime_file(xenconsoled_runtime_t)
-+init_daemon_pid_file(xenconsoled_runtime_t, file, "xenconsoled.pid")
++init_daemon_runtime_file(xenconsoled_runtime_t, file, "xenconsoled.pid")
  
  type xm_t;
  type xm_exec_t;
@@ -276,52 +573,111 @@ Upstream-Status: Inappropriate [OpenXT]
  
  ########################################
  #
-@@ -168,14 +190,20 @@ files_runtime_filetrans(evtchnd_t, evtch
+ # blktap local policy
+ #
  
- allow xend_t self:capability { dac_override ipc_lock net_admin net_raw setuid sys_admin sys_nice sys_rawio sys_resource sys_tty_config };
- dontaudit xend_t self:capability { sys_ptrace };
--allow xend_t self:process { setrlimit signal sigkill };
+-allow blktap_t self:fifo_file rw_inherited_fifo_file_perms;
++tunable_policy(`xend_run_blktap',`
++	domtrans_pattern(xend_t, blktap_exec_t, blktap_t)
+ 
+-dev_read_sysfs(blktap_t)
+-dev_rw_xen(blktap_t)
++	allow blktap_t self:fifo_file rw_inherited_fifo_file_perms;
+ 
+-files_read_etc_files(blktap_t)
++	dev_read_sysfs(blktap_t)
++	dev_rw_xen(blktap_t)
+ 
+-logging_send_syslog_msg(blktap_t)
++	files_read_etc_files(blktap_t)
+ 
+-miscfiles_read_localization(blktap_t)
++	logging_send_syslog_msg(blktap_t)
+ 
+-xen_stream_connect_xenstore(blktap_t)
++	miscfiles_read_localization(blktap_t)
++
++	xen_stream_connect_xenstore(blktap_t)
++',`
++	dontaudit xend_t blktap_exec_t:file { execute execute_no_trans };
++')
+ 
+ #######################################
+ #
+@@ -144,22 +184,296 @@ manage_files_pattern(evtchnd_t, evtchnd_runtime_t, evtchnd_runtime_t)
+ manage_sock_files_pattern(evtchnd_t, evtchnd_runtime_t, evtchnd_runtime_t)
+ files_runtime_filetrans(evtchnd_t, evtchnd_runtime_t, { file sock_file dir })
+ 
++########################################
++#
++# xend local policy
++#
++
++allow xend_t self:capability { dac_override ipc_lock net_admin net_raw setuid sys_admin sys_nice sys_rawio sys_resource sys_tty_config };
++dontaudit xend_t self:capability { sys_ptrace };
 +allow xend_t self:process { setrlimit signal sigkill execmem setsched };
- dontaudit xend_t self:process ptrace;
- allow xend_t self:fifo_file rw_fifo_file_perms;
--allow xend_t self:unix_stream_socket { accept listen };
--allow xend_t self:tcp_socket { accept listen };
++dontaudit xend_t self:process ptrace;
++allow xend_t self:fifo_file rw_fifo_file_perms;
 +allow xend_t self:unix_stream_socket { accept listen create_stream_socket_perms};
 +allow xend_t self:tcp_socket { accept listen create_stream_socket_perms};
 +allow xend_t self:unix_dgram_socket create_socket_perms;
 +allow xend_t self:netlink_route_socket r_netlink_socket_perms;
- allow xend_t self:packet_socket create_socket_perms;
- allow xend_t self:tun_socket create_socket_perms;
- 
++allow xend_t self:packet_socket create_socket_perms;
++allow xend_t self:tun_socket create_socket_perms;
++
 +# XenClient /config files
 +manage_dirs_pattern(xend_t, xend_config_t, xend_config_t)
 +manage_files_pattern(xend_t, xend_config_t, xend_config_t)
 +
- allow xend_t xen_image_t:dir list_dir_perms;
- manage_dirs_pattern(xend_t, xen_image_t, xen_image_t)
- manage_fifo_files_pattern(xend_t, xen_image_t, xen_image_t)
-@@ -199,6 +227,7 @@ manage_sock_files_pattern(xend_t, xend_r
- manage_fifo_files_pattern(xend_t, xend_runtime_t, xend_runtime_t)
- files_runtime_filetrans(xend_t, xend_runtime_t, { file sock_file fifo_file dir })
- 
++allow xend_t xen_image_t:dir list_dir_perms;
++manage_dirs_pattern(xend_t, xen_image_t, xen_image_t)
++manage_fifo_files_pattern(xend_t, xen_image_t, xen_image_t)
++manage_files_pattern(xend_t, xen_image_t, xen_image_t)
++read_lnk_files_pattern(xend_t, xen_image_t, xen_image_t)
++read_sock_files_pattern(xend_t, xen_image_t, xen_image_t)
++rw_chr_files_pattern(xend_t, xen_image_t, xen_image_t)
++rw_blk_files_pattern(xend_t, xen_image_t, xen_image_t)
++fs_hugetlbfs_filetrans(xend_t, xen_image_t, file)
++
++allow xend_t xenctl_t:fifo_file manage_fifo_file_perms;
++dev_filetrans(xend_t, xenctl_t, fifo_file)
++
++manage_files_pattern(xend_t, xend_tmp_t, xend_tmp_t)
++manage_dirs_pattern(xend_t, xend_tmp_t, xend_tmp_t)
++files_tmp_filetrans(xend_t, xend_tmp_t, { file dir })
++
++manage_dirs_pattern(xend_t, xend_runtime_t, xend_runtime_t)
++manage_files_pattern(xend_t, xend_runtime_t, xend_runtime_t)
++manage_sock_files_pattern(xend_t, xend_runtime_t, xend_runtime_t)
++manage_fifo_files_pattern(xend_t, xend_runtime_t, xend_runtime_t)
++files_runtime_filetrans(xend_t, xend_runtime_t, { file sock_file fifo_file dir })
++
 +manage_files_pattern(xend_t, xend_var_log_t, xend_var_log_t)
- manage_dirs_pattern(xend_t, xend_var_log_t, xend_var_log_t)
- append_files_pattern(xend_t, xend_var_log_t, xend_var_log_t)
- create_files_pattern(xend_t, xend_var_log_t, xend_var_log_t)
-@@ -206,6 +235,9 @@ setattr_files_pattern(xend_t, xend_var_l
- manage_sock_files_pattern(xend_t, xend_var_log_t, xend_var_log_t)
- logging_log_filetrans(xend_t, xend_var_log_t, { sock_file file dir })
- 
++manage_dirs_pattern(xend_t, xend_var_log_t, xend_var_log_t)
++append_files_pattern(xend_t, xend_var_log_t, xend_var_log_t)
++create_files_pattern(xend_t, xend_var_log_t, xend_var_log_t)
++setattr_files_pattern(xend_t, xend_var_log_t, xend_var_log_t)
++manage_sock_files_pattern(xend_t, xend_var_log_t, xend_var_log_t)
++logging_log_filetrans(xend_t, xend_var_log_t, { sock_file file dir })
++
 +# lock files
 +manage_files_pattern(xend_t, xend_lock_t, xend_lock_t)
 +
- manage_dirs_pattern(xend_t, xend_var_lib_t, xend_var_lib_t)
- manage_files_pattern(xend_t, xend_var_lib_t, xend_var_lib_t)
- manage_sock_files_pattern(xend_t, xend_var_lib_t, xend_var_lib_t)
-@@ -221,6 +253,14 @@ domtrans_pattern(xend_t, xenstored_exec_
- 
- xen_stream_connect_xenstore(xend_t)
- 
++manage_dirs_pattern(xend_t, xend_var_lib_t, xend_var_lib_t)
++manage_files_pattern(xend_t, xend_var_lib_t, xend_var_lib_t)
++manage_sock_files_pattern(xend_t, xend_var_lib_t, xend_var_lib_t)
++manage_fifo_files_pattern(xend_t, xend_var_lib_t, xend_var_lib_t)
++files_var_lib_filetrans(xend_t, xend_var_lib_t, { file dir })
++
++manage_files_pattern(xend_t, xenstored_runtime_t, xenstored_runtime_t)
++
++allow xend_t xenstored_var_lib_t:dir list_dir_perms;
++
++domtrans_pattern(xend_t, xenconsoled_exec_t, xenconsoled_t)
++domtrans_pattern(xend_t, xenstored_exec_t, xenstored_t)
++
++xen_stream_connect_xenstore(xend_t)
++
 +# transition to qemu
 +qemu_domtrans(xend_t)
 +qemu_signal(xend_t)
@@ -330,39 +686,88 @@ Upstream-Status: Inappropriate [OpenXT]
 +# transition to dmidecode
 +dmidecode_domtrans(xend_t)
 +
- kernel_read_kernel_sysctls(xend_t)
- kernel_read_system_state(xend_t)
- kernel_write_xen_state(xend_t)
-@@ -260,8 +300,13 @@ corenet_rw_tun_tap_dev(xend_t)
- dev_getattr_all_chr_files(xend_t)
- dev_read_urand(xend_t)
- dev_filetrans_xen(xend_t)
++kernel_read_kernel_sysctls(xend_t)
++kernel_read_system_state(xend_t)
++kernel_write_xen_state(xend_t)
++kernel_read_xen_state(xend_t)
++kernel_rw_net_sysctls(xend_t)
++kernel_read_network_state(xend_t)
++kernel_read_vm_sysctls(xend_t)
++
++corecmd_exec_bin(xend_t)
++corecmd_exec_shell(xend_t)
++
++corenet_all_recvfrom_netlabel(xend_t)
++corenet_tcp_sendrecv_generic_if(xend_t)
++corenet_tcp_sendrecv_generic_node(xend_t)
++corenet_tcp_bind_generic_node(xend_t)
++
++corenet_sendrecv_xen_server_packets(xend_t)
++corenet_tcp_bind_xen_port(xend_t)
++
++corenet_sendrecv_soundd_server_packets(xend_t)
++corenet_tcp_bind_soundd_port(xend_t)
++
++corenet_sendrecv_generic_server_packets(xend_t)
++corenet_tcp_bind_generic_port(xend_t)
++
++corenet_sendrecv_vnc_server_packets(xend_t)
++corenet_tcp_bind_vnc_port(xend_t)
++
++corenet_sendrecv_xserver_client_packets(xend_t)
++corenet_tcp_connect_xserver_port(xend_t)
++
++corenet_sendrecv_xen_client_packets(xend_t)
++corenet_tcp_connect_xen_port(xend_t)
++
++corenet_rw_tun_tap_dev(xend_t)
++
++dev_getattr_all_chr_files(xend_t)
++dev_read_urand(xend_t)
++dev_filetrans_xen(xend_t)
 +dev_filetrans_blktap(xend_t, "blktap-2")
- dev_rw_sysfs(xend_t)
- dev_rw_xen(xend_t)
++dev_rw_sysfs(xend_t)
++dev_rw_xen(xend_t)
 +dev_read_rand(xend_t)
 +dev_search_xen(xend_t)
 +dev_manage_xen(xend_t)
 +dev_read_raw_memory(xend_t)
- 
- domain_dontaudit_read_all_domains_state(xend_t)
- domain_dontaudit_ptrace_all_domains(xend_t)
-@@ -274,6 +319,11 @@ files_etc_filetrans_etc_runtime(xend_t,
- files_read_usr_files(xend_t)
- files_read_default_symlinks(xend_t)
- files_search_mnt(xend_t)
++
++domain_dontaudit_read_all_domains_state(xend_t)
++domain_dontaudit_ptrace_all_domains(xend_t)
++
++files_read_etc_files(xend_t)
++files_read_kernel_symbol_table(xend_t)
++files_read_kernel_img(xend_t)
++files_manage_etc_runtime_files(xend_t)
++files_etc_filetrans_etc_runtime(xend_t, file)
++files_read_usr_files(xend_t)
++files_read_default_symlinks(xend_t)
++files_search_mnt(xend_t)
 +files_rw_etc_files(xend_t)
 +#fs_getattr_all_f_exec_usr_files(xend_t)
 +
 +# accessing vmlinuz from service VM disks
 +kernel_read_unlabeled_files(xend_t)
- 
- fs_getattr_all_fs(xend_t)
- fs_list_auto_mountpoints(xend_t)
-@@ -293,14 +343,44 @@ term_use_generic_ptys(xend_t)
- term_use_ptmx(xend_t)
- term_getattr_pty_fs(xend_t)
- 
++
++fs_getattr_all_fs(xend_t)
++fs_list_auto_mountpoints(xend_t)
++fs_read_dos_files(xend_t)
++fs_read_removable_blk_files(xend_t)
++fs_manage_xenfs_dirs(xend_t)
++fs_manage_xenfs_files(xend_t)
++
++storage_read_scsi_generic(xend_t)
++# for lsscsi
++storage_getattr_fixed_disk_dev(xend_t)
++
++term_setattr_generic_ptys(xend_t)
++term_getattr_all_ptys(xend_t)
++term_setattr_all_ptys(xend_t)
++term_use_generic_ptys(xend_t)
++term_use_ptmx(xend_t)
++term_getattr_pty_fs(xend_t)
++
 +storage_read_scsi_generic(xend_t)
 +storage_raw_read_fixed_disk(xend_t)
 +storage_raw_write_fixed_disk(xend_t)
@@ -371,8 +776,8 @@ Upstream-Status: Inappropriate [OpenXT]
 +sysnet_signal_dhcpc(xend_t)
 +sysnet_domtrans_ifconfig(xend_t)
 +sysnet_dns_name_resolve(xend_t)
-+sysnet_delete_dhcpc_pid(xend_t)
-+sysnet_read_dhcpc_pid(xend_t)
++sysnet_delete_dhcpc_runtime_files(xend_t)
++sysnet_read_dhcpc_runtime_files(xend_t)
 +sysnet_rw_dhcp_config(xend_t)
 +
 +# adding argo addresses?
@@ -386,28 +791,31 @@ Upstream-Status: Inappropriate [OpenXT]
 +# runlevel stuff
 +init_rw_utmp(xend_t)
 +init_telinit(xend_t)
- init_stream_connect_script(xend_t)
- 
- locallogin_dontaudit_use_fds(xend_t)
- 
- logging_send_syslog_msg(xend_t)
++init_stream_connect_script(xend_t)
++
++locallogin_dontaudit_use_fds(xend_t)
++
++logging_send_syslog_msg(xend_t)
 +lvm_domtrans(xend_t)
- 
- miscfiles_read_localization(xend_t)
- miscfiles_read_hwdata(xend_t)
++
++miscfiles_read_localization(xend_t)
++miscfiles_read_hwdata(xend_t)
 +mount_domtrans(xend_t)
 +
 +netutils_domtrans(xend_t)
 +networkmanager_domtrans(xend_t)
 +networkmanager_dbus_chat(xend_t)
 +networkmanager_signal(xend_t)
- 
- sysnet_domtrans_dhcpc(xend_t)
- sysnet_signal_dhcpc(xend_t)
-@@ -311,6 +391,26 @@ sysnet_read_dhcpc_runtime_files(xend_t)
- sysnet_rw_dhcp_config(xend_t)
- 
- userdom_dontaudit_search_user_home_dirs(xend_t)
++
++sysnet_domtrans_dhcpc(xend_t)
++sysnet_signal_dhcpc(xend_t)
++sysnet_domtrans_ifconfig(xend_t)
++sysnet_dns_name_resolve(xend_t)
++sysnet_delete_dhcpc_runtime_files(xend_t)
++sysnet_read_dhcpc_runtime_files(xend_t)
++sysnet_rw_dhcp_config(xend_t)
++
++userdom_dontaudit_search_user_home_dirs(xend_t)
 +userdom_dontaudit_use_user_terminals(xend_t)
 +
 +xen_stream_connect_xenstore(xend_t)
@@ -428,10 +836,52 @@ Upstream-Status: Inappropriate [OpenXT]
 +optional_policy(`
 +        tcsd_search_lib(xend_t)
 +')
- 
- tunable_policy(`xen_use_fusefs',`
- 	fs_manage_fusefs_dirs(xend_t)
-@@ -364,12 +464,14 @@ optional_policy(`
++
++tunable_policy(`xen_use_fusefs',`
++	fs_manage_fusefs_dirs(xend_t)
++	fs_manage_fusefs_files(xend_t)
++	fs_read_fusefs_symlinks(xend_t)
++')
++
++tunable_policy(`xen_use_nfs',`
++	fs_manage_nfs_dirs(xend_t)
++	fs_manage_nfs_files(xend_t)
++	fs_read_nfs_symlinks(xend_t)
++')
++
++tunable_policy(`xen_use_samba',`
++	fs_manage_cifs_dirs(xend_t)
++	fs_manage_cifs_files(xend_t)
++	fs_read_cifs_symlinks(xend_t)
++')
++
++optional_policy(`
++	brctl_domtrans(xend_t)
++')
++
++optional_policy(`
++	consoletype_exec(xend_t)
++')
++
++optional_policy(`
++	lvm_domtrans(xend_t)
++')
++
++optional_policy(`
++	mount_domtrans(xend_t)
++')
++
++optional_policy(`
++	netutils_domtrans(xend_t)
++')
++
++optional_policy(`
++	virt_search_images(xend_t)
++	virt_read_config(xend_t)
++')
++
+ ########################################
+ #
  # Xen console local policy
  #
  
@@ -445,9 +895,18 @@ Upstream-Status: Inappropriate [OpenXT]
  allow xenconsoled_t xen_devpts_t:chr_file { rw_term_perms setattr_chr_file_perms };
 +allow xenconsoled_t xen_devpts_t:chr_file rw_term_perms;
  
- manage_dirs_pattern(xenconsoled_t, xend_var_log_t, xend_var_log_t)
- append_files_pattern(xenconsoled_t, xend_var_log_t, xend_var_log_t)
-@@ -405,10 +507,12 @@ init_use_fds(xenconsoled_t)
+-manage_dirs_pattern(xenconsoled_t, xen_log_t, xen_log_t)
+-append_files_pattern(xenconsoled_t, xen_log_t, xen_log_t)
+-create_files_pattern(xenconsoled_t, xen_log_t, xen_log_t)
+-setattr_files_pattern(xenconsoled_t, xen_log_t, xen_log_t)
++manage_dirs_pattern(xenconsoled_t, xend_var_log_t, xend_var_log_t)
++append_files_pattern(xenconsoled_t, xend_var_log_t, xend_var_log_t)
++create_files_pattern(xenconsoled_t, xend_var_log_t, xend_var_log_t)
++setattr_files_pattern(xenconsoled_t, xend_var_log_t, xend_var_log_t)
+ 
+ manage_files_pattern(xenconsoled_t, xenconsoled_runtime_t, xenconsoled_runtime_t)
+ manage_sock_files_pattern(xenconsoled_t, xenconsoled_runtime_t, xenconsoled_runtime_t)
+@@ -190,10 +504,12 @@ init_use_fds(xenconsoled_t)
  init_use_script_ptys(xenconsoled_t)
  
  logging_search_logs(xenconsoled_t)
@@ -458,9 +917,9 @@ Upstream-Status: Inappropriate [OpenXT]
  xen_stream_connect_xenstore(xenconsoled_t)
 +xen_manage_log(xenconsoled_t)
  
- optional_policy(`
- 	ptchown_domtrans(xenconsoled_t)
-@@ -420,7 +524,10 @@ optional_policy(`
+ ########################################
+ #
+@@ -201,7 +517,10 @@ xen_stream_connect_xenstore(xenconsoled_t)
  #
  
  allow xenstored_t self:capability { dac_override ipc_lock sys_resource };
@@ -472,7 +931,7 @@ Upstream-Status: Inappropriate [OpenXT]
  
  manage_files_pattern(xenstored_t, xenstored_tmp_t, xenstored_tmp_t)
  manage_dirs_pattern(xenstored_t, xenstored_tmp_t, xenstored_tmp_t)
-@@ -434,6 +541,7 @@ files_runtime_filetrans(xenstored_t, xen
+@@ -215,6 +534,7 @@ files_runtime_filetrans(xenstored_t, xenstored_runtime_t, { file sock_file dir }
  manage_dirs_pattern(xenstored_t, xenstored_var_log_t, xenstored_var_log_t)
  append_files_pattern(xenstored_t, xenstored_var_log_t, xenstored_var_log_t)
  create_files_pattern(xenstored_t, xenstored_var_log_t, xenstored_var_log_t)
@@ -480,7 +939,7 @@ Upstream-Status: Inappropriate [OpenXT]
  setattr_files_pattern(xenstored_t, xenstored_var_log_t, xenstored_var_log_t)
  manage_sock_files_pattern(xenstored_t, xenstored_var_log_t, xenstored_var_log_t)
  logging_log_filetrans(xenstored_t, xenstored_var_log_t, { sock_file file dir })
-@@ -443,6 +551,8 @@ manage_files_pattern(xenstored_t, xensto
+@@ -224,6 +544,8 @@ manage_files_pattern(xenstored_t, xenstored_var_lib_t, xenstored_var_lib_t)
  manage_sock_files_pattern(xenstored_t, xenstored_var_lib_t, xenstored_var_lib_t)
  files_var_lib_filetrans(xenstored_t, xenstored_var_lib_t, { file dir sock_file })
  
@@ -489,7 +948,7 @@ Upstream-Status: Inappropriate [OpenXT]
  stream_connect_pattern(xenstored_t, evtchnd_runtime_t, evtchnd_runtime_t, evtchnd_t)
  
  kernel_write_xen_state(xenstored_t)
-@@ -453,6 +563,11 @@ corecmd_search_bin(xenstored_t)
+@@ -234,6 +556,11 @@ corecmd_search_bin(xenstored_t)
  dev_filetrans_xen(xenstored_t)
  dev_rw_xen(xenstored_t)
  dev_read_sysfs(xenstored_t)
@@ -501,15 +960,15 @@ Upstream-Status: Inappropriate [OpenXT]
  
  files_read_etc_files(xenstored_t)
  files_read_usr_files(xenstored_t)
-@@ -461,6 +576,7 @@ fs_search_xenfs(xenstored_t)
- fs_manage_xenfs_files(xenstored_t)
+@@ -243,6 +570,7 @@ fs_manage_xenfs_files(xenstored_t)
+ fs_mmap_xenfs_files(xenstored_t)
  
  term_use_generic_ptys(xenstored_t)
 +term_use_console(xenconsoled_t)
  
  init_use_fds(xenstored_t)
  init_use_script_ptys(xenstored_t)
-@@ -471,6 +587,8 @@ miscfiles_read_localization(xenstored_t)
+@@ -253,27 +581,29 @@ miscfiles_read_localization(xenstored_t)
  
  xen_append_log(xenstored_t)
  
@@ -518,18 +977,45 @@ Upstream-Status: Inappropriate [OpenXT]
  ########################################
  #
  # xm local policy
-@@ -479,8 +597,8 @@ xen_append_log(xenstored_t)
+ #
+ 
  allow xm_t self:capability { dac_override ipc_lock net_admin setpcap sys_nice sys_tty_config };
- allow xm_t self:process { getcap getsched setsched setcap signal sigkill };
+-allow xm_t self:process { getcap getsched setcap setsched sigkill signal };
++allow xm_t self:process { getcap getsched setsched setcap signal sigkill };
  allow xm_t self:fifo_file rw_fifo_file_perms;
 -allow xm_t self:unix_stream_socket { accept connectto listen };
 -allow xm_t self:tcp_socket { accept listen };
 +allow xm_t self:unix_stream_socket { create_stream_socket_perms connectto };
 +allow xm_t self:tcp_socket create_stream_socket_perms;
  
- allow xm_t xend_runtime_t:dir rw_dir_perms;
+-allow xm_t xen_runtime_t:dir rw_dir_perms;
++allow xm_t xend_runtime_t:dir rw_dir_perms;
  
-@@ -567,6 +685,12 @@ udev_manage_runtime_files(xm_t)
+ allow xm_t xen_lock_t:file manage_file_perms;
+ files_lock_filetrans(xm_t, xen_lock_t, file)
+ 
+-manage_files_pattern(xm_t, xen_log_t, xen_log_t)
++manage_files_pattern(xm_t, xend_var_log_t, xend_var_log_t)
+ 
+-manage_files_pattern(xm_t, xen_state_t, xen_state_t)
+-manage_fifo_files_pattern(xm_t, xen_state_t, xen_state_t)
+-manage_sock_files_pattern(xm_t, xen_state_t, xen_state_t)
++manage_files_pattern(xm_t, xend_var_lib_t, xend_var_lib_t)
++manage_fifo_files_pattern(xm_t, xend_var_lib_t, xend_var_lib_t)
++manage_sock_files_pattern(xm_t, xend_var_lib_t, xend_var_lib_t)
+ 
+ manage_files_pattern(xm_t, xen_image_t, xen_image_t)
+ manage_blk_files_pattern(xm_t, xen_image_t, xen_image_t)
+@@ -283,6 +613,8 @@ read_files_pattern(xm_t, xenstored_runtime_t, xenstored_runtime_t)
+ 
+ xen_manage_image_dirs(xm_t)
+ xen_append_log(xm_t)
++xen_domtrans(xm_t)
++xen_stream_connect(xm_t)
+ xen_stream_connect_xenstore(xm_t)
+ 
+ can_exec(xm_t, xm_exec_t)
+@@ -346,6 +678,12 @@ udev_manage_runtime_files(xm_t)
  
  userdom_dontaudit_search_user_home_content(xm_t)
  
@@ -542,7 +1028,7 @@ Upstream-Status: Inappropriate [OpenXT]
  tunable_policy(`xen_use_fusefs',`
  	fs_manage_fusefs_dirs(xm_t)
  	fs_manage_fusefs_files(xm_t)
-@@ -635,4 +759,23 @@ optional_policy(`
+@@ -410,4 +748,23 @@ optional_policy(`
  
  	fs_manage_xenfs_dirs(xm_ssh_t)
  	fs_manage_xenfs_files(xm_ssh_t)

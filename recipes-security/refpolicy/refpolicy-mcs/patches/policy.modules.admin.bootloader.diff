@@ -1,17 +1,23 @@
 Upstream-Status: Inappropriate [OpenXT]
 
+diff --git a/policy/modules/admin/bootloader.te b/policy/modules/admin/bootloader.te
+index 86a94ddd672d..6e49f2c7675f 100644
 --- a/policy/modules/admin/bootloader.te
 +++ b/policy/modules/admin/bootloader.te
-@@ -181,8 +181,10 @@ ifdef(`distro_debian',`
- 	libs_relabelto_lib_files(bootloader_t)
- 
- 	# for apt-cache
+@@ -195,9 +195,11 @@ ifdef(`distro_debian',`
+-	apt_use_fds(bootloader_t)
+-	apt_use_ptys(bootloader_t)
+-	# for apt-cache
 -	apt_read_db(bootloader_t)
 -	apt_manage_cache(bootloader_t)
 +	optional_policy(`
++		apt_use_fds(bootloader_t)
++		apt_use_ptys(bootloader_t)
++		# for apt-cache
 +		apt_read_db(bootloader_t)
 +		apt_manage_cache(bootloader_t)
 +	')
  
  	dpkg_read_db(bootloader_t)
  	dpkg_rw_pipes(bootloader_t)
+ ')

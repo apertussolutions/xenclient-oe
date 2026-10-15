@@ -1,10 +1,12 @@
 Upstream-Status: Inappropriate [OpenXT]
 
+diff --git a/policy/modules/system/init.fc b/policy/modules/system/init.fc
+index 962f180990f4..2e37735edf24 100644
 --- a/policy/modules/system/init.fc
 +++ b/policy/modules/system/init.fc
-@@ -77,6 +77,10 @@ ifdef(`distro_debian',`
- /etc/network/if-down\.d/.* --	gen_context(system_u:object_r:initrc_exec_t,s0)
+@@ -95,6 +95,10 @@ ifdef(`distro_debian',`
  /etc/network/if-post-down\.d/.* -- gen_context(system_u:object_r:initrc_exec_t,s0)
+ ')
  
 +#
 +# /config
@@ -12,8 +14,8 @@ Upstream-Status: Inappropriate [OpenXT]
 +/config/rehash-vms	--	gen_context(system_u:object_r:init_flag_t,s0)
  ifdef(`distro_gentoo', `
  /var/lib/init\.d(/.*)?		gen_context(system_u:object_r:initrc_state_t,s0)
- /run/svscan\.pid	--	gen_context(system_u:object_r:initrc_runtime_t,s0)
-@@ -89,3 +93,9 @@ ifdef(`distro_suse', `
+ /var/lib/ip6?tables(/.*)?	gen_context(system_u:object_r:initrc_tmp_t,s0)
+@@ -110,3 +114,9 @@ ifdef(`distro_suse', `
  /run/setleds-on	--	gen_context(system_u:object_r:initrc_runtime_t,s0)
  /run/sysconfig(/.*)?	gen_context(system_u:object_r:initrc_runtime_t,s0)
  ')
@@ -23,11 +25,13 @@ Upstream-Status: Inappropriate [OpenXT]
 +#
 +/usr/sbin/init(ng)?\.sysvinit	--	gen_context(system_u:object_r:init_exec_t,s0)
 +/usr/sbin/init\.root-ro	--	gen_context(system_u:object_r:init_exec_t,s0)
+diff --git a/policy/modules/system/init.if b/policy/modules/system/init.if
+index b38e97299868..757c795f524f 100644
 --- a/policy/modules/system/init.if
 +++ b/policy/modules/system/init.if
-@@ -3599,3 +3599,39 @@ interface(`init_getrlimit',`
+@@ -3941,3 +3941,39 @@ interface(`init_search_keys',`
  
- 	allow $1 init_t:process getrlimit;
+ 	allow $1 init_t:key search;
  ')
 +
 +#####################################
@@ -65,9 +69,11 @@ Upstream-Status: Inappropriate [OpenXT]
 +
 +	allow $1 initrc_runtime_t:chr_file rw_chr_file_perms;
 +')
+diff --git a/policy/modules/system/init.te b/policy/modules/system/init.te
+index 1b790ac234b9..11c9ce5968bf 100644
 --- a/policy/modules/system/init.te
 +++ b/policy/modules/system/init.te
-@@ -104,6 +104,13 @@ files_lock_file(initrc_lock_t)
+@@ -133,6 +133,13 @@ files_lock_file(initrc_lock_t)
  
  type initrc_runtime_t alias initrc_var_run_t;
  files_runtime_file(initrc_runtime_t)
@@ -81,16 +87,16 @@ Upstream-Status: Inappropriate [OpenXT]
  
  type initrc_state_t;
  files_type(initrc_state_t)
-@@ -165,6 +172,8 @@ files_runtime_filetrans(init_t, initctl_
- # Modify utmp.
- allow init_t initrc_runtime_t:file { rw_file_perms setattr };
- 
+@@ -194,6 +201,8 @@ allow init_t init_linkable_keyring_type:key link;
+ allow init_t init_runtime_t:file manage_file_perms;
+ files_runtime_filetrans(init_t, init_runtime_t, file)
+ files_runtime_filetrans_machine_id(init_t)
 +auth_read_login_records(init_t)
 +
- kernel_read_system_state(init_t)
- kernel_share_state(init_t)
- kernel_dontaudit_search_unlabeled(init_t)
-@@ -669,6 +678,9 @@ files_runtime_filetrans_lock_dir(initrc_
+ 
+ # for /run/initctl
+ allow init_t init_runtime_t:fifo_file manage_fifo_file_perms;
+@@ -833,6 +842,9 @@ files_runtime_filetrans_lock_dir(initrc_t, "lock")
  files_read_kernel_symbol_table(initrc_t)
  files_setattr_lock_dirs(initrc_t)
  
@@ -100,7 +106,7 @@ Upstream-Status: Inappropriate [OpenXT]
  corecmd_exec_all_executables(initrc_t)
  
  corenet_all_recvfrom_netlabel(initrc_t)
-@@ -726,6 +738,9 @@ files_getattr_all_files(initrc_t)
+@@ -890,6 +902,9 @@ files_getattr_all_files(initrc_t)
  files_getattr_all_symlinks(initrc_t)
  files_getattr_all_pipes(initrc_t)
  files_getattr_all_sockets(initrc_t)
@@ -108,9 +114,9 @@ Upstream-Status: Inappropriate [OpenXT]
 +files_setattr_all_pid_dirs(initrc_t)
 +files_setattr_all_pids(initrc_t)
  files_purge_tmp(initrc_t)
- files_manage_all_locks(initrc_t)
  files_manage_boot_files(initrc_t)
-@@ -736,7 +751,7 @@ files_delete_all_runtime_files(initrc_t)
+ files_read_all_runtime_files(initrc_t)
+@@ -899,7 +914,7 @@ files_delete_all_runtime_files(initrc_t)
  files_delete_all_runtime_dirs(initrc_t)
  files_delete_all_runtime_sockets(initrc_t)
  files_delete_all_runtime_pipes(initrc_t)
@@ -119,7 +125,7 @@ Upstream-Status: Inappropriate [OpenXT]
  files_manage_etc_runtime_files(initrc_t)
  files_etc_filetrans_etc_runtime(initrc_t, file)
  files_exec_etc_files(initrc_t)
-@@ -793,6 +808,7 @@ auth_rw_login_records(initrc_t)
+@@ -944,6 +959,7 @@ auth_rw_login_records(initrc_t)
  auth_setattr_login_records(initrc_t)
  auth_rw_lastlog(initrc_t)
  auth_read_pam_runtime_files(initrc_t)
@@ -127,7 +133,7 @@ Upstream-Status: Inappropriate [OpenXT]
  auth_delete_pam_runtime_files(initrc_t)
  auth_delete_pam_console_data(initrc_t)
  auth_use_nsswitch(initrc_t)
-@@ -825,13 +841,30 @@ userdom_read_user_home_content_files(ini
+@@ -976,13 +992,30 @@ userdom_read_user_home_content_files(initrc_t)
  # started from init should be placed in their own domain.
  userdom_use_inherited_user_terminals(initrc_t)
  
@@ -158,7 +164,7 @@ Upstream-Status: Inappropriate [OpenXT]
  	# for storing state under /dev/shm
  	fs_setattr_tmpfs_dirs(initrc_t)
  	storage_manage_fixed_disk(initrc_t)
-@@ -852,6 +885,12 @@ ifdef(`distro_debian',`
+@@ -1003,6 +1036,12 @@ ifdef(`distro_debian',`
  	')
  ')
  
@@ -171,7 +177,7 @@ Upstream-Status: Inappropriate [OpenXT]
  ifdef(`distro_gentoo',`
  	kernel_dontaudit_getattr_core_if(initrc_t)
  
-@@ -1142,6 +1181,7 @@ optional_policy(`
+@@ -1325,6 +1364,7 @@ optional_policy(`
  	dbus_system_bus_client(initrc_t)
  	dbus_read_config(initrc_t)
  	dbus_manage_lib_files(initrc_t)
@@ -179,48 +185,48 @@ Upstream-Status: Inappropriate [OpenXT]
  
  	init_dbus_chat(initrc_t)
  
-@@ -1160,6 +1200,10 @@ optional_policy(`
+@@ -1346,6 +1386,10 @@ optional_policy(`
+ 	')
  ')
  
- optional_policy(`
++optional_policy(`
 +	dmidecode_domtrans(initrc_t)
 +')
 +
-+optional_policy(`
+ optional_policy(`
  	# /var/run/dovecot/login/ssl-parameters.dat is a hard link to
  	# /var/lib/dovecot/ssl-parameters.dat and init tries to clean up
- 	# the directory. But we do not want to allow this.
-@@ -1191,6 +1235,10 @@ optional_policy(`
+@@ -1370,6 +1414,10 @@ optional_policy(`
+ 	inn_exec_config(initrc_t)
  ')
  
- optional_policy(`
++optional_policy(`
 +	iptables_domtrans(initrc_t)
 +')
 +
-+optional_policy(`
+ optional_policy(`
  	ipsec_read_config(initrc_t)
  	ipsec_manage_runtime_files(initrc_t)
- ')
-@@ -1358,6 +1406,11 @@ optional_policy(`
+@@ -1542,6 +1590,11 @@ optional_policy(`
+ 	tee_supplicant_var_lib_filetrans(initrc_t)
  ')
  
- optional_policy(`
++optional_policy(`
 +	udev_domtrans(init_t)
 +	logging_domtrans_syslog(init_t)
 +')
 +
-+optional_policy(`
+ optional_policy(`
  	udev_manage_runtime_files(initrc_t)
  	udev_manage_runtime_dirs(initrc_t)
- 	udev_manage_rules_files(initrc_t)
-@@ -1397,6 +1450,10 @@ optional_policy(`
+@@ -1581,6 +1634,10 @@ optional_policy(`
+ 	vmware_append_system_config(initrc_t)
  ')
  
- optional_policy(`
++optional_policy(`
 +	xen_stream_connect_xenstore(initrc_t)
 +')
 +
-+optional_policy(`
+ optional_policy(`
  	miscfiles_manage_fonts(initrc_t)
  
- 	# cjp: is this really needed?

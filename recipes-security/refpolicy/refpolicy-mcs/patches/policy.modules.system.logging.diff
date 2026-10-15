@@ -1,5 +1,7 @@
 Upstream-Status: Inappropriate [OpenXT]
 
+diff --git a/policy/modules/system/logging.fc b/policy/modules/system/logging.fc
+index e1261d17462c..a72df60eba8a 100644
 --- a/policy/modules/system/logging.fc
 +++ b/policy/modules/system/logging.fc
 @@ -65,6 +65,16 @@ ifdef(`distro_suse', `
@@ -19,12 +21,16 @@ Upstream-Status: Inappropriate [OpenXT]
  ifdef(`distro_redhat',`
  /var/named/chroot/var/log -d	gen_context(system_u:object_r:var_log_t,s0)
  /var/named/chroot/dev/log -s	gen_context(system_u:object_r:devlog_t,s0)
+diff --git a/policy/modules/system/logging.if b/policy/modules/system/logging.if
+index 7d108709f3a2..63dc4e11396b 100644
 --- a/policy/modules/system/logging.if
 +++ b/policy/modules/system/logging.if
-@@ -1245,6 +1245,24 @@ interface(`logging_write_generic_logs',`
+@@ -1263,6 +1263,24 @@ interface(`logging_write_generic_logs',`
+ 	allow $1 var_log_t:lnk_file read_lnk_file_perms;
+ ')
  
- ########################################
- ## <summary>
++########################################
++## <summary>
 +##	Dontaudit Write generic log dirs.
 +## </summary>
 +## <param name="domain">
@@ -41,12 +47,10 @@ Upstream-Status: Inappropriate [OpenXT]
 +	dontaudit $1 var_log_t:dir write;
 +')
 +
-+########################################
-+## <summary>
+ ########################################
+ ## <summary>
  ##	Dontaudit Write generic log files.
- ## </summary>
- ## <param name="domain">
-@@ -1462,3 +1480,44 @@ interface(`logging_mmap_journal',`
+@@ -1518,3 +1536,44 @@ interface(`logging_mmap_journal',`
  
  	allow $1 syslogd_runtime_t:file map;
  ')
@@ -91,9 +95,11 @@ Upstream-Status: Inappropriate [OpenXT]
 +
 +        init_labeled_script_domtrans($1, syslogd_initrc_exec_t)
 +')
+diff --git a/policy/modules/system/logging.te b/policy/modules/system/logging.te
+index 5fa90355fcd5..ea32e1146b1b 100644
 --- a/policy/modules/system/logging.te
 +++ b/policy/modules/system/logging.te
-@@ -509,6 +509,7 @@ mls_trusted_object(syslogd_t) # Other pr
+@@ -508,6 +508,7 @@ mls_trusted_object(syslogd_t) # Other process need to have the right to connectt
  mls_fd_use_all_levels(syslogd_t)
  
  term_write_console(syslogd_t)
@@ -101,8 +107,8 @@ Upstream-Status: Inappropriate [OpenXT]
  # Allow syslog to a terminal
  term_write_unallocated_ttys(syslogd_t)
  
-@@ -571,6 +572,10 @@ ifdef(`init_systemd',`
- 	udev_read_runtime_files(syslogd_t)
+@@ -587,6 +588,10 @@ ifdef(`init_systemd',`
+ 	systemd_read_user_runtime_lnk_files(syslogd_t)
  ')
  
 +corecmd_exec_bin(syslogd_t)

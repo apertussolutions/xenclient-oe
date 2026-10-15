@@ -49,6 +49,9 @@ SRC_URI += " \
     file://policy/modules/services/glass.fc \
     file://policy/modules/services/glass.if \
     file://policy/modules/services/glass.te \
+    file://policy/modules/services/hal.fc \
+    file://policy/modules/services/hal.if \
+    file://policy/modules/services/hal.te \
     file://policy/modules/services/icbinn.fc \
     file://policy/modules/services/icbinn.if \
     file://policy/modules/services/icbinn.te \
@@ -94,7 +97,6 @@ SRC_URI += " \
 "
 # Patches.
 SRC_URI += " \
-    file://patches/0001-udev-allow-udev_t-to-watch-udev_rules_t-dir.patch \
     file://patches/fc-subs-config-aliases.patch \
     file://patches/policy.modules.admin.alsa.diff \
     file://patches/policy.modules.admin.brctl.diff \
@@ -164,12 +166,13 @@ SRC_URI += " \
     file://patches/add-missing-dbusd-permissions.patch \
     file://patches/xl-sysadm-interfaces.patch \
     file://patches/policy.modules.admin.bootloader.diff \
+    file://patches/optional-off-module-calls.patch \
     file://patches/monit-volatiles.patch \
     file://patches/xenstore-labeling.patch \
     file://patches/xen-privcmd.patch \
 "
 
-DEPENDS:append += " \
+DEPENDS:append = " \
     strace-native \
 "
 
@@ -211,11 +214,6 @@ do_policy_conf[doc] = "Generate configuration files (booleans.conf, \
 modules.conf) from the configuration elements passed by the layer. \
 See 'make conf' of the refpolicy for more information."
 do_policy_conf[dirs] = "${B}"
-
-do_install:append() {
-    install -d ${D}/etc/selinux
-    install -m 644 ${UNPACKDIR}/config ${D}/etc/selinux/config
-}
 
 sysroot_stage_all:append () {
     sysroot_stage_dir ${D}${sysconfdir} ${SYSROOT_DESTDIR}${sysconfdir}
