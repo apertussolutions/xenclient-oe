@@ -17,7 +17,7 @@ LIC_FILES_CHKSUM = "file://alt-cannadic/COPYING;md5=c93c0550bd3173f4504b2cbd8991
 DEPENDS = "anthy-native"
 PR = "r3"
 
-SRC_URI = "${OPENXT_MIRROR}/anthy-9100e.tar.gz \
+SRC_URI = "https://archive.debian.org/debian/pool/main/a/anthy/anthy_9100e.orig.tar.gz;downloadfilename=anthy-9100e.tar.gz \
            file://not_build_elc.patch;patch=1 \
            file://2ch_t.patch;patch=1 \
            file://native-helpers.patch;patch=1 \
