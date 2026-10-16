@@ -1,0 +1,189 @@
+Upstream-Status: Inappropriate [OpenXT]
+
+#OpenXT: write /var/volatile/etc/resolv.conf.<iface> for the dnsmasq
+#scripts on each bridge. Do not push the device IPv6 DNS config when
+#the device becomes activated.
+--- a/src/core/dns/nm-dns-manager.c
++++ b/src/core/dns/nm-dns-manager.c
+@@ -1039,6 +1039,7 @@
+ 
+ static SpawnResult
+ update_resolv_conf(NMDnsManager                 *self,
++                   const char                   *resolv_path,
+                    const char *const            *searches,
+                    const char *const            *nameservers,
+                    const char *const            *options,
+@@ -1057,33 +1058,32 @@
+ 
+     if (rc_manager == NM_DNS_MANAGER_RESOLV_CONF_MAN_FILE
+         || (rc_manager == NM_DNS_MANAGER_RESOLV_CONF_MAN_SYMLINK
+-            && !_read_link_cached(_PATH_RESCONF, &resconf_link_cached, &resconf_link))) {
++            && !_read_link_cached(resolv_path, &resconf_link_cached, &resconf_link))) {
+         gs_free char      *rc_path_syml = NULL;
+         nm_auto_free char *rc_path_real = NULL;
+-        const char        *rc_path      = _PATH_RESCONF;
++        const char        *rc_path      = resolv_path;
+         GError            *local        = NULL;
+ 
+         if (rc_manager == NM_DNS_MANAGER_RESOLV_CONF_MAN_FILE) {
+-            rc_path_real = realpath(_PATH_RESCONF, NULL);
++            rc_path_real = realpath(resolv_path, NULL);
+             if (rc_path_real)
+                 rc_path = rc_path_real;
+             else {
+                 /* realpath did not resolve a path-name. That either means,
+-                 * _PATH_RESCONF:
++                 * resolv_path:
+                  *   - does not exist
+                  *   - is a plain file
+                  *   - is a dangling symlink
+                  *
+                  * Handle the case, where it is a dangling symlink... */
+-                rc_path_syml = nm_utils_read_link_absolute(_PATH_RESCONF, NULL);
++                rc_path_syml = nm_utils_read_link_absolute(resolv_path, NULL);
+                 if (rc_path_syml)
+                     rc_path = rc_path_syml;
+             }
+         }
+ 
+-        /* we first write to /etc/resolv.conf directly. If that fails,
+-         * we still continue to write to runstatedir but remember the
+-         * error. */
++        /* OpenXT writes resolv_path and stops. Per-interface files must not
++         * also be copied onto the private resolv.conf. */
+         if (!g_file_set_contents(rc_path, content, -1, &local)) {
+             _LOGT("update-resolv-conf: write to %s failed (rc-manager=%s, %s)",
+                   rc_path,
+@@ -1099,6 +1099,7 @@
+                   rc_path,
+                   _rc_manager_to_string(rc_manager));
+         }
++        return write_file_result;
+     }
+ 
+     if ((f = fopen(MY_RESOLV_CONF_TMP, "we")) == NULL) {
+@@ -1953,11 +1954,12 @@
+         case NM_DNS_MANAGER_RESOLV_CONF_MAN_SYMLINK:
+         case NM_DNS_MANAGER_RESOLV_CONF_MAN_FILE:
+             result              = update_resolv_conf(self,
++                                        MY_RESOLV_CONF,
+                                         NM_CAST_STRV_CC(searches),
+                                         NM_CAST_STRV_CC(nameservers),
+                                         NM_CAST_STRV_CC(options),
+                                         p_local_error,
+-                                        priv->rc_manager);
++                                        NM_DNS_MANAGER_RESOLV_CONF_MAN_FILE);
+             resolv_conf_updated = TRUE;
+             /* If we have ended with no nameservers avoid updating again resolv.conf
+              * on stop, as some external changes may be applied to it in the meanwhile */
+@@ -1983,11 +1985,12 @@
+             _LOGD("update-dns: program not available, writing to resolv.conf");
+             g_clear_error(&local_error);
+             result              = update_resolv_conf(self,
++                                        MY_RESOLV_CONF,
+                                         NM_CAST_STRV_CC(searches),
+                                         NM_CAST_STRV_CC(nameservers),
+                                         NM_CAST_STRV_CC(options),
+                                         p_local_error,
+-                                        NM_DNS_MANAGER_RESOLV_CONF_MAN_SYMLINK);
++                                        NM_DNS_MANAGER_RESOLV_CONF_MAN_FILE);
+             resolv_conf_updated = TRUE;
+         }
+     }
+@@ -1996,6 +1999,7 @@
+      * ignoring any errors */
+     if (!resolv_conf_updated) {
+         update_resolv_conf(self,
++                           MY_RESOLV_CONF,
+                            NM_CAST_STRV_CC(searches),
+                            NM_CAST_STRV_CC(nameservers),
+                            NM_CAST_STRV_CC(options),
+@@ -2032,6 +2036,55 @@
+ 
+ /*****************************************************************************/
+ 
++#define OPENXT_RESOLV_CONF "/var/volatile/etc/resolv.conf"
++
++static gboolean
++xc_rewrite_resolv_conf(NMDnsManager         *self,
++                       int                   ifindex,
++                       int                   addr_family,
++                       const NML3ConfigData *l3cd,
++                       GError              **error)
++{
++    NMResolvConfData  rc = {
++        .nameservers  = g_ptr_array_new(),
++        .searches     = g_ptr_array_new(),
++        .options      = g_ptr_array_new(),
++        .nis_domain   = NULL,
++        .nis_servers  = g_ptr_array_new(),
++        .has_trust_ad = NM_TERNARY_DEFAULT,
++    };
++    gs_strfreev char **searches    = NULL;
++    gs_strfreev char **nameservers = NULL;
++    gs_strfreev char **options     = NULL;
++    gs_free char      *resolv_path = NULL;
++    const char        *iface;
++    SpawnResult        success;
++
++    iface = nm_platform_link_get_name(NM_PLATFORM_GET, ifindex);
++    if (!iface || !iface[0])
++        return FALSE;
++
++    merge_one_l3cd(&rc, addr_family, ifindex, l3cd, FALSE);
++    if (rc.has_trust_ad == NM_TERNARY_TRUE)
++        g_ptr_array_add(rc.options, g_strdup(NM_SETTING_DNS_OPTION_TRUST_AD));
++
++    searches    = _ptrarray_to_strv(rc.searches);
++    nameservers = _ptrarray_to_strv(rc.nameservers);
++    options     = _ptrarray_to_strv(rc.options);
++    g_ptr_array_free(rc.nis_servers, TRUE);
++
++    /* resolv.conf.<iface> is what the per-bridge dnsmasq scripts read. */
++    resolv_path = g_strdup_printf("%s.%s", OPENXT_RESOLV_CONF, iface);
++    success     = update_resolv_conf(self,
++                                 resolv_path,
++                                 NM_CAST_STRV_CC(searches),
++                                 NM_CAST_STRV_CC(nameservers),
++                                 NM_CAST_STRV_CC(options),
++                                 error,
++                                 NM_DNS_MANAGER_RESOLV_CONF_MAN_FILE);
++    return success == SR_SUCCESS;
++}
++
+ gboolean
+ nm_dns_manager_set_ip_config(NMDnsManager         *self,
+                              int                   addr_family,
+@@ -2210,6 +2263,19 @@
+             _LOGW("could not commit DNS changes: %s", error->message);
+     }
+ 
++    if (l3cd) {
++        gs_free_error GError *xc_error = NULL;
++
++        if (!xc_rewrite_resolv_conf(self,
++                                    nm_l3_config_data_get_ifindex(l3cd),
++                                    addr_family,
++                                    l3cd,
++                                    &xc_error))
++            _LOGW("Could not commit DNS changes: (%d) %s",
++                  xc_error ? xc_error->code : -1,
++                  (xc_error && xc_error->message) ? xc_error->message : "(unknown)");
++    }
++
+     return TRUE;
+ }
+ 
+--- a/src/core/nm-policy.c
++++ b/src/core/nm-policy.c
+@@ -2364,8 +2364,9 @@
+          * routing and DNS here. */
+         nm_dns_manager_begin_updates(priv->dns_manager, __func__);
+         if (!nm_device_managed_type_is_external(device)) {
++            /* OpenXT does not push the device IPv6 config here. */
+             nm_dns_manager_set_ip_config(priv->dns_manager,
+-                                         AF_UNSPEC,
++                                         AF_INET,
+                                          device,
+                                          nm_device_get_l3cd(device, TRUE),
+                                          nm_device_is_vpn(device) ? NM_DNS_IP_CONFIG_TYPE_VPN

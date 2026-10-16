@@ -1,0 +1,76 @@
+Upstream-Status: Inappropriate [OpenXT]
+
+#OpenXT: mirror seen-bssids into the dom0 database so network-slave
+#can restore them on startup.
+--- a/src/core/settings/nm-settings-connection.c
++++ b/src/core/settings/nm-settings-connection.c
+@@ -28,6 +28,10 @@
+ #include "nm-dbus-manager.h"
+ #include "settings/plugins/keyfile/nms-keyfile-storage.h"
+ 
++#include <errno.h>
++#include <sys/wait.h>
++#include <unistd.h>
++
+ #define SEEN_BSSIDS_MAX 30
+ 
+ #define _NM_SETTINGS_UPDATE2_FLAG_ALL_PERSIST_MODES                          \
+@@ -2503,6 +2507,28 @@
+                                     bssid);
+ }
+ 
++void
++update_seen_bssids_db(void)
++{
++    char *argv[6] = {
++        "/usr/bin/nm_sync.sh", "-n", "seen-bssids", "-w", NMSTATEDIR "/seen-bssids", NULL,
++    };
++    int err, stat_loc;
++
++    err = fork();
++    if (err == -1) {
++        g_warning("%s.%d: cannot fork to nm_sync.sh: %d", __FILE__, __LINE__, errno);
++    } else if (err) {
++        while ((waitpid(err, &stat_loc, 0) == -1) && (errno == EINTR))
++            ;
++        err = WEXITSTATUS(stat_loc);
++        if (err)
++            g_warning("%s.%d: nm_sync.sh failed with code: %d", __FILE__, __LINE__, err);
++    } else {
++        _exit(execvp(argv[0], argv));
++    }
++}
++
+ /**
+  * nm_settings_connection_add_seen_bssid:
+  * @self: the #NMSettingsConnection
+@@ -2557,6 +2583,8 @@
+     nm_assert(g_hash_table_size(priv->seen_bssids_hash)
+               == c_list_length(&priv->seen_bssids_lst_head));
+ 
++    update_seen_bssids_db();
++
+     if (!priv->kf_db_seen_bssids)
+         return;
+ 
+--- a/src/core/settings/nm-settings-connection.h
++++ b/src/core/settings/nm-settings-connection.h
+@@ -379,6 +379,8 @@
+ 
+ void _nm_settings_connection_cleanup_after_remove(NMSettingsConnection *self);
+ 
++void update_seen_bssids_db(void);
++
+ /*****************************************************************************/
+ 
+ char *nm_settings_connection_persist_mode_to_string(NMSettingsConnectionPersistMode mode);
+--- a/src/core/settings/nm-settings.c
++++ b/src/core/settings/nm-settings.c
+@@ -1284,6 +1284,7 @@
+ 
+     nm_key_file_db_remove_key(priv->kf_db_timestamps, uuid);
+     nm_key_file_db_remove_key(priv->kf_db_seen_bssids, uuid);
++    update_seen_bssids_db();
+ 
+     if (priv->startup_complete_start_timestamp_msec != 0)
+         _startup_complete_notify_connection(self, sett_conn, TRUE);

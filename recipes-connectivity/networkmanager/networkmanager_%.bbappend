@@ -1,4 +1,5 @@
-FILESEXTRAPATHS:prepend := "${THISDIR}/${BPN}-${PV}:${THISDIR}/files:"
+# ${PV} in a % bbappend expands to "%", which does not match networkmanager-1.56.0.
+FILESEXTRAPATHS:prepend := "${THISDIR}/networkmanager-1.56.0:${THISDIR}/files:"
 
 SRC_URI += " \
     file://fix-compatibility-with-network-slave.patch \
@@ -31,6 +32,8 @@ do_install:append () {
     install -m 0755 ${UNPACKDIR}/nm_to_db.awk ${D}${datadir}/xenclient/nm_scripts/nm_to_db.awk
     install -m 0644 ${D}${sysconfdir}/NetworkManager/NetworkManager.conf ${D}${datadir}/xenclient/nm_scripts/
 
+    # 1.56 installs dbus policy under /usr/share. These OpenXT snippets stay in /etc.
+    install -m 0755 -d ${D}${sysconfdir}/dbus-1/system.d
     # Install dbus conf file for allowing nm-applet to own a bus name
     install -m 0755 ${UNPACKDIR}/org.openxt.nmapplet.conf ${D}${sysconfdir}/dbus-1/system.d/org.openxt.nmapplet.conf
 

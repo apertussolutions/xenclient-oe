@@ -1,0 +1,63 @@
+Upstream-Status: Inappropriate [OpenXT]
+
+#OpenXT: DHCP is disabled by default on eth0 (a port) and on bridges.
+#Capture an assumed IPv4 config as auto, and keep configuring brbridged
+#when it is external. Treat brbridged as fully managed.
+--- a/src/core/NetworkManagerUtils.c
++++ b/src/core/NetworkManagerUtils.c
+@@ -1826,7 +1826,7 @@
+     if (ifindex <= 0 || !nm_platform_link_get(platform, ifindex)) {
+         g_object_set(s_ip,
+                      NM_SETTING_IP_CONFIG_METHOD,
+-                     IS_IPv4 ? NM_SETTING_IP4_CONFIG_METHOD_DISABLED
++                     IS_IPv4 ? NM_SETTING_IP4_CONFIG_METHOD_AUTO
+                              : NM_SETTING_IP6_CONFIG_METHOD_IGNORE,
+                      NULL);
+         return NM_SETTING(g_steal_pointer(&s_ip));
+@@ -1879,7 +1879,7 @@
+     if (!method) {
+         /* Use 'disabled/ignore' if the method wasn't previously set */
+         if (IS_IPv4)
+-            method = NM_SETTING_IP4_CONFIG_METHOD_DISABLED;
++            method = NM_SETTING_IP4_CONFIG_METHOD_AUTO;
+         else
+             method = maybe_ipv6_disabled ? NM_SETTING_IP6_CONFIG_METHOD_DISABLED
+                                          : NM_SETTING_IP6_CONFIG_METHOD_IGNORE;
+--- a/src/core/devices/nm-device.c
++++ b/src/core/devices/nm-device.c
+@@ -13269,8 +13269,13 @@
+     NMConnection    *connection;
+     int              ip_ifindex;
+ 
+-    if (nm_device_managed_type_is_external(self))
+-        goto out;
++    if (nm_device_managed_type_is_external(self)) {
++        const char *iface = nm_device_get_ip_iface(self);
++
++        /* brbridged is external but still needs IPv4 configuration. */
++        if (!(IS_IPv4 && iface && !strncmp(iface, "brbridged", 9)))
++            goto out;
++    }
+ 
+     connection = nm_device_get_applied_connection(self);
+     g_return_if_fail(connection);
+@@ -17577,6 +17582,7 @@
+     NMSettingsConnection         *sett_conn;
+     NMSettingSriov               *s_sriov;
+     gboolean                      concheck_now;
++    const char                   *iface = NULL;
+ 
+     g_return_if_fail(NM_IS_DEVICE(self));
+ 
+@@ -17633,8 +17639,10 @@
+     /* Cache the activation request for the dispatcher */
+     req = nm_g_object_ref(priv->act_request.obj);
+ 
++    iface = nm_device_get_ip_iface(self);
+     if (state > NM_DEVICE_STATE_UNMANAGED && state <= NM_DEVICE_STATE_ACTIVATED
+-        && nm_device_state_reason_check(reason) == NM_DEVICE_STATE_REASON_NOW_MANAGED
++        && (nm_device_state_reason_check(reason) == NM_DEVICE_STATE_REASON_NOW_MANAGED
++            || (iface && !strncmp(iface, "brbridged", 9)))
+         && NM_IN_SET_TYPED(NMDeviceManagedType,
+                            priv->managed_type,
+                            NM_DEVICE_MANAGED_TYPE_EXTERNAL,

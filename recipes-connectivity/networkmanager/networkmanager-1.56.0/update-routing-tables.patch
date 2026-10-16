@@ -1,0 +1,95 @@
+Upstream-Status: Inappropriate [OpenXT]
+
+#OpenXT: also install and delete each IPv4 route in table 30+ifindex,
+#and refresh routing when the default connection is unchanged.
+--- a/src/core/nm-policy.c
++++ b/src/core/nm-policy.c
+@@ -1266,9 +1266,8 @@
+     }
+     g_assert((best || vpn) && best_ac);
+ 
+-    if (!force_update && best_ac && best_ac == priv->default_ac4)
+-        return;
+-
++    /* OpenXT still refreshes the per-bridge routing tables when the
++     * default connection has not changed. */
+     if (best) {
+         const CList        *tmp_list;
+         NMActiveConnection *ac;
+--- a/src/libnm-platform/nm-linux-platform.c
++++ b/src/libnm-platform/nm-linux-platform.c
+@@ -10723,11 +10723,65 @@
+ 
+ /*****************************************************************************/
+ 
++static void
++oxt_route_add(NMPlatform *platform, NMPNlmFlags flags, const NMPObject *obj, char **out_extack_msg)
++{
++    nm_auto_nlmsg struct nl_msg *nlmsg = NULL;
++    NMPObject                    copy;
++    guint32                      table;
++
++    if (NMP_OBJECT_GET_TYPE(obj) != NMP_OBJECT_TYPE_IP4_ROUTE)
++        return;
++
++    copy                        = *obj;
++    table                       = 30u + (guint32) copy.ip_route.ifindex;
++    copy.ip_route.table_coerced = nm_platform_route_table_coerce(table);
++    nlmsg = _nl_msg_new_route(RTM_NEWROUTE, flags & NMP_NLM_FLAG_FMASK, &copy);
++    if (!nlmsg) {
++        _NMLOG(LOGL_WARN,
++               "OpenXT: couldn't add routing table entry for ifindex %d",
++               copy.ip_route.ifindex);
++        return;
++    }
++
++    do_add_addrroute(platform,
++                     obj,
++                     nlmsg,
++                     NM_FLAGS_HAS(flags, NMP_NLM_FLAG_SUPPRESS_NETLINK_FAILURE),
++                     out_extack_msg);
++}
++
++static void
++oxt_route_delete(NMPlatform *platform, const NMPObject *obj)
++{
++    nm_auto_nlmsg struct nl_msg *nlmsg = NULL;
++    NMPObject                    copy;
++    guint32                      table;
++
++    if (NMP_OBJECT_GET_TYPE(obj) != NMP_OBJECT_TYPE_IP4_ROUTE)
++        return;
++
++    copy                        = *obj;
++    table                       = 30u + (guint32) copy.ip_route.ifindex;
++    copy.ip_route.table_coerced = nm_platform_route_table_coerce(table);
++    nlmsg                       = _nl_msg_new_route(RTM_DELROUTE, 0, &copy);
++    if (!nlmsg) {
++        _NMLOG(LOGL_WARN,
++               "OpenXT: couldn't delete routing table entry for ifindex %d",
++               copy.ip_route.ifindex);
++        return;
++    }
++
++    do_delete_object(platform, obj, nlmsg);
++}
++
+ static int
+ ip_route_add(NMPlatform *platform, NMPNlmFlags flags, NMPObject *obj_stack, char **out_extack_msg)
+ {
+     nm_auto_nlmsg struct nl_msg *nlmsg = NULL;
+ 
++    oxt_route_add(platform, flags, obj_stack, out_extack_msg);
++
+     nlmsg = _nl_msg_new_route(RTM_NEWROUTE, flags & NMP_NLM_FLAG_FMASK, obj_stack);
+     if (!nlmsg)
+         g_return_val_if_reached(-NME_BUG);
+@@ -10749,6 +10803,8 @@
+ 
+     switch (NMP_OBJECT_GET_TYPE(obj)) {
+     case NMP_OBJECT_TYPE_IP4_ROUTE:
++        oxt_route_delete(platform, obj);
++        /* fall-through */
+     case NMP_OBJECT_TYPE_IP6_ROUTE:
+         nlmsg = _nl_msg_new_route(RTM_DELROUTE, 0, obj);
+         break;

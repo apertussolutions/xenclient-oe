@@ -1,0 +1,78 @@
+Upstream-Status: Inappropriate [OpenXT]
+
+#OpenXT: mirror keyfile connection writes into the dom0 database.
+#network-slave reads them back on boot instead of creating them again.
+--- a/src/core/settings/plugins/keyfile/nms-keyfile-utils.c
++++ b/src/core/settings/plugins/keyfile/nms-keyfile-utils.c
+@@ -9,6 +9,9 @@
+ 
+ #include <stdlib.h>
+ #include <sys/stat.h>
++#include <errno.h>
++#include <sys/wait.h>
++#include <unistd.h>
+ 
+ #include "libnm-glib-aux/nm-uuid.h"
+ #include "libnm-glib-aux/nm-io-utils.h"
+@@ -28,6 +31,28 @@
+ 
+ /*****************************************************************************/
+ 
++void
++xc_connections_update(char *path)
++{
++    char *argv[6] = {
++        "/usr/bin/nm_sync.sh", "-n", "nm-connections", "-w", path, NULL,
++    };
++    int err, stat_loc;
++
++    err = fork();
++    if (err == -1) {
++        g_warning("%s.%d: cannot fork to nm_sync.sh: %d", __FILE__, __LINE__, errno);
++    } else if (err) {
++        while ((waitpid(err, &stat_loc, 0) == -1) && (errno == EINTR))
++            ;
++        err = WEXITSTATUS(stat_loc);
++        if (err)
++            g_warning("%s.%d: nm_sync.sh failed with code: %d", __FILE__, __LINE__, err);
++    } else {
++        _exit(execvp(argv[0], argv));
++    }
++}
++
+ const char *
+ nms_keyfile_nmmeta_check_filename(const char *filename, guint *out_uuid_len)
+ {
+--- a/src/core/settings/plugins/keyfile/nms-keyfile-utils.h
++++ b/src/core/settings/plugins/keyfile/nms-keyfile-utils.h
+@@ -58,6 +58,10 @@
+ 
+ /*****************************************************************************/
+ 
++void xc_connections_update(char *path);
++
++/*****************************************************************************/
++
+ struct stat;
+ gboolean nms_keyfile_utils_check_file_permissions_stat(NMSKeyfileFiletype filetype,
+                                                        const struct stat *st,
+--- a/src/core/settings/nm-settings-connection.c
++++ b/src/core/settings/nm-settings-connection.c
+@@ -689,6 +689,7 @@
+     nm_settings_delete_connection(NM_SETTINGS_CONNECTION_GET_PRIVATE(self)->settings,
+                                   self,
+                                   allow_add_to_no_auto_default);
++    xc_connections_update((char *) nm_settings_connection_get_filename(self));
+ }
+ 
+ /*****************************************************************************/
+--- a/src/core/settings/plugins/keyfile/nms-keyfile-writer.c
++++ b/src/core/settings/plugins/keyfile/nms-keyfile-writer.c
+@@ -424,6 +424,7 @@
+ 
+     NM_SET_OUT(out_reread, g_steal_pointer(&reread));
+     NM_SET_OUT(out_reread_same, reread_same);
++    xc_connections_update(path);
+     NM_SET_OUT(out_path, g_steal_pointer(&path));
+ 
+     return TRUE;

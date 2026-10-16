@@ -1,0 +1,129 @@
+Upstream-Status: Inappropriate [OpenXT]
+
+#OpenXT: do not detach eth0 from brbridged when the cable is unplugged,
+#do not create "Wired connection %d", and move eth to disconnected only
+#when the carrier is still down after the carrier wait expires.
+--- a/src/core/devices/nm-device-ethernet-utils.c
++++ b/src/core/devices/nm-device-ethernet-utils.c
+@@ -12,15 +12,9 @@
+ char *
+ nm_device_ethernet_utils_get_default_wired_name(GHashTable *existing_ids)
+ {
+-    char *temp;
+-    int   i;
+-
+-    /* Find the next available unique connection name */
+-    for (i = 1; i < G_MAXINT; i++) {
+-        temp = g_strdup_printf(_("Wired connection %d"), i);
+-        if (!existing_ids || !g_hash_table_contains(existing_ids, temp))
+-            return temp;
+-        g_free(temp);
+-    }
++    /* OpenXT does not create "Wired connection %d". eth0 is a port of
++     * brbridged, and that default profile would be assumed when the cable
++     * returns. */
++    (void) existing_ids;
+     return NULL;
+ }
+--- a/src/core/devices/nm-device.c
++++ b/src/core/devices/nm-device.c
+@@ -7347,10 +7347,12 @@
+             return;
+         }
+         /* fall-through and change state of device */
+-    } else if (priv->is_attached && !carrier) {
++    } else if (priv->is_attached && !carrier
++               && strncmp(nm_device_get_iface(self) ?: "", "eth", 3)) {
+         /* Ports don't deactivate when they lose carrier; for
+          * bonds/teams in particular that would be actively
+-         * counterproductive.
++         * counterproductive. eth ports still change state so the
++         * bridge can be brought back when the cable returns.
+          */
+         return;
+     }
+@@ -7381,7 +7383,11 @@
+         if (recheck_auto_activate)
+             nm_device_recheck_auto_activate_schedule(self);
+     } else {
+-        if (priv->state == NM_DEVICE_STATE_UNAVAILABLE) {
++        if (strncmp(nm_device_get_iface(self) ?: "", "eth", 3) == 0) {
++            nm_device_queue_state(self,
++                                  NM_DEVICE_STATE_DISCONNECTED,
++                                  NM_DEVICE_STATE_REASON_CARRIER);
++        } else if (priv->state == NM_DEVICE_STATE_UNAVAILABLE) {
+             if (priv->queued_state.id && priv->queued_state.state >= NM_DEVICE_STATE_DISCONNECTED)
+                 queued_state_clear(self);
+         } else {
+@@ -8813,6 +8819,7 @@
+     NMDevicePrivate *priv    = NM_DEVICE_GET_PRIVATE(self);
+     gboolean         release = FALSE;
+     gboolean         configure;
++    const char      *iface   = nm_device_get_iface(port);
+ 
+     _LOGD(LOGD_DEVICE,
+           "port %s state change %d (%s) -> %d (%s)",
+@@ -8836,7 +8843,7 @@
+         release = TRUE;
+     }
+ 
+-    if (release) {
++    if (release && strncmp(iface ?: "", "eth", 3)) {
+         configure = (priv->managed_type == NM_DEVICE_MANAGED_TYPE_FULL
+                      && nm_device_managed_type_get(port) != NM_DEVICE_MANAGED_TYPE_EXTERNAL)
+                     || nm_device_managed_type_get(port) == NM_DEVICE_MANAGED_TYPE_FULL;
+@@ -15722,10 +15729,15 @@
+     NMDevice        *self = NM_DEVICE(user_data);
+     NMDevicePrivate *priv = NM_DEVICE_GET_PRIVATE(self);
+ 
++    const char *iface = nm_device_get_ip_iface(self);
++
+     nm_clear_g_source_inst(&priv->carrier_wait_source);
+     nm_device_remove_pending_action(self, NM_PENDING_ACTION_CARRIER_WAIT, FALSE);
+-    if (!priv->carrier)
++    if (!priv->carrier) {
+         _carrier_wait_check_queued_act_request(self);
++        if (iface && strncmp(iface, "eth", 3) == 0)
++            nm_device_queue_state(self, NM_DEVICE_STATE_DISCONNECTED, NM_DEVICE_STATE_REASON_CARRIER);
++    }
+     return G_SOURCE_CONTINUE;
+ }
+ 
+--- a/src/core/tests/test-wired-defname.c
++++ b/src/core/tests/test-wired-defname.c
+@@ -47,7 +47,7 @@
+     gs_free char *name = NULL;
+ 
+     name = _get_default_wired_name(NULL);
+-    g_assert_cmpstr(name, ==, "Wired connection 1");
++    g_assert_null(name);
+ }
+ 
+ /*****************************************************************************/
+@@ -63,7 +63,7 @@
+     list = g_slist_append(list, _new_connection("random gsm connection"));
+ 
+     name = _get_default_wired_name(list);
+-    g_assert_cmpstr(name, ==, "Wired connection 1");
++    g_assert_null(name);
+ 
+     g_slist_free_full(list, g_object_unref);
+ }
+@@ -81,7 +81,7 @@
+     list = g_slist_append(list, _new_connection("random gsm connection"));
+ 
+     name = _get_default_wired_name(list);
+-    g_assert_cmpstr(name, ==, "Wired connection 2");
++    g_assert_null(name);
+ 
+     g_slist_free_full(list, g_object_unref);
+ }
+@@ -103,7 +103,7 @@
+     list = g_slist_append(list, _new_connection("a vpn"));
+ 
+     name = _get_default_wired_name(list);
+-    g_assert_cmpstr(name, ==, "Wired connection 4");
++    g_assert_null(name);
+ 
+     g_slist_free_full(list, g_object_unref);
+ }
