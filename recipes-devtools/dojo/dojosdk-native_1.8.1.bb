@@ -11,3 +11,18 @@ SRC_URI[sha256sum] = "a1a9d315ab3322539d997351b403325c7ab53164b18675a415020aa152
 require recipes-devtools/dojo/dojosdk-native.inc
 
 SRC_URI += "file://use-java-native-copy-rather-than-forking.patch;patch=1"
+
+# icedtea7-native 2.1.3 does not compile with GCC 15. Dojo only needs a
+# JVM to run Rhino, so the wrapper uses the host java.
+DEPENDS:remove = "icedtea7-native"
+
+do_install:append() {
+    cat << EOF > ${D}${bindir}/dojo-${PV}
+#!/bin/sh
+export PATH="/usr/bin:\${PATH}"
+# Rhino calls FileChannel.transferFrom. Java 21 hides sun.nio.ch.
+export JAVA_TOOL_OPTIONS="\${JAVA_TOOL_OPTIONS:+\$JAVA_TOOL_OPTIONS }--add-opens=java.base/sun.nio.ch=ALL-UNNAMED"
+@DOJOHOME@/util/buildscripts/build.sh "\$@"
+EOF
+    chmod 0755 ${D}${bindir}/dojo-${PV}
+}
