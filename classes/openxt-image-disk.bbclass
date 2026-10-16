@@ -56,7 +56,8 @@ build_boot_dd() {
 	HDDDIR="${S}/hdd/boot"
 	HDDIMG="${S}/hdd.image"
 	ROOTFS_TYPE="${1}"
-	ROOTFS="${IMAGE_NAME}${IMAGE_NAME_SUFFIX}.${ROOTFS_TYPE}"
+	# IMAGE_NAME already includes IMAGE_NAME_SUFFIX on YP 6.0.
+	ROOTFS="${IMAGE_NAME}.${ROOTFS_TYPE}"
 	IMAGE="${ROOTFS}.disk"
 
 	populate_kernel $HDDDIR
@@ -121,7 +122,9 @@ validate_disk_signature() {
         bbfatal "DISK_SIGNATURE ${DISK_SIGNATURE} must be an 8 digit hex string"
 }
 
-CONVERSION_CMD:disk() {
+# Colon in a function name is invalid in dash. IMAGE_CMD inlines
+# CONVERSION_CMD:disk as a string.
+openxt_disk_conversion() {
 	validate_disk_signature
 	if [ "${PCBIOS}" = "1" ]; then
 		build_syslinux_cfg
@@ -129,5 +132,7 @@ CONVERSION_CMD:disk() {
 	if [ "${EFI}" = "1" ]; then
 		build_efi_cfg
 	fi
-	build_boot_dd "${type}"
+	build_boot_dd "$1"
 }
+
+CONVERSION_CMD:disk = "openxt_disk_conversion ${type}"
