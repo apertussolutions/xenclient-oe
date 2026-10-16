@@ -45,9 +45,9 @@ IMAGE_INSTALL = "\
     libdrm-radeon \
 "
 # The entire installer rootfs is passed as the initramfs.
-# Inflate the maximum value to 512M to reflect that (original definition is
-# 128M in bitbake.conf)
-INITRAMFS_MAXSIZE = "524288"
+# The openxt-installer rootfs is 574528K, past the 512M cap.
+# 768M leaves room above that measured size. bitbake.conf uses 128M.
+INITRAMFS_MAXSIZE = "786432"
 
 inherit openxt-image
 inherit xenclient-licences
