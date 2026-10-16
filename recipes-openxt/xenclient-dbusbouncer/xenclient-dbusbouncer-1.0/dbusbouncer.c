@@ -36,6 +36,7 @@
 #include <sys/un.h>
 #include <libargo.h>
 #include <signal.h>
+#include <sys/wait.h>
 #include <xs.h>
 
 #define ARGO     1
