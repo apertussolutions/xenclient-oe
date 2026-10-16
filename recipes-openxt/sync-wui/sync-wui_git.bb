@@ -15,8 +15,6 @@ SRCREV = "${AUTOREV}"
 SRC_URI = "git://github.com/OpenXT/sync-wui.git;protocol=https;branch=master"
 
 
-inherit package_tar
-
 do_configure() {
 	:
 }
@@ -38,6 +36,10 @@ do_install() {
 
     cp VERSION ${D}/sync-wui/
     cp VERSION ${D}/sync-wui-sources/
+
+    # Vendored examples are not executed. Their shebangs fail file-rdeps.
+    find ${D}/sync-wui ${D}/sync-wui-sources -name snoopldap.d -delete
+    find ${D}/sync-wui ${D}/sync-wui-sources -path '*/dtrace-provider/libusdt/test.pl' -delete
 }
 
 do_populate_sysroot() {
