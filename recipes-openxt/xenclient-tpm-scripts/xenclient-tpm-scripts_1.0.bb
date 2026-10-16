@@ -4,8 +4,10 @@ LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/GPL-2.0-only;md5=801f80980d171d
 
 SRC_URI = " \
     file://tpm-functions \
-    file://*-detect.sh \
-    file://*-fix.sh \
+    file://dellminvers-detect.sh \
+    file://montavina-detect.sh \
+    file://pcr1-detect.sh \
+    file://pcr1-fix.sh \
 "
 
 RDEPENDS:${PN} = " \
