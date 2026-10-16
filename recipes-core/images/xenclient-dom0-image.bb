@@ -107,7 +107,12 @@ rw_config_partition() {
     # /etc/default/ssh.
     # This should only be done after read_only_rootfs_hook(s) have been done.
     if [ -d ${IMAGE_ROOTFS}${sysconfdir}/ssh ]; then
-        sed -i -e '/^SYSCONFDIR=/{h;s/=.*/=\$\{SYSCONFDIR:-\/config\/etc\/ssh\}/};${x;/^$/{s//SYSCONFDIR=\$\{SYSCONFDIR:-\/config\/etc\/ssh\}/;H};x}' ${IMAGE_ROOTFS}${sysconfdir}/default/ssh
+        mkdir -p ${IMAGE_ROOTFS}${sysconfdir}/default
+        if [ -f ${IMAGE_ROOTFS}${sysconfdir}/default/ssh ]; then
+            sed -i -e '/^SYSCONFDIR=/{h;s/=.*/=\$\{SYSCONFDIR:-\/config\/etc\/ssh\}/};${x;/^$/{s//SYSCONFDIR=\$\{SYSCONFDIR:-\/config\/etc\/ssh\}/;H};x}' ${IMAGE_ROOTFS}${sysconfdir}/default/ssh
+        else
+            echo 'SYSCONFDIR=\${SYSCONFDIR:-/config/etc/ssh}' > ${IMAGE_ROOTFS}${sysconfdir}/default/ssh
+        fi
         sed -i -e 's/HostKey .*\/ssh\/ssh_host_\(.*\)key/HostKey \/config\/etc\/ssh\/ssh_host_\1key/' ${IMAGE_ROOTFS}${sysconfdir}/ssh/sshd_config_readonly
         echo "HostKey /config/etc/ssh/ssh_host_dsa_key" >> ${IMAGE_ROOTFS}${sysconfdir}/ssh/sshd_config
         echo "HostKey /config/etc/ssh/ssh_host_rsa_key" >> ${IMAGE_ROOTFS}${sysconfdir}/ssh/sshd_config
