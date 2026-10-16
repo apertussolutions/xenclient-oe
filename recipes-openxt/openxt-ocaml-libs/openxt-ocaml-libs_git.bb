@@ -12,14 +12,17 @@ DEPENDS += " \
 
 PV = "0+git${SRCPV}"
 
-SRC_URI = "git://github.com/OpenXT/toolstack.git;protocol=https;branch=master"
+SRC_URI = "git://github.com/OpenXT/toolstack.git;protocol=https;branch=master \
+    file://0001-unixext-rename-bool-parameter-for-C23.patch \
+"
 SRCREV = "${AUTOREV}"
+FILESEXTRAPATHS:prepend := "${THISDIR}/${PN}:"
 
 
 inherit ocaml findlib
 
 # ocamlc could determine this in the build-system, but does not currently.
-CFLAGS:append += "-I${ocamlincdir}"
+CFLAGS:append = " -I${ocamlincdir}"
 do_compile() {
     oe_runmake V=1 XEN_DIST_ROOT="${STAGING_DIR_HOST}"
 }
@@ -41,4 +44,6 @@ do_install() {
 }
 
 # .cma/.cmi files require the runtime environment.
-INSANE_SKIP:${PN}-dev = "file-rdeps"
+# ocamlc embeds TMPDIR paths in bytecode and static archives.
+INSANE_SKIP:${PN}-dev += "file-rdeps"
+INSANE_SKIP:${PN}-staticdev += "buildpaths"
