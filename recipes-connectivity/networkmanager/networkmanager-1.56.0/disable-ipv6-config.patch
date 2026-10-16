@@ -1,0 +1,28 @@
+Upstream-Status: Inappropriate [OpenXT]
+
+#OpenXT: complete every connection with IPv6 method ignore.
+--- a/src/core/NetworkManagerUtils.c
++++ b/src/core/NetworkManagerUtils.c
+@@ -297,17 +297,11 @@
+         g_free(generated_ifname);
+     }
+ 
+-    if (nm_connection_get_setting_adsl(connection) || nm_connection_get_setting_cdma(connection)
+-        || nm_connection_get_setting_olpc_mesh(connection)
+-        || nm_connection_get_setting_pppoe(connection)
+-        || nm_connection_get_setting_vpn(connection)) {
+-        parameters = g_hash_table_new(nm_str_hash, g_str_equal);
+-        g_hash_table_insert(parameters,
+-                            NM_CONNECTION_NORMALIZE_PARAM_IP6_CONFIG_METHOD,
+-                            NM_SETTING_IP6_CONFIG_METHOD_IGNORE);
+-    } else {
+-        parameters = NULL;
+-    }
++    /* OpenXT ignores IPv6 on every connection, not only the types above. */
++    parameters = g_hash_table_new(nm_str_hash, g_str_equal);
++    g_hash_table_insert(parameters,
++                        NM_CONNECTION_NORMALIZE_PARAM_IP6_CONFIG_METHOD,
++                        NM_SETTING_IP6_CONFIG_METHOD_IGNORE);
+ 
+     /* We ignore the result, because the caller validates the connection.
+      * The only reason we do a normalization attempt here is
