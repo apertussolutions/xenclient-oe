@@ -17,7 +17,8 @@ python() {
 
     if initrds:
         for i in initrds.split():
-            d.appendVar('INITRD', '%s/%s-%s.cpio.gz' % (deploy, i, machine))
+            suffix = d.getVar('IMAGE_NAME_SUFFIX') or '.rootfs'
+            d.appendVar('INITRD', '%s/%s-%s%s.cpio.gz' % (deploy, i, machine, suffix))
             d.appendVarFlag('do_vm_common', 'depends', ' %s:do_image_complete' % i)
 }
 
