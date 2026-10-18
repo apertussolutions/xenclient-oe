@@ -1,0 +1,20 @@
+Allocate 150M for the EFI system partition.
+
+Upstream-Status: Inappropriate [OpenXT]
+
+---
+part2/stages/Make-ESP-partition | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/part2/stages/Make-ESP-partition b/part2/stages/Make-ESP-partition
+--- a/part2/stages/Make-ESP-partition
++++ b/part2/stages/Make-ESP-partition
+@@ -31,7 +31,7 @@
+     local EFI_SYSTEM_PARTITION_GUID="C12A7328-F81F-11D2-BA4B-00A0C93EC93B"
+     local ESP=$(sfdisk -d ${DISK_DEV} | grep "type=${EFI_SYSTEM_PARTITION_GUID}" | awk '{ print $1 }')
+     local ESP_PARTNUM="1"
+-    local ESP_SIZE="+100M"  # 1 MiB
++    local ESP_SIZE="+150M"
+     local ESP_TYPE="EF00" # EFI System Partition Typecode
+ 
+     if [ "${ESP}" != "" ]; then

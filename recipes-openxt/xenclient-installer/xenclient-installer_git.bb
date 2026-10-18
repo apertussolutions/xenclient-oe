@@ -7,6 +7,7 @@ PV = "0+git${SRCPV}"
 SRCREV = "${AUTOREV}"
 SRC_URI = " \
     git://github.com/OpenXT/installer.git;protocol=https;branch=master \
+    file://0001-esp-150m.patch \
     file://network.ans \
     file://network_download_win.ans \
     file://network_manual.ans \
