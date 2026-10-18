@@ -2,7 +2,9 @@ DESCRIPTION = "Xen hypervisor ocaml libs and xenstore components"
 
 XEN_REL = "4.21"
 XEN_BRANCH ?= "stable-${XEN_REL}"
-SRCREV ?= "${AUTOREV}"
+# Same commit as xen and xen-tools, so the OCaml bindings match the
+# libxenctrl this recipe links.
+SRCREV = "78c2a59f9edba7ee4da31c7c95ac52a003d56b91"
 
 SRC_URI = " \
     git://xenbits.xen.org/xen.git;branch=${XEN_BRANCH};protocol=git \
