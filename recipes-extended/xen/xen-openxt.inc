@@ -25,8 +25,9 @@ EXTRA_OEMAKE += " \
     XEN_VENDORVERSION=-xc \
     "
 # Since this recipe forces the hypervisor build to target 64-bit architecture
-# even when MACHINE is 32-bit, disable this usual arch sanity check:
-INSANE_SKIP:${PN}-dbg = "arch"
+# even when MACHINE is 32-bit, disable this usual arch sanity check.
+# xen-syms records the build directory, which Yocto 6.0 rejects.
+INSANE_SKIP:${PN}-dbg = "arch buildpaths"
 
 do_configure() {
     echo "debug := n" > .config
