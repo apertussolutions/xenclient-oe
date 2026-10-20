@@ -5,17 +5,16 @@ SRC_URI:append = "\
     file://xenstored.initscript \
     file://xen-init-dom0.initscript \
     file://xl.conf \
+    file://10-ether.network \
+    file://10-xenbr0.netdev \
+    file://10-xenbr0.network \
 "
 
 RDEPENDS:${PN}-xl += " ${PN}-scripts-block"
 RDEPENDS:${PN}-libxenlight += " varstored-watch"
 
-PACKAGES += " \
-    ${PN}-libxenhypfs \
-    ${PN}-libxenhypfs-dev \
-    ${PN}-libxenmanage \
-    ${PN}-libxenmanage-dev \
-    "
+# libxenhypfs, libxenmanage, and xenhypfs are already packaged by
+# meta-virtualization.
 
 PROVIDES =+ "virtual-xenstored"
 
@@ -50,7 +49,6 @@ FILES:${PN}-libxenhypfs-dev = " \
 FILES:${PN}-xenhypfs = " \
     ${sbindir}/xenhypfs \
 "
-PACKAGES += "${PN}-xenhypfs"
 
 FILES:${PN}-xen-ucode = " \
     ${sbindir}/xen-ucode \
@@ -116,8 +114,6 @@ pkg_prerm:${PN}-xenstored () {
 }
 
 do_install:append() {
-    install -d ${D}${datadir}/pkgconfig
-
     install -d ${D}${INIT_D_DIR}
     install -m 0755 ${UNPACKDIR}/xenconsoled.initscript \
                     ${D}${INIT_D_DIR}/xenconsoled
