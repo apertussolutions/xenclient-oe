@@ -1,5 +1,10 @@
 FILESEXTRAPATHS:prepend := "${THISDIR}/files:"
 
+# Yocto 6.0 treats patch fuzz as a fatal QA error. The OpenXT queue
+# still applies with fuzz on 78c2a59f9edb.
+ERROR_QA:remove = "patch-fuzz"
+WARN_QA:append = " patch-fuzz"
+
 # XSA patches take precedence and belong at the head of the queue.
 # This ensures that any collisions with other patches get addressed
 # by modifying the OpenXT-specific patches, not the XSA patches.
