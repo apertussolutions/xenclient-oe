@@ -47,6 +47,7 @@ FILES:${PN}-xenstored = " \
     ${INIT_D_DIR}/xenstored.${PN}-xenstored \
     ${sysconfdir}/xen/oxenstored.conf \
     "
+FILES:${PN} += "${libdir}/xen/ocaml"
 RPROVIDES:${PN}-xenstored = "virtual-xenstored"
 
 EXTRA_OECONF:remove = "--disable-ocamltools"
@@ -110,4 +111,5 @@ do_install() {
                     ${D}${sysconfdir}/xen/oxenstored.conf
 }
 
-INSANE_SKIP:${PN}-dev = "file-rdeps"
+INSANE_SKIP:${PN}-dev = "file-rdeps buildpaths"
+INSANE_SKIP:${PN}-staticdev += "buildpaths"
