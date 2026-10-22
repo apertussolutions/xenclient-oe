@@ -4,17 +4,18 @@ diff --git a/policy/modules/system/selinuxutil.te b/policy/modules/system/selinu
 index 2c4f793918b1..df918732c2c4 100644
 --- a/policy/modules/system/selinuxutil.te
 +++ b/policy/modules/system/selinuxutil.te
-@@ -124,6 +124,9 @@ type setfiles_t alias restorecon_t, can_relabelto_binary_policy;
+@@ -124,6 +124,10 @@ type setfiles_t alias restorecon_t, can_relabelto_binary_policy;
  type setfiles_exec_t alias restorecon_exec_t;
  init_system_domain(setfiles_t, setfiles_exec_t)
  domain_obj_id_change_exemption(setfiles_t)
 +term_read_console(setfiles_t)
 +dev_read_urand(setfiles_t)
 +dev_rw_generic_chr_files(setfiles_t)
++files_dontaudit_rw_root_chr_files(setfiles_t)
  
  ########################################
  #
-@@ -181,6 +184,7 @@ dontaudit load_policy_t selinux_config_t:file write;
+@@ -181,6 +185,7 @@ dontaudit load_policy_t selinux_config_t:file write;
  
  dev_read_urand(load_policy_t)
  

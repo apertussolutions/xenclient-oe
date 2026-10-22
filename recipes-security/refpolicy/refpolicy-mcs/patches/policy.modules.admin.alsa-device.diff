@@ -1,0 +1,12 @@
+Upstream-Status: Inappropriate [OpenXT]
+
+--- a/policy/modules/admin/alsa.te	2026-10-23 14:49:22.940992468 -0400
++++ b/policy/modules/admin/alsa.te	2026-10-23 14:49:22.940992468 -0400
+@@ -42,6 +42,7 @@
+ #
+ 
+ allow alsa_t self:capability { dac_override dac_read_search ipc_owner setgid setuid };
++dev_rw_generic_chr_files(alsa_t)
+ # kill : kill pulseaudio
+ dontaudit alsa_t self:capability { kill sys_admin };
+ allow alsa_t self:process { getsched setsched signal };

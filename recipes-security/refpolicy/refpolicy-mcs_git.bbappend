@@ -99,6 +99,7 @@ SRC_URI += " \
 SRC_URI += " \
     file://patches/fc-subs-config-aliases.patch \
     file://patches/policy.modules.admin.alsa.diff \
+    file://patches/policy.modules.admin.alsa-device.diff \
     file://patches/policy.modules.admin.brctl.diff \
     file://patches/policy.modules.admin.dmidecode.diff \
     file://patches/policy.modules.admin.dpkg.diff \
@@ -114,6 +115,7 @@ SRC_URI += " \
     file://patches/policy.modules.roles.staff.diff \
     file://patches/policy.modules.roles.sysadm.diff \
     file://patches/policy.modules.services.acpi.diff \
+    file://patches/policy.modules.services.acpi-device.diff \
     file://patches/policy.modules.services.cron.diff \
     file://patches/policy.modules.services.dbus.diff \
     file://patches/policy.modules.services.dnsmasq.diff \
@@ -133,10 +135,13 @@ SRC_URI += " \
     file://patches/policy.modules.system.selinuxutil.diff \
     file://patches/policy.modules.system.sysnetwork.patch \
     file://patches/policy.modules.system.udev.diff \
+    file://patches/policy.modules.system.udev-watch.diff \
+    file://patches/policy.modules.system.udev-unlink.diff \
     file://patches/policy.modules.system.unconfined.diff \
     file://patches/policy.modules.system.userdomain.diff \
     file://patches/policy.support.misc_patterns.spt.diff \
     file://patches/policy.modules.system.xen.diff \
+    file://patches/policy.modules.system.xen-tty.diff \
     file://patches/policy.modules.services.tcsd.patch \
     file://patches/policy.modules.services.networkmanager_xt.diff \
     file://patches/policy.modules.system.init_xt.diff \
@@ -168,6 +173,7 @@ SRC_URI += " \
     file://patches/policy.modules.admin.bootloader.diff \
     file://patches/optional-off-module-calls.patch \
     file://patches/monit-volatiles.patch \
+    file://patches/policy.modules.services.monit-boot.diff \
     file://patches/xenstore-labeling.patch \
     file://patches/xen-privcmd.patch \
 "

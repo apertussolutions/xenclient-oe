@@ -1,0 +1,12 @@
+Upstream-Status: Inappropriate [OpenXT]
+
+--- a/policy/modules/system/udev.te	2026-10-23 14:49:22.940992468 -0400
++++ b/policy/modules/system/udev.te	2026-10-23 14:49:22.940992468 -0400
+@@ -92,6 +92,7 @@
+ files_runtime_filetrans(udev_t, udev_runtime_t, dir, "udev")
+ fs_tmpfs_filetrans(udev_t, udev_runtime_t, dir, "udev")
+ fs_tmpfs_filetrans(udev_t, udev_runtime_t, sock_file, "control")
++fs_watch_tmpfs_dirs(udev_t)
+ allow udev_t udev_runtime_t:dir watch;
+ 
+ kernel_load_module(udev_t)
