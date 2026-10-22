@@ -59,6 +59,7 @@ SRC_URI:append = " \
     file://tboot-measure-and-launch-from-xen-efi.patch \
     file://argo-add-viptables.patch \
     file://argo-quiet-xsm-check-during-init.patch \
+    file://alt-call-keep-ops-after-init.patch \
     file://libxl-seabios-ipxe.patch \
     file://memory-scrub-on-domain-shutdown.patch \
     file://ocamlfind-static.patch \

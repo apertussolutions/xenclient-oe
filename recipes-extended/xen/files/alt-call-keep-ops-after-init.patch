@@ -1,0 +1,33 @@
+Upstream-Status: Inappropriate [OpenXT]
+
+Keep alternative-call ops tables mapped after init
+
+GCC 15 materializes alternative_call()'s unused "g"(func) input as a
+RIP-relative load of the ops table.  With ALTERNATIVE_CALL and without
+LIVEPATCH, that table is __initdata and is unmapped after boot, so the
+extra load page-faults in do_memory_op via xsm_ops.
+
+Always use __ro_after_init, as the livepatch build already does.
+
+--- a/xen/include/xen/alternative-call.h
++++ b/xen/include/xen/alternative-call.h
+@@ -52,12 +52,13 @@
+ 
+ #include <asm/alternative-call.h>
+ 
+-#ifdef CONFIG_LIVEPATCH
+-/* Must keep for livepatches to resolve alternative calls. */
+-# define __alt_call_maybe_initdata __ro_after_init
+-#else
+-# define __alt_call_maybe_initdata __initdata
+-#endif
++/*
++ * Must stay mapped after boot.  LIVEPATCH needs the table for later
++ * resolution.  GCC 15 also emits a RIP-relative load of the table
++ * beside the alternative_call site, which page-faults if the object
++ * was discarded with .init.data.
++ */
++# define __alt_call_maybe_initdata __ro_after_init
+ 
+ /*
+  * Devirtualise the alternative_{,v}call()'s on boot.  Convert still-NULL
