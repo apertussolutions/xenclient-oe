@@ -413,21 +413,28 @@ encrypted_unlock() {
     local name="${2}"
     local key_file="${3}"
 
-    # Since the key is read from stdin, `-d -` is absolutely necessary, or
-    # cryptsetup will stop reading it at the first LF character.
-    local key
-    local rc
+    # The key is raw bytes. Keep it on the pipe. A shell variable drops
+    # NULs, and cryptsetup stops reading stdin at the first newline.
+    # The unseal status is written on fd 3 so it is not part of the key.
+    local rcfile="/run/oxt-unseal-rc.$$"
+    local unseal_rc
+    local crypt_rc
+
     oxt_serial "encrypted_unlock: tpm_unseal ${key_file}"
-    key=$(tpm_unseal "${key_file}")
-    rc=$?
-    oxt_serial "encrypted_unlock: tpm_unseal rc=${rc}"
-    [ "${rc}" -eq 0 ] || return ${rc}
-    oxt_serial "encrypted_unlock: cryptsetup luksOpen ${part} -> ${name}"
-    printf '%s\n' "${key}" | \
+    {
+        tpm_unseal "${key_file}"
+        printf '%s\n' "$?" >&3
+    } 3>"${rcfile}" | \
         DM_DISABLE_UDEV=1 cryptsetup -d - -S "${ESLOT}" luksOpen "${part}" "${name}"
-    rc=$?
-    oxt_serial "encrypted_unlock: cryptsetup rc=${rc}"
-    return ${rc}
+    crypt_rc=$?
+    unseal_rc=$(cat "${rcfile}")
+    rm -f "${rcfile}"
+    oxt_serial "encrypted_unlock: tpm_unseal rc=${unseal_rc}"
+    oxt_serial "encrypted_unlock: cryptsetup rc=${crypt_rc}"
+    # 20 is reserved so a PCR failure is not confused with cryptsetup's
+    # own exit codes.
+    [ "${unseal_rc}" -eq 0 ] || return 20
+    return ${crypt_rc}
 }
 
 remove_own_key() {
