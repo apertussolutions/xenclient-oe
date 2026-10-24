@@ -10,6 +10,7 @@ COMPATIBLE_MACHINE = "(xenclient-dom0)"
 IMAGE_FEATURES = ""
 IMAGE_FSTYPES = "cpio.gz"
 IMAGE_INSTALL = " \
+    base-passwd \
     busybox \
     initramfs-module-functions \
     initramfs-module-lvm \
