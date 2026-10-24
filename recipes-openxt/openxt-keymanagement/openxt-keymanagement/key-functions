@@ -66,6 +66,15 @@ close_keystore() {
     fi
 }
 
+# Print to the Xen console if present.
+oxt_serial() {
+    local msg="OXT init: $*"
+    if [ -c /dev/hvc0 ]; then
+        printf '%s\n' "$msg" > /dev/hvc0
+    fi
+    printf '%s\n' "$msg" > /dev/console 2>/dev/null || true
+}
+
 prompt_recovery_password() {
     local capture=$( mktemp --tmpdir="${KEYDIR}" )
     local msg="${2:-Please enter recovery password to unlock the config partition.}"
@@ -261,12 +270,12 @@ set_luks_key() {
     local target="${3}"
     local slot="${4}"
 
-    cryptsetup -q -d ${unlock_key} luksKillSlot ${target} ${slot} >/dev/null 2>&1
-    cryptsetup -q -d ${unlock_key} --pbkdf pbkdf2 -S ${slot} -i 600 luksAddKey ${target} ${key_file} || {
+    DM_DISABLE_UDEV=1 cryptsetup -q -d ${unlock_key} luksKillSlot ${target} ${slot} >/dev/null
+    DM_DISABLE_UDEV=1 cryptsetup -q -d ${unlock_key} --pbkdf pbkdf2 -S ${slot} -i 600 luksAddKey ${target} ${key_file} || {
         echo "failed to add crypto key to config LUKS" >&2
         return 1
     }
-    cryptsetup -q -d ${key_file} -S ${slot} luksOpen --test-passphrase ${target} >/dev/null 2>&1 || {
+    DM_DISABLE_UDEV=1 cryptsetup -q -d ${key_file} -S ${slot} luksOpen --test-passphrase ${target} >/dev/null || {
         echo "failed to verify new crypto key in config LUKS" >&2
         return 1
     }
@@ -308,19 +317,32 @@ recovery_unlock_key() {
     if is_xc_scheme ${boot}; then
         local rsa_priv_key="${boot}/config/recovery-private-key.conf"
         local wrapped_key="${boot}/config/recovery-disk-key.ssl"
+        local diskkey
+        local rc
 
-        cat ${key} | \
-          openssl rsautl -decrypt -inkey ${rsa_priv_key} -in ${wrapped_key} \
-              -passin stdin 2>/dev/null | \
-          cryptsetup -q ${extra} -d - luksOpen "${part}" "${name}" \
-              >/dev/null 2>&1 && \
-            return 0
+        oxt_serial "recovery_unlock_key: openssl decrypt ${wrapped_key}"
+        diskkey=$(cat ${key} | openssl rsautl -decrypt -inkey ${rsa_priv_key} \
+            -in ${wrapped_key} -passin stdin 2>/dev/null)
+        rc=$?
+        oxt_serial "recovery_unlock_key: openssl rc=${rc} bytes=${#diskkey}"
+        [ "${rc}" -eq 0 ] || return 1
+
+        oxt_serial "recovery_unlock_key: cryptsetup luksOpen ${part} -> ${name}"
+        printf '%s\n' "${diskkey}" | \
+            DM_DISABLE_UDEV=1 cryptsetup -q ${extra} -d - luksOpen "${part}" "${name}" \
+            >/dev/null
+        rc=$?
+        oxt_serial "recovery_unlock_key: cryptsetup rc=${rc}"
+        return ${rc}
     else
-        cryptsetup -q ${extra} -d ${key} -S ${RSLOT} luksOpen "${part}" "${name}" >/dev/null 2>&1 && \
-            return 0
+        local rc
+        oxt_serial "recovery_unlock_key: cryptsetup slot ${RSLOT} ${part} -> ${name}"
+        DM_DISABLE_UDEV=1 cryptsetup -q ${extra} -d ${key} -S ${RSLOT} luksOpen "${part}" "${name}" \
+            >/dev/null
+        rc=$?
+        oxt_serial "recovery_unlock_key: cryptsetup rc=${rc}"
+        return ${rc}
     fi
-
-    return 1
 }
 
 test_recovery_key() {
@@ -335,12 +357,15 @@ recovery_unlock_boot() {
     local ret=1
     local mounted_keystore=0
 
+    oxt_serial "recovery_unlock_boot: ${part} -> ${name} boot=${boot}"
     if ! keystore_ready; then
+        oxt_serial "recovery_unlock_boot: setup_keystore"
         setup_keystore
         mounted_keystore=1
     fi
 
     if have_recovery_key ; then
+        oxt_serial "recovery_unlock_boot: using stored recovery key"
         recovery_unlock_key "${part}" "${name}" "${boot}" \
             "$( get_recovery_key )" \
                   && return 0
@@ -348,10 +373,13 @@ recovery_unlock_boot() {
 
     local try=1
     while [ $try -le 3 ]; do
+        oxt_serial "recovery_unlock_boot: prompt attempt ${try}"
         prompt_recovery_password $try
+        oxt_serial "recovery_unlock_boot: password entered, unlocking"
         recovery_unlock_key "${part}" "${name}" "${boot}" \
             "$( get_recovery_key )"
         ret=$?
+        oxt_serial "recovery_unlock_boot: attempt ${try} rc=${ret}"
         if [ $ret -eq 0 ]; then
             break;
         fi
@@ -375,10 +403,15 @@ platform_unlock() {
     local part="${1}"
     local name="${2}"
 
-    get-config-key | tr '[:lower:]' '[:upper:]' | cryptsetup -q -d - -S ${PSLOT} luksOpen "${part}" "${name}" >/dev/null 2>&1
+    oxt_serial "platform_unlock: cryptsetup slot ${PSLOT} ${part} -> ${name}"
+    get-config-key | tr '[:lower:]' '[:upper:]' | \
+        DM_DISABLE_UDEV=1 cryptsetup -q -d - -S ${PSLOT} luksOpen "${part}" "${name}" \
+        >/dev/null
     if [ $? -ne 0 ]; then
         # fall back and see if platform key will open on any slot
-        get-config-key | tr '[:lower:]' '[:upper:]' | cryptsetup -q -d - luksOpen "${part}" "${name}" >/dev/null 2>&1
+        get-config-key | tr '[:lower:]' '[:upper:]' | \
+            DM_DISABLE_UDEV=1 cryptsetup -q -d - luksOpen "${part}" "${name}" \
+            >/dev/null
     fi
 
     return $?
@@ -389,10 +422,28 @@ encrypted_unlock() {
     local name="${2}"
     local key_file="${3}"
 
-    # Since the key is read from stdin, `-d -` is absolutely necessary, or
-    # cryptsetup will stop reading it at the first LF character.
-    tpm_unseal "${key_file}" | \
-        cryptsetup -d - -S "${ESLOT}" luksOpen "${part}" "${name}"
+    # The key is raw bytes. Keep it on the pipe. A shell variable drops
+    # NULs, and cryptsetup stops reading stdin at the first newline.
+    # The unseal status is written on fd 3 so it is not part of the key.
+    local rcfile="/run/oxt-unseal-rc.$$"
+    local unseal_rc
+    local crypt_rc
+
+    oxt_serial "encrypted_unlock: tpm_unseal ${key_file}"
+    {
+        tpm_unseal "${key_file}"
+        printf '%s\n' "$?" >&3
+    } 3>"${rcfile}" | \
+        DM_DISABLE_UDEV=1 cryptsetup -d - -S "${ESLOT}" luksOpen "${part}" "${name}"
+    crypt_rc=$?
+    unseal_rc=$(cat "${rcfile}")
+    rm -f "${rcfile}"
+    oxt_serial "encrypted_unlock: tpm_unseal rc=${unseal_rc}"
+    oxt_serial "encrypted_unlock: cryptsetup rc=${crypt_rc}"
+    # 20 is reserved so a PCR failure is not confused with cryptsetup's
+    # own exit codes.
+    [ "${unseal_rc}" -eq 0 ] || return 20
+    return ${crypt_rc}
 }
 
 remove_own_key() {
@@ -408,7 +459,7 @@ clear_luks_key() {
     local target="${2}"
     local slot="${3}"
 
-    cryptsetup -q luksRemoveKey ${target} ${unlock_key} >/dev/null 2>&1
+    DM_DISABLE_UDEV=1 cryptsetup -q luksRemoveKey ${target} ${unlock_key} >/dev/null
 }
 
 # Clear the recovery key on a cryptdisk
