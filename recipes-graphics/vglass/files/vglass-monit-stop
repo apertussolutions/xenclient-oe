@@ -1,0 +1,4 @@
+check process vglass matching /usr/bin/glass
+  start program "/etc/init.d/vglass start"
+  stop program "/etc/init.d/vglass stop"
+  if 3 restarts within 5 cycles then unmonitor
