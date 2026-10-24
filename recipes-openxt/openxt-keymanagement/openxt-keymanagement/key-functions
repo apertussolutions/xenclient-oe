@@ -261,12 +261,12 @@ set_luks_key() {
     local target="${3}"
     local slot="${4}"
 
-    cryptsetup -q -d ${unlock_key} luksKillSlot ${target} ${slot} >/dev/null 2>&1
-    cryptsetup -q -d ${unlock_key} --pbkdf pbkdf2 -S ${slot} -i 600 luksAddKey ${target} ${key_file} || {
+    DM_DISABLE_UDEV=1 cryptsetup -q -d ${unlock_key} luksKillSlot ${target} ${slot} >/dev/null
+    DM_DISABLE_UDEV=1 cryptsetup -q -d ${unlock_key} --pbkdf pbkdf2 -S ${slot} -i 600 luksAddKey ${target} ${key_file} || {
         echo "failed to add crypto key to config LUKS" >&2
         return 1
     }
-    cryptsetup -q -d ${key_file} -S ${slot} luksOpen --test-passphrase ${target} >/dev/null 2>&1 || {
+    DM_DISABLE_UDEV=1 cryptsetup -q -d ${key_file} -S ${slot} luksOpen --test-passphrase ${target} >/dev/null || {
         echo "failed to verify new crypto key in config LUKS" >&2
         return 1
     }
@@ -308,19 +308,32 @@ recovery_unlock_key() {
     if is_xc_scheme ${boot}; then
         local rsa_priv_key="${boot}/config/recovery-private-key.conf"
         local wrapped_key="${boot}/config/recovery-disk-key.ssl"
+        local diskkey
+        local rc
 
-        cat ${key} | \
-          openssl rsautl -decrypt -inkey ${rsa_priv_key} -in ${wrapped_key} \
-              -passin stdin 2>/dev/null | \
-          cryptsetup -q ${extra} -d - luksOpen "${part}" "${name}" \
-              >/dev/null 2>&1 && \
-            return 0
+        oxt_serial "recovery_unlock_key: openssl decrypt ${wrapped_key}"
+        diskkey=$(cat ${key} | openssl rsautl -decrypt -inkey ${rsa_priv_key} \
+            -in ${wrapped_key} -passin stdin 2>/dev/null)
+        rc=$?
+        oxt_serial "recovery_unlock_key: openssl rc=${rc} bytes=${#diskkey}"
+        [ "${rc}" -eq 0 ] || return 1
+
+        oxt_serial "recovery_unlock_key: cryptsetup luksOpen ${part} -> ${name}"
+        printf '%s\n' "${diskkey}" | \
+            DM_DISABLE_UDEV=1 cryptsetup -q ${extra} -d - luksOpen "${part}" "${name}" \
+            >/dev/null
+        rc=$?
+        oxt_serial "recovery_unlock_key: cryptsetup rc=${rc}"
+        return ${rc}
     else
-        cryptsetup -q ${extra} -d ${key} -S ${RSLOT} luksOpen "${part}" "${name}" >/dev/null 2>&1 && \
-            return 0
+        local rc
+        oxt_serial "recovery_unlock_key: cryptsetup slot ${RSLOT} ${part} -> ${name}"
+        DM_DISABLE_UDEV=1 cryptsetup -q ${extra} -d ${key} -S ${RSLOT} luksOpen "${part}" "${name}" \
+            >/dev/null
+        rc=$?
+        oxt_serial "recovery_unlock_key: cryptsetup rc=${rc}"
+        return ${rc}
     fi
-
-    return 1
 }
 
 test_recovery_key() {
@@ -335,12 +348,15 @@ recovery_unlock_boot() {
     local ret=1
     local mounted_keystore=0
 
+    oxt_serial "recovery_unlock_boot: ${part} -> ${name} boot=${boot}"
     if ! keystore_ready; then
+        oxt_serial "recovery_unlock_boot: setup_keystore"
         setup_keystore
         mounted_keystore=1
     fi
 
     if have_recovery_key ; then
+        oxt_serial "recovery_unlock_boot: using stored recovery key"
         recovery_unlock_key "${part}" "${name}" "${boot}" \
             "$( get_recovery_key )" \
                   && return 0
@@ -348,10 +364,13 @@ recovery_unlock_boot() {
 
     local try=1
     while [ $try -le 3 ]; do
+        oxt_serial "recovery_unlock_boot: prompt attempt ${try}"
         prompt_recovery_password $try
+        oxt_serial "recovery_unlock_boot: password entered, unlocking"
         recovery_unlock_key "${part}" "${name}" "${boot}" \
             "$( get_recovery_key )"
         ret=$?
+        oxt_serial "recovery_unlock_boot: attempt ${try} rc=${ret}"
         if [ $ret -eq 0 ]; then
             break;
         fi
@@ -375,10 +394,15 @@ platform_unlock() {
     local part="${1}"
     local name="${2}"
 
-    get-config-key | tr '[:lower:]' '[:upper:]' | cryptsetup -q -d - -S ${PSLOT} luksOpen "${part}" "${name}" >/dev/null 2>&1
+    oxt_serial "platform_unlock: cryptsetup slot ${PSLOT} ${part} -> ${name}"
+    get-config-key | tr '[:lower:]' '[:upper:]' | \
+        DM_DISABLE_UDEV=1 cryptsetup -q -d - -S ${PSLOT} luksOpen "${part}" "${name}" \
+        >/dev/null
     if [ $? -ne 0 ]; then
         # fall back and see if platform key will open on any slot
-        get-config-key | tr '[:lower:]' '[:upper:]' | cryptsetup -q -d - luksOpen "${part}" "${name}" >/dev/null 2>&1
+        get-config-key | tr '[:lower:]' '[:upper:]' | \
+            DM_DISABLE_UDEV=1 cryptsetup -q -d - luksOpen "${part}" "${name}" \
+            >/dev/null
     fi
 
     return $?
@@ -408,7 +432,7 @@ clear_luks_key() {
     local target="${2}"
     local slot="${3}"
 
-    cryptsetup -q luksRemoveKey ${target} ${unlock_key} >/dev/null 2>&1
+    DM_DISABLE_UDEV=1 cryptsetup -q luksRemoveKey ${target} ${unlock_key} >/dev/null
 }
 
 # Clear the recovery key on a cryptdisk
