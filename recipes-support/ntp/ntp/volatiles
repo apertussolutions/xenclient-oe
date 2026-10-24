@@ -1,0 +1,6 @@
+# ntpd writes /var/lib/ntp/drift and drift.TEMP beside it.
+# The root filesystem is read-only, so the directory is created in
+# /var/volatile and /var/lib/ntp points there.
+l ntp ntp 0755 /var/lib/ntp /var/volatile/ntp
+d ntp ntp 0755 /var/lib/ntp none
+f ntp ntp 0644 /var/lib/ntp/drift none
