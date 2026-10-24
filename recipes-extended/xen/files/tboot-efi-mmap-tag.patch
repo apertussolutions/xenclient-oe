@@ -1,0 +1,148 @@
+Upstream-Status: Pending
+
+Copy the EFI memory map into a standard multiboot2 tag so tboot can read it.
+
+--- a/xen/arch/x86/efi/efi-boot.h
++++ b/xen/arch/x86/efi/efi-boot.h
+@@ -27,7 +27,12 @@
+     .flags = MBI_MODULES | MBI_LOADERNAME
+ };
+ 
+-static u64 __initdata mbi2_data[0x1000];
++/*
++ * Command line, e820 map, modules, ACPI pointers, and an inlined EFI
++ * memory map.  The map has to live in this Xen-resident buffer: after
++ * GETSEC[SENTER] only memory below 16MB and the Xen image are mapped.
++ */
++static u64 __initdata mbi2_data[0x8000];
+ 
+ #define MULTIBOOT2_TAG_TYPE_XENEFI 0x58454301
+ typedef struct {
+@@ -45,6 +50,15 @@
+     const CHAR16* efi_fw_vendor;
+ } multiboot2_tag_xenefi_t;
+ 
++/* Standard multiboot2 EFI memory-map tag (type 17). */
++typedef struct {
++    u32 type;
++    u32 size;
++    u32 descr_size;
++    u32 descr_vers;
++    u8 efi_mmap[];
++} multiboot2_tag_efi_mmap_t;
++
+ /*
+  * The array size needs to be one larger than the number of modules we
+  * support - see __start_xen().
+@@ -260,6 +274,8 @@
+     multiboot2_tag_t *tag = offset + (void*)mbi2_data;
+ 
+     size = (size + 7) & ~7;
++    if ( offset > sizeof(mbi2_data) || size > sizeof(mbi2_data) - offset )
++        blexit(L"Multiboot2 info buffer exhausted");
+     hdr->total_size += size;
+     tag->size = size;
+ 
+@@ -338,6 +354,46 @@
+         memcpy(tag_str->string, (void*)efi.system_table, len);
+     }
+ 
++    /*
++     * Inline the EFI descriptors in the standard tag.  Tboot reads this
++     * tag, and Xen restores its map from the same copy after SENTER.
++     */
++    {
++        UINTN map_size = 0, map_key, desc_size = 0;
++        UINT32 desc_ver = 0;
++        u32 tag_start = ((multiboot2_fixed_t *)mbi2_data)->total_size;
++        EFI_STATUS status;
++        multiboot2_tag_efi_mmap_t *emmap;
++
++        status = efi_bs->GetMemoryMap(&map_size, NULL, &map_key,
++                                      &desc_size, &desc_ver);
++        if ( status == EFI_BUFFER_TOO_SMALL && map_size && desc_size )
++        {
++            u32 exact, aligned;
++
++            map_size += 8 * desc_size;
++            emmap = mbi2_add_entry(offsetof(multiboot2_tag_efi_mmap_t,
++                                            efi_mmap[0]) + map_size);
++            status = efi_bs->GetMemoryMap(&map_size,
++                                          (EFI_MEMORY_DESCRIPTOR *)emmap->efi_mmap,
++                                          &map_key, &desc_size, &desc_ver);
++            if ( EFI_ERROR(status) )
++                ((multiboot2_fixed_t *)mbi2_data)->total_size = tag_start;
++            else
++            {
++                exact = offsetof(multiboot2_tag_efi_mmap_t, efi_mmap[0]) +
++                        map_size;
++                aligned = (exact + 7) & ~7;
++                emmap->type = MULTIBOOT2_TAG_TYPE_EFI_MMAP;
++                emmap->descr_size = desc_size;
++                emmap->descr_vers = desc_ver;
++                emmap->size = exact;
++                ((multiboot2_fixed_t *)mbi2_data)->total_size =
++                    tag_start + aligned;
++            }
++        }
++    }
++
+     /* Other variables to pass to post-SINIT Xen */
+     xenmbi = mbi2_add_entry(sizeof(*xenmbi));
+     xenmbi->type = MULTIBOOT2_TAG_TYPE_XENEFI;
+@@ -387,6 +443,7 @@
+         multiboot2_tag_string_t *tag_str = data;
+         multiboot2_tag_module_t *module = data;
+         multiboot2_tag_mmap_t *mmap = data;
++        multiboot2_tag_efi_mmap_t *emmap = data;
+         multiboot2_tag_xenefi_t *xenmbi = data;
+ 
+         switch ( tag->type )
+@@ -428,6 +485,19 @@
+         case MULTIBOOT2_TAG_TYPE_ACPI_NEW:
+             /* memcmp(efi.acpi20, tag_str->string) */
+             break;
++        case MULTIBOOT2_TAG_TYPE_EFI_MMAP:
++            /*
++             * Descriptors were copied into the multiboot2 block.  This
++             * pointer refers to that copy, now resident in mbi2_data.
++             */
++            if ( emmap->size <= offsetof(multiboot2_tag_efi_mmap_t, efi_mmap[0]) ||
++                 !emmap->descr_size )
++                break;
++            efi_mdesc_size = emmap->descr_size;
++            efi_memmap_size = emmap->size -
++                offsetof(multiboot2_tag_efi_mmap_t, efi_mmap[0]);
++            efi_memmap = emmap->efi_mmap;
++            break;
+         case MULTIBOOT2_TAG_TYPE_XENEFI:
+             if ( xenmbi->size != sizeof(*xenmbi) )
+                 return;
+@@ -445,17 +515,6 @@
+             efi_ct = xenmbi->efi_ct;
+             efi_num_ct = xenmbi->efi_num_ct;
+ 
+-            /* This EFI memory map is the pre-validation source of the e820 map
+-             * that will be parsed in read_tboot_mbi.  The only use for the old
+-             * copy is to see the EFI memory types which have more granularity
+-             * than the e820 memory types, or to allow EFI runtime services to
+-             * work as expected.  While the table is exposed by a platform
+-             * hypercall, Linux does not use it.
+-             */
+-            efi_memmap_size = xenmbi->efi_memmap_size;
+-            efi_mdesc_size = xenmbi->efi_mdesc_size;
+-            efi_memmap = xenmbi->efi_memmap;
+-
+             efi_rs = xenmbi->efi_rs;
+ 
+             /* Disabled until needed */
+@@ -1500,7 +1559,8 @@
+         return;
+ 
+     BUG_ON(not_ram(efi_ct, efi_num_ct * sizeof(*efi_ct), data));
+-    BUG_ON(not_ram(efi_memmap, efi_memmap_size * efi_mdesc_size, data));
++    if ( efi_memmap )
++        BUG_ON(not_ram(efi_memmap, efi_memmap_size, data));
+ 
+     while ( pci != NULL )
+     {
