@@ -1936,7 +1936,7 @@ PATCHES
 +#ifdef USBBK_TIMEOUT
 +static void timeout_usb_io_op(struct timer_list *t)
 +{
-+	pending_req_t *req = from_timer(req, t, timer);
++	pending_req_t *req = timer_container_of(req, t, timer);
 +
 +	debug_print(LOG_LVL_DEBUG, "%s: urb %p\n", __FUNCTION__, req->urb);
 +
@@ -1953,7 +1953,7 @@ PATCHES
 +static void cancel_timeout(pending_req_t *pending_req)
 +{
 +	if (timer_pending(&pending_req->timer))
-+		del_timer(&pending_req->timer);
++		timer_delete(&pending_req->timer);
 +}
 +#endif
 +
@@ -3552,7 +3552,7 @@ PATCHES
 +
 --- /dev/null
 +++ b/drivers/usb/xen-usbback/xenbus.c
-@@ -0,0 +1,582 @@
+@@ -0,0 +1,581 @@
 +/*  Xenbus code for usbif backend
 +    Copyright (C) 2005 Rusty Russell <rusty@rustcorp.com.au>
 +    Copyright (C) 2005 XenSource Ltd
@@ -3701,7 +3701,7 @@ PATCHES
 +	device_remove_file(&dev->dev, &dev_attr_physical_device);
 +}
 +
-+static int usbback_remove(struct xenbus_device *dev)
++static void usbback_remove(struct xenbus_device *dev)
 +{
 +	struct backend_info *be = dev_get_drvdata(&dev->dev);
 +
@@ -3746,7 +3746,6 @@ PATCHES
 +
 +	kfree(be);
 +	dev_set_drvdata(&dev->dev, NULL);
-+	return 0;
 +}
 +
 +int usbback_barrier(struct xenbus_transaction xbt,
