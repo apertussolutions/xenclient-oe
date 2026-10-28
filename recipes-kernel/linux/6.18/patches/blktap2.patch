@@ -1885,7 +1885,7 @@ PATCHES
 +
 +	blktap_ring_fail_pending(tap);
 +
-+	zap_page_range(vma, vma->vm_start, PAGE_SIZE);
++	zap_page_range_single(vma, vma->vm_start, PAGE_SIZE, NULL);
 +	ClearPageReserved(page);
 +	__free_page(page);
 +
@@ -1961,7 +1961,7 @@ PATCHES
 +		for (seg = 0; seg < request->nr_pages; seg++)
 +			blktap_request_bounce(tap, request, seg, !read);
 +
-+	zap_page_range(ring->vma, uaddr, size);
++	zap_page_range_single(ring->vma, uaddr, size, NULL);
 +}
 +
 +void
@@ -2192,8 +2192,7 @@ PATCHES
 +
 +	vma->vm_private_data = tap;
 +
-+	vma->vm_flags |= VM_DONTCOPY;
-+	vma->vm_flags |= VM_DONTEXPAND | VM_DONTDUMP;
++	vm_flags_set(vma, VM_DONTCOPY | VM_DONTEXPAND | VM_DONTDUMP);
 +
 +	vma->vm_ops = &blktap_ring_vm_operations;
 +
@@ -2204,7 +2203,7 @@ PATCHES
 +
 +fail:
 +	if (page) {
-+		zap_page_range(vma, vma->vm_start, PAGE_SIZE);
++		zap_page_range_single(vma, vma->vm_start, PAGE_SIZE, NULL);
 +		ClearPageReserved(page);
 +		__free_page(page);
 +	}
