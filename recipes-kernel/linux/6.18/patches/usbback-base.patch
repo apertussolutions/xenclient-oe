@@ -3552,7 +3552,7 @@ PATCHES
 +
 --- /dev/null
 +++ b/drivers/usb/xen-usbback/xenbus.c
-@@ -0,0 +1,582 @@
+@@ -0,0 +1,581 @@
 +/*  Xenbus code for usbif backend
 +    Copyright (C) 2005 Rusty Russell <rusty@rustcorp.com.au>
 +    Copyright (C) 2005 XenSource Ltd
@@ -3701,7 +3701,7 @@ PATCHES
 +	device_remove_file(&dev->dev, &dev_attr_physical_device);
 +}
 +
-+static int usbback_remove(struct xenbus_device *dev)
++static void usbback_remove(struct xenbus_device *dev)
 +{
 +	struct backend_info *be = dev_get_drvdata(&dev->dev);
 +
@@ -3746,7 +3746,6 @@ PATCHES
 +
 +	kfree(be);
 +	dev_set_drvdata(&dev->dev, NULL);
-+	return 0;
 +}
 +
 +int usbback_barrier(struct xenbus_transaction xbt,
