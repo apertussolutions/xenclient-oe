@@ -1936,7 +1936,7 @@ PATCHES
 +#ifdef USBBK_TIMEOUT
 +static void timeout_usb_io_op(struct timer_list *t)
 +{
-+	pending_req_t *req = from_timer(req, t, timer);
++	pending_req_t *req = timer_container_of(req, t, timer);
 +
 +	debug_print(LOG_LVL_DEBUG, "%s: urb %p\n", __FUNCTION__, req->urb);
 +
@@ -1953,7 +1953,7 @@ PATCHES
 +static void cancel_timeout(pending_req_t *pending_req)
 +{
 +	if (timer_pending(&pending_req->timer))
-+		del_timer(&pending_req->timer);
++		timer_delete(&pending_req->timer);
 +}
 +#endif
 +
