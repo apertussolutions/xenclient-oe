@@ -1753,7 +1753,7 @@ PATCHES
 +}
 --- /dev/null
 +++ b/drivers/block/blktap/ring.c
-@@ -0,0 +1,823 @@
+@@ -0,0 +1,822 @@
 +
 +#include <linux/device.h>
 +#include <linux/signal.h>
