@@ -628,7 +628,7 @@ PATCHES
 +MODULE_LICENSE("Dual BSD/GPL");
 --- /dev/null
 +++ b/drivers/block/blktap/device.c
-@@ -0,0 +1,659 @@
+@@ -0,0 +1,669 @@
 +#include <linux/fs.h>
 +#include <linux/blkdev.h>
 +#include <linux/blk-mq.h>
@@ -839,6 +839,18 @@ PATCHES
 +	goto _out;
 +}
 +
++static bool blktap_hw_stopped(struct request_queue *q)
++{
++	struct blk_mq_hw_ctx *hctx;
++	unsigned long i;
++
++	queue_for_each_hw_ctx(q, hctx, i) {
++		if (test_bit(BLK_MQ_S_STOPPED, &hctx->state))
++			return true;
++	}
++	return false;
++}
++
 +void blktap_device_run_queues(struct blktap *tap)
 +{
 +	struct blktap_device *tapdev = &tap->device;
@@ -863,8 +875,7 @@ PATCHES
 +        if (dev->gd) {
 +                struct request_queue *rq = dev->gd->queue;
 +
-+                if (rq->queue_hw_ctx[0] &&
-+                    test_bit(BLK_MQ_S_STOPPED, &rq->queue_hw_ctx[0]->state))
++                if (blktap_hw_stopped(rq))
 +                        blk_mq_start_hw_queues(rq);
 +
 +                /* Kick things off immediately. */
@@ -1251,8 +1262,7 @@ PATCHES
 +	s += snprintf(s, end - s,
 +		      "queue flags:%#lx stopped:%d\n",
 +		      q->queue_flags,
-+		      q->queue_hw_ctx[0] &&
-+		      test_bit(BLK_MQ_S_STOPPED, &q->queue_hw_ctx[0]->state));
++		      blktap_hw_stopped(q));
 +
 +	if (disk->part0) {
 +		s += snprintf(s, end - s,
