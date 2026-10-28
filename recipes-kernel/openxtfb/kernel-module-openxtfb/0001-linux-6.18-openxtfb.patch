@@ -4,9 +4,11 @@ Build openxtfb on Linux 6.18. FBINFO_DEFAULT is gone and was zero.
 platform_driver remove returns void, so a failed display cleanup is
 logged and cannot block the unload.
 
+diff --git a/openxtfb.c b/openxtfb.c
+index 366cfac1a650..58cecbf58ff5 100644
 --- a/openxtfb.c
 +++ b/openxtfb.c
-@@ -1255,7 +1255,7 @@ static struct fb_info *  __create_openxtfb_info(struct pv_display * display, st
+@@ -1255,7 +1255,7 @@ static struct fb_info *  __create_openxtfb_info(struct pv_display * display, str
  
      //Set the flags for the framebuffer, which will determine how the
      //framebuffer is handled by the system.
@@ -15,7 +17,8 @@ logged and cannot block the unload.
                    FBINFO_VIRTFB |               // -Optimize for a framebuffer in system RAM.
                    FBINFO_HWACCEL_COPYAREA |     // -Note that we provide the (required) copyarea function...
                    FBINFO_HWACCEL_FILLRECT |     // -... the required fillrect function...
-@@ -1674,14 +1674,14 @@ static int openxtfb_clean_up_display(struct pv_display * display)
+@@ -1674,14 +1674,14 @@ static int openxtfb_probe(struct platform_device *pdev)
+  *    completed. If this method returns an error, it will block the module
   *    from unloading, preventing resources from being leaked.
   */
 -static int openxtfb_remove(struct platform_device * platform_device)
@@ -31,9 +34,16 @@ logged and cannot block the unload.
  
      //Get the PV display provider associated with the given device.
      instance = platform_get_drvdata(platform_device);
+@@ -1690,7 +1690,7 @@ static int openxtfb_remove(struct platform_device * platform_device)
+     if(!instance || !instance->provider) {
+         openxtfb_error("Couldn't get a OpenXT framebuffer to destroy."
+             " May be leaking memory!\n");
+-        return -EINVAL;
++        return;
+     }
  
      //Clean up each of the displays (framebuffers) associated with the platform device.
-@@ -1706,11 +1706,9 @@ static int openxtfb_remove(struct platform_device * platform_device)
+@@ -1706,11 +1706,8 @@ static int openxtfb_remove(struct platform_device * platform_device)
      if(rc) {
          openxtfb_error("Failed to clean up a display--"
              " not removing the OpenXT Framebuffer module.\n");
