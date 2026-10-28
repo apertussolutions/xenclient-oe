@@ -10,6 +10,7 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=4641e94ec96f98fabc56ff9cc48be14b"
 require argo.inc
 SRC_URI += " \
     file://60-argo.rules \
+    file://0001-linux-6.18-argo.patch \
 "
 
 S = "${UNPACKDIR}/${BP}/argo-linux"

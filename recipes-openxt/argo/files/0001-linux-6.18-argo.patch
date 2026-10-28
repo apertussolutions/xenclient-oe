@@ -1,0 +1,81 @@
+Upstream-Status: Pending
+
+Build the Argo module against Linux 6.18. The x86 hypercall helper is
+xen_single_call, timers use timer_container_of and timer_delete, and
+platform_driver remove returns void.
+
+--- a/include/argo_hypercall.h
++++ b/include/argo_hypercall.h
+@@ -34,6 +34,7 @@
+  */
+ 
+ #include <xen/page.h>
++#include <linux/version.h>
+ #include <asm/xen/hypercall.h>
+ #include <xen/xen.h>
+ #include <xen/events.h>
+@@ -67,7 +68,13 @@ HYPERVISOR_argo_op(int cmd, void *arg1, void *arg2, uint32_t arg3,
+     int ret;
+ 
+     __xen_stac();
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 15, 0)
++    ret = xen_single_call(__HYPERVISOR_argo_op,
++                          (unsigned long)cmd, (unsigned long)arg1,
++                          (unsigned long)arg2, arg3, arg4);
++#else
+     ret = _hypercall5(int, argo_op, cmd, arg1, arg2, arg3, arg4);
++#endif
+     __xen_clac();
+ 
+     return ret;
+--- a/argo-module.c
++++ b/argo-module.c
+@@ -2478,7 +2478,7 @@ respite(unsigned long data)
+ #else
+ respite(struct timer_list *t)
+ {
+-    struct argo_private *p = from_timer(p, t, to);
++    struct argo_private *p = timer_container_of(p, t, to);
+ #endif
+ 
+     p->pending_error = -ETIMEDOUT;
+@@ -2594,7 +2594,7 @@ argo_stream_connect(struct argo_private *p)
+                                        (p->state != ARGO_STATE_CONNECTING));
+         if ( ret )
+         {
+-            del_timer(&p->to);
++            timer_delete(&p->to);
+             return ret;
+         }
+ 
+@@ -2606,7 +2606,7 @@ argo_stream_connect(struct argo_private *p)
+             break;
+         }
+     }
+-    del_timer(&p->to);
++    timer_delete(&p->to);
+ 
+     return ret;
+ }
+@@ -3831,7 +3831,11 @@ argo_probe(struct platform_device *dev)
+ 
+ /*********** platform gunge *************/
+ 
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 11, 0)
++static void
++#else
+ static int
++#endif
+ #if (LINUX_VERSION_CODE < KERNEL_VERSION(3,8,0))
+ __devexit
+ #endif
+@@ -3841,7 +3845,9 @@ argo_remove(struct platform_device *dev)
+     misc_deregister(&argo_miscdev_dgram);
+     misc_deregister(&argo_miscdev_stream);
+     unsetup_fs();
++#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 11, 0)
+     return 0;
++#endif
+ }
+ 
+ static struct platform_driver argo_driver = {
