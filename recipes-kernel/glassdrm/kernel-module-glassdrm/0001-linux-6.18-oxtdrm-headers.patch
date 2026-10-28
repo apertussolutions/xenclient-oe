@@ -1,0 +1,32 @@
+Upstream-Status: Pending
+
+Build oxtdrm as an out-of-tree module. Do not search the host
+/usr/include. Linux 5.0 and later use the split DRM headers.
+
+diff --git a/Makefile b/Makefile
+index ca4023e758a7..d9804fb7f8d1 100644
+--- a/Makefile
++++ b/Makefile
+@@ -4,7 +4,7 @@ export RPM_OUTDIR ?= $(shell pwd)
+ IVC_INCLUDE_DIR ?= $(KDIR)/include
+ DDH_INCLUDE_DIR ?= $(KDIR)/include
+ 
+-ccflags-y := -I/usr/include -ldrm -Iinclude/drm -I$(IVC_INCLUDE_DIR) -I$(DDH_INCLUDE_DIR) -g
++ccflags-y := -I$(IVC_INCLUDE_DIR) -I$(DDH_INCLUDE_DIR) -g
+ 
+ # Build the oxtdrm module
+ oxtdrm-y := oxtdrm_drv.o oxtdrm_fb.o oxtdrm_gem.o oxtdrm_kms.o oxtdrm_pv.o
+diff --git a/oxtdrm_drv.h b/oxtdrm_drv.h
+index 6030181dbcf0..965f7a203cd0 100644
+--- a/oxtdrm_drv.h
++++ b/oxtdrm_drv.h
+@@ -21,8 +21,7 @@
+ #include <linux/hashtable.h>
+ #include <linux/ioctl.h>
+ 
+-#if (RHEL_RELEASE_CODE != 0 && RHEL_RELEASE_CODE >= RHEL_RELEASE_VERSION(8,3)) || \
+-    (RHEL_RELEASE_CODE == 0 && LINUX_VERSION_CODE >= KERNEL_VERSION(5, 0, 0))
++#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 0, 0)
+     #include <drm/drm_drv.h>
+     #include <drm/drm_prime.h>
+     #include <drm/drm_ioctl.h>

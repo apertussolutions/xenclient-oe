@@ -1,0 +1,28 @@
+Upstream-Status: Pending
+
+Parent each framebuffer on the module's platform device. The kernel
+then creates /sys/class/graphics/fbN/device/subsystem, pointing at the
+platform bus. Xorg 21.1 keeps /dev/fbN only when that link exists and
+does not name a PCI bus. openxtfb was passing a NULL parent, so the
+link was absent and the server reported that no screens were found.
+
+--- a/openxtfb.c
++++ b/openxtfb.c
+@@ -1488,7 +1488,6 @@
+     int rc;
+ 
+     struct fb_info *info = NULL;
+-    struct device *device = NULL;
+     struct pv_display *display;
+     uint32_t desired_width, desired_height, stride;
+ 
+@@ -1525,7 +1524,8 @@
+     }
+ 
+     //Allocate our internal representation of the OpenXT framebuffer device.
+-    info = __create_openxtfb_info(display, device, display->framebuffer,
++    info = __create_openxtfb_info(display, &openxtfb_device->dev,
++        display->framebuffer,
+         display->framebuffer_size, width, height,
+         display->stride, desired_height);
+ 
