@@ -1,0 +1,44 @@
+Upstream-Status: Pending
+
+Build the IVC kernel module on Linux 6.18. The fd lookup helper is
+files_lookup_fd_raw, eventfd_signal takes only the context, vm_flags
+is read-only, and page_mapcount_reset is no longer provided by mm.h.
+
+--- a/ks/platform/linux/platform.c
++++ b/ks/platform/linux/platform.c
+@@ -91,7 +91,7 @@ _ks_platform_notify_us_event(int fd, struct task_struct *task)
+ 
+     // locate the event file descriptor for the process.
+     rcu_read_lock();
+-    efd_file = files_lookup_fd_rcu(task->files, fd);
++    efd_file = files_lookup_fd_raw(task->files, fd);
+ 
+     if (efd_file == NULL) {
+         rc = ACCESS_DENIED;
+@@ -107,7 +107,7 @@ _ks_platform_notify_us_event(int fd, struct task_struct *task)
+     }
+ 
+     libivc_checkp(fdContext, ACCESS_DENIED);
+-    eventfd_signal(fdContext, 1);
++    eventfd_signal(fdContext);
+     eventfd_ctx_put(fdContext);
+     return SUCCESS;
+ }
+@@ -972,7 +972,7 @@ void clean_up_xenballooned_pages(int nr_pages, struct page **pages)
+     int i;
+ 
+     for(i = 0; i < nr_pages; ++i) {
+-        page_mapcount_reset(pages[i]);
++        atomic_set(&pages[i]->_mapcount, -1);
+         ClearPagePrivate(pages[i]);
+     }
+ }
+@@ -1435,7 +1435,7 @@ ks_platform_mmap(struct file *filp, struct vm_area_struct *vma)
+     vma->vm_pgoff = 0;
+ 
+     // don't allow remapping of memory to different sizes
+-    vma->vm_flags |= VM_DONTEXPAND | VM_DONTDUMP;
++    vm_flags_set(vma, VM_DONTEXPAND | VM_DONTDUMP);
+ 
+     // Find information about the relevant guest mapping.
+     mmap_info = __find_mmap_info_by_id(mapping_id);
