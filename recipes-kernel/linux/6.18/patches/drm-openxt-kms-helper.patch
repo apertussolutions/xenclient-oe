@@ -1,0 +1,22 @@
+Upstream-Status: Pending
+
+The out-of-tree oxtdrm driver needs the DRM KMS helper. That symbol
+has no prompt, so a small option selects it when DRM is enabled.
+
+--- a/drivers/gpu/drm/Kconfig
++++ b/drivers/gpu/drm/Kconfig
+@@ -421,6 +421,14 @@ config DRM_PRIVACY_SCREEN
+ 	bool
+ 	default n
+ 
++config DRM_OPENXT_KMS
++	tristate "OpenXT out-of-tree KMS helper"
++	depends on DRM
++	select DRM_KMS_HELPER
++	default m
++	help
++	  Build the DRM KMS helper used by the out-of-tree oxtdrm driver.
++
+ endif
+ 
+ # Separate option because drm_panel_orientation_quirks.c is shared with fbdev
