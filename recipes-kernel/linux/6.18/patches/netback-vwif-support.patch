@@ -1,0 +1,12 @@
+Upstream-Status: Inappropriate [OpenXT]
+
+--- a/drivers/net/xen-netback/xenbus.c
++++ b/drivers/net/xen-netback/xenbus.c
+@@ -1157,6 +1157,7 @@ fail:
+ 
+ static const struct xenbus_device_id netback_ids[] = {
+ 	{ "vif" },
++	{ "vwif" },
+ 	{ "" }
+ };
+ 
