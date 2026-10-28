@@ -1,0 +1,167 @@
+Upstream-Status: Pending
+
+Port oxtdrm to the Linux 6.18 DRM helpers. The framebuffer type
+comes from drm_framebuffer.h, dumb destroy and the driver date are
+gone, and platform remove returns void.
+
+diff --git a/oxtdrm_drv.c b/oxtdrm_drv.c
+index af542b07581b..f49e4ccac5bb 100644
+--- a/oxtdrm_drv.c
++++ b/oxtdrm_drv.c
+@@ -122,15 +122,6 @@ oxtdrm_load(struct drm_device *dev, unsigned long flags)
+         return -ENOMEM;
+     }
+ 
+-#if LINUX_VERSION_CODE < KERNEL_VERSION(4,8,0) || LINUX_VERSION_CODE >= KERNEL_VERSION(4,10,0)
+-    // Give the device a n unique name that it will be seen as by other drivers
+-    // If for some reason we are unable to set a name, error out
+-    rc = drm_dev_set_unique(oxtdrm_dev->dev, DRIVER_NAME);
+-    if (rc) {
+-        goto err;
+-    }
+-#endif
+-
+     // Initialize our mutex lock
+     mutex_init(&oxtdrm_dev->lock);
+ 
+@@ -342,7 +333,7 @@ oxtdrm_fops =
+     .open = drm_open,
+     .poll = drm_poll,
+     .read = drm_read,
+-    .llseek = no_llseek,
++    .llseek = noop_llseek,
+     .release = drm_release,
+     .unlocked_ioctl = oxtdrm_ioctl,
+     .mmap = oxtdrm_gem_mmap,
+@@ -363,10 +354,8 @@ static struct drm_driver oxtdrm = {
+     .minor = DRIVER_MINOR,
+     .name = DRIVER_NAME,
+     .desc = DRIVER_DESC,
+-    .date = DRIVER_DATE,
+     .fops = &oxtdrm_fops,
+     .dumb_create = oxtdrm_dumb_create,
+-    .dumb_destroy = oxtdrm_dumb_destroy,
+     .dumb_map_offset = oxtdrm_dumb_map_offset,
+ #if (RHEL_RELEASE_CODE != 0 && (RHEL_RELEASE_CODE == RHEL_RELEASE_VERSION(8,0)))
+     .gem_free_object = oxtdrm_gem_free_object,
+@@ -464,25 +453,13 @@ err_register_cleanup:
+     return ret;
+ }
+ 
+-static int
++static void
+ oxtdrm_platform_remove(struct platform_device *pdev)
+ {
+     __OXTDRM_TRACE__;
+ 
+     // Tear down the provider
+     oxtdrm_teardown_provider();
+-
+-    if(drm_dev) {
+-      // Unregister the device
+-      // drm_dev_unregister(drm_dev);
+-      //
+-      // // Free the drm_device structure
+-      // drm_dev_unref(drm_dev);
+-      //
+-      // drm_dev = NULL;
+-    }
+-
+-    return 0;
+ }
+ 
+ static struct platform_driver oxtdrm_platform_driver = {
+diff --git a/oxtdrm_drv.h b/oxtdrm_drv.h
+index 965f7a203cd0..0a46fe86e390 100644
+--- a/oxtdrm_drv.h
++++ b/oxtdrm_drv.h
+@@ -28,6 +28,11 @@
+     #include <drm/drm_sysfs.h>
+     #include <drm/drm_vblank.h>
+     #include <drm/drm_device.h>
++    #include <drm/drm_framebuffer.h>
++    #include <drm/drm_fourcc.h>
++    #include <drm/drm_probe_helper.h>
++    #include <drm/drm_edid.h>
++    #include <linux/vmalloc.h>
+     #include <linux/platform_device.h>
+     #include <linux/kernel.h>
+     #include <linux/mutex.h>
+diff --git a/oxtdrm_fb.c b/oxtdrm_fb.c
+index 339a7abf822f..dbae6dd44017 100644
+--- a/oxtdrm_fb.c
++++ b/oxtdrm_fb.c
+@@ -57,7 +57,7 @@ oxtdrm_fb_destroy(struct drm_framebuffer *fb)
+ #elif (RHEL_RELEASE_CODE != 0 && (RHEL_RELEASE_CODE >= RHEL_RELEASE_VERSION(8,4)))
+         drm_gem_object_put(oxtdrm_fb->obj);
+ #else
+-        drm_gem_object_put_unlocked(oxtdrm_fb->obj);
++        drm_gem_object_put(oxtdrm_fb->obj);
+ #endif
+         oxtdrm_fb->obj = NULL;
+         oxtdrm_debug("Unreferenced the gem object\n");
+@@ -401,7 +401,8 @@ __oxtdrm_init_drm_framebuffer(struct drm_device *device, struct drm_framebuffer
+     // Fill out the framebuffer metadata from the data passed from userspace.
+     #if (RHEL_RELEASE_CODE != 0 && RHEL_RELEASE_CODE >= RHEL_RELEASE_VERSION(7, 5)) || \
+         (RHEL_RELEASE_CODE == 0 && LINUX_VERSION_CODE >= KERNEL_VERSION(4, 11, 0))
+-        drm_helper_mode_fill_fb_struct(device, fb, mode);
++        drm_helper_mode_fill_fb_struct(device, fb,
++            drm_get_format_info(device, mode->pixel_format, 0), mode);
+     #else
+         drm_helper_mode_fill_fb_struct(fb, mode);
+     #endif
+@@ -533,7 +534,7 @@ err:
+ #elif (RHEL_RELEASE_CODE != 0 && (RHEL_RELEASE_CODE >= RHEL_RELEASE_VERSION(8,4)))
+     if (gem) drm_gem_object_put(gem);
+ #else
+-    if (gem) drm_gem_object_put_unlocked(gem);
++    if (gem) drm_gem_object_put(gem);
+ #endif
+     return ERR_PTR(-EINVAL);
+ }
+@@ -542,8 +543,10 @@ err:
+     (RHEL_RELEASE_CODE == 0 && LINUX_VERSION_CODE >= KERNEL_VERSION(4, 7, 0))
+ struct drm_framebuffer*
+ __oxtdrm_fb_create(struct drm_device *dev, struct drm_file *file_priv,
++                  const struct drm_format_info *info,
+                   const struct drm_mode_fb_cmd2 *mode_cmd)
+ {
++    (void)info;
+     return oxtdrm_fb_create(dev, file_priv, mode_cmd);
+ }
+ #else
+diff --git a/oxtdrm_gem.c b/oxtdrm_gem.c
+index 4ee4d70bee20..a05f74ea8d58 100644
+--- a/oxtdrm_gem.c
++++ b/oxtdrm_gem.c
+@@ -362,7 +362,7 @@ oxtdrm_dumb_create(struct drm_file *file, struct drm_device *dev,
+ #elif (RHEL_RELEASE_CODE != 0 && (RHEL_RELEASE_CODE >= RHEL_RELEASE_VERSION(8,4)))
+     drm_gem_object_put(gem);
+ #else
+-    drm_gem_object_put_unlocked(gem);
++    drm_gem_object_put(gem);
+ #endif
+     return rc;
+ }
+@@ -446,7 +446,7 @@ oxtdrm_gem_free_object(struct drm_gem_object *object)
+ #elif (RHEL_RELEASE_CODE != 0 && (RHEL_RELEASE_CODE >= RHEL_RELEASE_VERSION(8,4)))
+         drm_gem_object_put(object);
+ #else
+-        drm_gem_object_put_unlocked(object);
++        drm_gem_object_put(object);
+ #endif
+ 
+     // Free the custom GEM object, which had the drm_gem object embedded inside.
+diff --git a/oxtdrm_kms.c b/oxtdrm_kms.c
+index 59fb5772a7ca..0dbe5166f7e3 100644
+--- a/oxtdrm_kms.c
++++ b/oxtdrm_kms.c
+@@ -507,7 +507,7 @@ oxtdrm_connector_get_modes(struct drm_connector *connector)
+ // Validates a mode for a connector
+ static enum drm_mode_status
+ oxtdrm_connector_mode_valid(struct drm_connector *connector,
+-                           struct drm_display_mode *mode)
++                           const struct drm_display_mode *mode)
+ {
+     struct oxtdrm_kms_connector_group *connector_group = NULL;
+     struct oxtdrm_kms_mapping *mapping = NULL;
