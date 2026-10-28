@@ -1,0 +1,48 @@
+Upstream-Status: Pending
+
+Build openxtfb on Linux 6.18. FBINFO_DEFAULT is gone and was zero.
+platform_driver remove returns void, so a failed display cleanup is
+logged and cannot block the unload.
+
+--- a/openxtfb.c
++++ b/openxtfb.c
+@@ -1255,7 +1255,7 @@ static struct fb_info *  __create_openxtfb_info(struct pv_display * display, st
+ 
+     //Set the flags for the framebuffer, which will determine how the
+     //framebuffer is handled by the system.
+-    info->flags = FBINFO_DEFAULT |              //Use the framebuffer defaults, but:
++    info->flags = 0 |                           //FBINFO_DEFAULT was 0.
+                   FBINFO_VIRTFB |               // -Optimize for a framebuffer in system RAM.
+                   FBINFO_HWACCEL_COPYAREA |     // -Note that we provide the (required) copyarea function...
+                   FBINFO_HWACCEL_FILLRECT |     // -... the required fillrect function...
+@@ -1674,14 +1674,14 @@ static int openxtfb_clean_up_display(struct pv_display * display)
+  *    from unloading, preventing resources from being leaked.
+  */
+-static int openxtfb_remove(struct platform_device * platform_device)
++static void openxtfb_remove(struct platform_device * platform_device)
+ {
+     struct openxtfb_instance *instance;
+     struct display_list_element *element, *temp;
+     int rc = 0;
+ 
+     __PV_HELPER_TRACE__;
+-    openxtfb_checkp(platform_device, -EINVAL);
++    openxtfb_checkp(platform_device);
+ 
+     //Get the PV display provider associated with the given device.
+     instance = platform_get_drvdata(platform_device);
+ 
+     //Clean up each of the displays (framebuffers) associated with the platform device.
+@@ -1706,11 +1706,9 @@ static int openxtfb_remove(struct platform_device * platform_device)
+     if(rc) {
+         openxtfb_error("Failed to clean up a display--"
+             " not removing the OpenXT Framebuffer module.\n");
+-        return rc;
++        return;
+     }
+-
+-    //Indicate success.
+-    return 0;
+ }
+ 
+ 
