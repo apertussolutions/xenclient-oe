@@ -26,6 +26,7 @@ SRC_URI += " \
     file://xenmgr_dbus.conf \
     file://xenstore-init-extra \
     file://xenmgr.initscript \
+    file://0001-ndvm-stubdom-unrestricted.patch;patchdir=.. \
 "
 
 S = "${UNPACKDIR}/${BP}/xenmgr"

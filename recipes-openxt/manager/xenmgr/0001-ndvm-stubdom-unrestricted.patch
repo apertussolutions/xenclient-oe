@@ -1,0 +1,16 @@
+The 6.18 privcmd driver restricts hypercalls in every stubdom. The
+Network VM device model needs the unrestricted parameter on its kernel
+command line so QEMU can create the ioreq server.
+
+Upstream-Status: Inappropriate [OpenXT]
+
+--- a/templates/default/service-ndvm-hvm
++++ b/templates/default/service-ndvm-hvm
+@@ -52,6 +52,7 @@
+     "kernel": "\/usr\/lib\/xen\/boot\/grub-xen-pv64",
+     "flask-label": "system_u:system_r:ndvm_t",
+     "stubdom-flask-label": "system_u:system_r:dm_ndvm_t",
++    "stubdom-cmdline": "xen_privcmd.unrestricted=1",
+     "pci": {
+       "0": {
+         "class": "0x0200",
