@@ -1,0 +1,42 @@
+Upstream-Status: Inappropriate [OpenXT]
+
+Copy release files in-process. Rhino process.exec of cp fails
+under the host JRE.
+
+--- a/dojo-release-1.7.12-src/util/build/transforms/copy.js
++++ b/dojo-release-1.7.12-src/util/build/transforms/copy.js
+@@ -1,15 +1,24 @@
+ define(["../buildControl", "../process", "../fileUtils", "dojo/has"], function(bc, process, fileUtils, has) {
+ 	return function(resource, callback) {
+ 		fileUtils.ensureDirectoryByFilename(resource.dest);
+-		var
+-			cb= function(code, text){
+-				callback(resource, code);
+-			},
+-			errorMessage= "failed to copy file from \"" + resource.src + "\" to \"" + resource.dest + "\"",
+-			args= has("is-windows") ?
+-				["cmd", "/c", "copy", fileUtils.normalize(resource.src), fileUtils.normalize(resource.dest), errorMessage, bc, cb] :
+-				["cp", resource.src, resource.dest, errorMessage, bc, cb];
+-		process.exec.apply(process, args);
+-		return callback;
++		if (0) {
++			var
++				cb= function(code, text){
++					callback(resource, code);
++				},
++				errorMessage= "failed to copy file from \"" + resource.src + "\" to \"" + resource.dest + "\"",
++				args= has("is-windows") ?
++					["cmd", "/c", "copy", fileUtils.normalize(resource.src), fileUtils.normalize(resource.dest), errorMessage, bc, cb] :
++					["cp", resource.src, resource.dest, errorMessage, bc, cb];
++			process.exec.apply(process, args);
++			return callback;
++		} else {
++			var srcChannel = new java.io.FileInputStream(resource.src).getChannel();
++			var destChannel = new java.io.FileOutputStream(resource.dest).getChannel();
++			destChannel.transferFrom(srcChannel, 0, srcChannel.size());
++			srcChannel.close();
++			destChannel.close();
++			return;
++		}
+ 	};
+ });
