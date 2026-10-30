@@ -17,6 +17,16 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 #
 
+# The measured-unlock log lines call this. It prints to the Xen console
+# and ignores a missing console so unlock still runs.
+oxt_serial() {
+    local msg="OXT init: $*"
+    if [ -c /dev/hvc0 ]; then
+        printf '%s\n' "$msg" > /dev/hvc0
+    fi
+    printf '%s\n' "$msg" > /dev/console 2>/dev/null || true
+}
+
 # attempt to start tcsd if it's not already running
 # return 0 if tcsd is running or successfully started
 #        1 otherwise
