@@ -24,6 +24,7 @@ SRC_URI += "${KERNELORG_MIRROR}/linux/kernel/v${PV_MAJOR}.x/linux-${PV}.tar.xz;n
     file://xenpv-no-tty0-as-default-console.patch \
     file://tpm_tis-work-around-status-register-bug-in-STMicroelectronics-TPM.patch \
     file://drm-openxt-kms-helper.patch \
+    file://fscache-select-netfs.patch \
     file://defconfig \
     "
 
