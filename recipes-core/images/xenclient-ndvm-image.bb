@@ -78,5 +78,11 @@ post_rootfs_shell_commands() {
 
     # NDVM doesn't have a /dev/tty1, disable the login shell on it
     sed -i 's/[^#].*getty.*tty1$/#&/' ${IMAGE_ROOTFS}/etc/inittab ;
+
+    # mountall (S35) runs before populate-volatile (S37). These fstab
+    # tmpfs targets must already exist. iproute2 6.19 no longer ships
+    # /etc/iproute2, and nothing ships /var/lib/dhcp.
+    install -d ${IMAGE_ROOTFS}/etc/iproute2
+    install -d ${IMAGE_ROOTFS}/var/lib/dhcp
 }
 ROOTFS_POSTPROCESS_COMMAND += "post_rootfs_shell_commands; "
