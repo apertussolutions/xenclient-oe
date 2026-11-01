@@ -147,7 +147,7 @@ networkmanager_read_etc_rw(network_slave_t)
 allow network_slave_t self:capability net_admin;
 allow network_slave_t self:dgram_socket_class_set create_socket_perms;
 allow network_slave_t self:fifo_file rw_fifo_file_perms;
-allow network_slave_t self:netlink_route_socket rw_netlink_socket_perms;
+allow network_slave_t self:netlink_route_socket create_netlink_socket_perms;
 allow network_slave_t self:process signal;
 allow network_slave_t network_slave_exec_t:file execute_no_trans;
 

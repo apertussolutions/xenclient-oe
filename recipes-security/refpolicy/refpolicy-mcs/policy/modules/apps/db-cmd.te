@@ -56,7 +56,7 @@ kernel_write_xen_state(db_cmd_t)
 dbus_system_bus_client(db_cmd_t)
 dbd_dbus_chat(db_cmd_t)
 
-allow db_cmd_t self:netlink_route_socket rw_netlink_socket_perms;
+allow db_cmd_t self:netlink_route_socket create_netlink_socket_perms;
 allow db_cmd_t self:unix_stream_socket { create_stream_socket_perms };
 
 optional_policy(`
