@@ -29,7 +29,7 @@ create_file() {
 	EXEC="
 	touch \"$1\";
 	[ -x ${RESTORECON} ] && ${RESTORECON} \"$1\" >/dev/console 2>&1;
-	chown ${TUSER}.${TGROUP} $1 || echo \"Failed to set owner -${TUSER}- for -$1-.\" >/dev/console 2>&1;
+	chown ${TUSER}:${TGROUP} $1 || echo \"Failed to set owner -${TUSER}- for -$1-.\" >/dev/console 2>&1;
 	chmod ${TMODE} $1 || echo \"Failed to set mode -${TMODE}- for -$1-.\" >/dev/console 2>&1 "
 
 	test "$VOLATILE_ENABLE_CACHE" = yes && echo "$EXEC" >> /etc/volatile.cache.build
@@ -53,7 +53,7 @@ mk_dir() {
 	EXEC="
 	mkdir -p \"$1\";
 	[ -x ${RESTORECON} ] && ${RESTORECON} \"$1\" >/dev/console 2>&1;
-	chown ${TUSER}.${TGROUP} $1 || echo \"Failed to set owner -${TUSER}- for -$1-.\" >/dev/console 2>&1;
+	chown ${TUSER}:${TGROUP} $1 || echo \"Failed to set owner -${TUSER}- for -$1-.\" >/dev/console 2>&1;
 	chmod ${TMODE} $1 || echo \"Failed to set mode -${TMODE}- for -$1-.\" >/dev/console 2>&1 "
 
 	test "$VOLATILE_ENABLE_CACHE" = yes && echo "$EXEC" >> /etc/volatile.cache.build
