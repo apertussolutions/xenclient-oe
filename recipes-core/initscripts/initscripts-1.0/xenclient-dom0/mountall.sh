@@ -36,7 +36,11 @@ restore /dev/shm /dev/pts
 # about this. So we mount "proc" filesystems without -v.
 #
 test "$VERBOSE" != no && echo "Mounting local filesystems..."
-mount -a $MOUNTALL 2>&1 | logger -s -p user.err
+if [ -S /dev/log ]; then
+    mount -a $MOUNTALL 2>&1 | logger -s -p user.err
+else
+    mount -a $MOUNTALL
+fi
 
 #
 # We might have mounted something over /dev, see if /dev/initctl is there.
