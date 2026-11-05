@@ -1,0 +1,50 @@
+e1000e: fix link fluctuations problem
+
+As described in https://bugzilla.kernel.org/show_bug.cgi?id=218642,
+Intel I219-LM reports link up -> link down -> link up after hot-plugging
+the Ethernet cable.
+
+The problem is because the unstable behavior of Link Status bit in
+PHY Status Register of some e1000e NIC.
+When we re-plug the cable,
+the e1000e_phy_has_link_generic() (called after the Link-Status-Changed
+interrupt) has read this bit with 1->0->1 (1=link up, 0=link down)
+and e1000e reports it to net device layer respectively.
+
+This patch solves the problem by passing polling delays on
+e1000e_phy_has_link_generic() so that it will not get the unstable
+states of Link Status bit.
+
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=218642
+Link: https://patchwork.ozlabs.org/project/intel-wired-lan/patch/20240503101836.32755-1-en-wei.wu@canonical.com/
+Fixes: 7d3cabbcc86 ("e1000e: disable K1 at 1000Mbps for 82577/82578")
+Upstream-Status: Submitted
+Signed-off-by: Ricky Wu <en-wei.wu@canonical.com>
+
+---
+ drivers/net/ethernet/intel/e1000e/ich8lan.c | 12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/net/ethernet/intel/e1000e/ich8lan.c b/drivers/net/ethernet/intel/e1000e/ich8lan.c
+index f9e94be36e97..68f5698a22b0 100644
+--- a/drivers/net/ethernet/intel/e1000e/ich8lan.c
++++ b/drivers/net/ethernet/intel/e1000e/ich8lan.c
+@@ -1428,7 +1428,17 @@ static s32 e1000_check_for_copper_link_ich8lan(struct e1000_hw *hw)
+ 	 * link.  If so, then we want to get the current speed/duplex
+ 	 * of the PHY.
+ 	 */
+-	ret_val = e1000e_phy_has_link_generic(hw, 1, 0, &link);
++	/* We've seen that I219-LM sometimes has link fluctuations
++	 * (link up -> link down -> link up) after hot-plugging the cable.
++	 * The problem is caused by the instability of the Link Status bit
++	 * (BMSR_LSTATUS) in MII Status Register. The average time between
++	 * the first link up and link down is between 3~4 ms.
++	 * Increasing the iteration times and setting up the delay to
++	 * 100ms (which is safe) solves the problem.
++	 * This behavior hasn't been seen on other NICs and also not being
++	 * documented in datasheet/errata.
++	 */
++	ret_val = e1000e_phy_has_link_generic(hw, COPPER_LINK_UP_LIMIT, 100000, &link);
+ 	if (ret_val)
+ 		goto out;
+ 

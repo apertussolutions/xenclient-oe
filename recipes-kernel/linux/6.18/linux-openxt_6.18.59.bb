@@ -28,6 +28,9 @@ SRC_URI += "${KERNELORG_MIRROR}/linux/kernel/v${PV_MAJOR}.x/linux-${PV}.tar.xz;n
     file://defconfig \
     "
 
+# I219-LM link flap is only exercised by the NDVM, which owns the e1000e device.
+SRC_URI:append:xenclient-ndvm = " file://e1000e-fix-link-fluctuations.patch"
+
 LIC_FILES_CHKSUM = "file://COPYING;md5=6bc538ed5bd9a7fc9398086aedcd7e46"
 SRC_URI[kernel.md5sum] = "a29abc51cfc5870eff1465291c5fa017"
 SRC_URI[kernel.sha256sum] = "53a55ac9863a5547e292b8e381d4e4c2240dd1127d5428a7c44dbc550be23963"
