@@ -1,0 +1,19 @@
+uivm: allow a domain to set its own memory map
+
+GRUB in a PVH guest calls XENMEM_set_memory_map on itself before
+printing its welcome line. The self mmu allow does not include
+memorymap, so Flask denies uivm_t.
+
+Upstream-Status: Inappropriate [OpenXT]
+
+--- a/policy/modules/xen/xen.if
++++ b/policy/modules/xen/xen.if
+@@ -66,7 +66,7 @@
+ 	allow dom0_type $1:mmu {map_read map_write memorymap adjust pinpage physmap mmuext_op stat };
+ 	allow dom0_type $1:resource { add remove };
+ 	allow dom0_type $1:domain { getvcpucontext };
+-	allow $1 $1:mmu {map_read map_write adjust pinpage};
++	allow $1 $1:mmu {map_read map_write memorymap adjust pinpage};
+ 	allow $1 domio_t:mmu {map_read};
+ 	allow $1 $1:grant {query setup};
+ 	allow dom0_type $1:grant { copy map_read unmap query setup };
