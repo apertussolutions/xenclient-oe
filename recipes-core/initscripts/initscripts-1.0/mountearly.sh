@@ -19,6 +19,11 @@ if [ ! -e "${EARLY_FSTAB}" ]; then
     exit 0
 fi
 
+# The kernel mounts devtmpfs on /dev before init, which hides any
+# /dev/pts directory shipped in the rootfs. bootlogd starts before
+# mountall.sh, so create the mount point here.
+mkdir -p /dev/pts
+
 # With busybox, requires: CONFIG_FEATURE_MOUNT_OTHERTAB
 if ! mount -a -T "${EARLY_FSTAB}" ; then
     failure "Failed to mount early filesystems."
