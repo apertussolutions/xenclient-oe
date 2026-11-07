@@ -45,6 +45,9 @@ sysnet_domtrans_dhcpc(network_daemon_t)
 sysnet_domtrans_ifconfig(network_daemon_t)
 sysnet_read_dhcpc_runtime_files(network_daemon_t)
 sysnet_signal_dhcpc(network_daemon_t)
+# udhcpc inherits the daemon's stream socket and /dev/argo_stream.
+allow dhcpc_t network_daemon_t:unix_stream_socket { read write };
+xc_files_rw_argo_chr(dhcpc_t)
 dbus_connect_system_bus(network_daemon_t)
 dbus_system_bus_client(network_daemon_t)
 rpcproxy_dbus_chat(network_daemon_t)
